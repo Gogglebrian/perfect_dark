@@ -465,7 +465,7 @@ s32 bgunGetUnequippedReloadIndex(s32 weaponnum)
 	}
 
 	if (weaponnum == WEAPON_SHOTGUN) {
-		return 1;
+		return -1;// 1; removed passive reload for shotgun - Gogglebrian
 	}
 
 	if (weaponnum == WEAPON_DY357MAGNUM) {
@@ -1043,9 +1043,11 @@ s32 bgun0f098ca0(s32 funcnum, struct handweaponinfo *info, struct hand *hand)
 				&& hand->loadedammo[ammoindex] < hand->clipsizes[ammoindex]) {
 			s32 minqty = 1;
 
+			/* removed this 'cause we replaced Shotgun's secondary with conventional automatic/burst fire - Gogglebrian
 			if (info->weaponnum == WEAPON_SHOTGUN && funcnum == FUNC_SECONDARY) {
 				minqty = 2;
 			}
+			*/
 
 			if (info->weaponnum == WEAPON_TRANQUILIZER && funcnum == FUNC_SECONDARY) {
 				minqty = bgunGetMinClipQty(WEAPON_TRANQUILIZER, FUNC_SECONDARY);
@@ -1822,10 +1824,12 @@ s32 bgun0f09a3f8(struct hand *hand, struct weaponfunc *func)
 		if (smallburst) {
 			if (hand->burstbullets > 0) {
 				s32 delay = 3;
-
+				
+				/* removed this 'cause we replaced Shotgun's secondary with conventional automatic/burst fire - Gogglebrian
 				if (hand->gset.weaponnum == WEAPON_SHOTGUN) {
 					delay = TICKS(13);
-				}
+				}*/
+				
 
 				if (hand->stateframes < delay) {
 					return 0;
@@ -7118,7 +7122,7 @@ void bgunUpdateShotgun(struct hand *hand, u8 *allocation, bool *arg2, struct mod
 	}
 
 	if (hand->matmot1 > 0.0f) {
-		hand->matmot1 -= LVUPDATE60FREAL() / 6.0f;
+		hand->matmot1 -= LVUPDATE60FREAL() / 3.0f; // originally 6.0f. Made the starburst play a little snappier, looks better for automatic/burst fire - Gogglebrian
 
 		if (hand->matmot1 < 0.01f) {
 			hand->matmot1 = 0.0f;
@@ -7138,6 +7142,7 @@ void bgunUpdateShotgun(struct hand *hand, u8 *allocation, bool *arg2, struct mod
 			mtx00015ea8((1.0f - hand->matmot1) * 8.0f + 0.5f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
 			mtx00015df0((1.0f - hand->matmot1) * 3.0f + 1.0f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
 			mtx00015e4c((1.0f - hand->matmot1) * 3.0f + 1.0f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
+	
 		}
 	}
 }
@@ -11736,6 +11741,7 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 	bool docontinue;
 #endif
 	switch (bgunGetWeaponNum(HAND_RIGHT)) {
+	/* Removed Sniperrifle's original unique secondary switch style - Gogglebrian
 	case WEAPON_SNIPERRIFLE:
 		if (extcontrols && usedowntime < 0) {
 			return USETIMER_CONTINUE;
@@ -11778,6 +11784,7 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 		// Do crouch or stand
 		g_Vars.currentplayer->hands[HAND_RIGHT].activatesecondary = true;
 		return (extcontrols ? USETIMER_STOP : USETIMER_REPEAT);
+	*/
 	case WEAPON_RCP120:
 #ifndef PLATFORM_N64
 		// very special alt-button handling for RCP-120's cloaking
@@ -11808,6 +11815,7 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 		return USETIMER_STOP;
 	case WEAPON_MAULER:
 	case WEAPON_CMP150:
+	case WEAPON_SNIPERRIFLE: // sniper secondary switch style to generic toggle - Gogglebrian
 	case WEAPON_K7AVENGER:
 	case WEAPON_AR34:
 	case WEAPON_FARSIGHT:
@@ -12142,7 +12150,7 @@ struct ammotype g_AmmoTypes[] = {
 	{ 800,          0, 0  }, // AMMOTYPE_SMG
 	{ 69,           0, 0  }, // AMMOTYPE_CROSSBOW
 	{ 400,          0, -2 }, // AMMOTYPE_RIFLE
-	{ 100,          0, 0  }, // AMMOTYPE_SHOTGUN
+	{ 200,          0, 0  }, // AMMOTYPE_SHOTGUN, max up from 100 - Gogglebrian
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE
 	{ 3,            0, -2 }, // AMMOTYPE_ROCKET

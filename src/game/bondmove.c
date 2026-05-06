@@ -2178,11 +2178,12 @@ void bmoveProcessInput(bool allowc1x, bool allowc1y, bool allowc1buttons, bool i
 				 && g_Vars.currentplayer->autoyaimprop
 				 && weaponHasAimFlag(weaponnum, INVAIMFLAG_AUTOAIM)
 				)
-				|| (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150 && g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY)) {
+				|| ((bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150 || bgunGetWeaponNum(HAND_RIGHT) == WEAPON_SNIPERRIFLE) // added sniper rifle as option for follow-lock-on - Gogglebrian
+				    && g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY)) {
 			// Auto aim - move crosshair towards target
 			s32 followlockon = false;
 
-			if (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150
+			if ((bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150 || bgunGetWeaponNum(HAND_RIGHT) == WEAPON_SNIPERRIFLE) // added sniper rifle as option for follow-lock-on - Gogglebrian
 					&& g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY) {
 				followlockon = true;
 			}

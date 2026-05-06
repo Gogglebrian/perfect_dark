@@ -2713,7 +2713,7 @@ void autoaimTick(void)
 		farsightChooseTarget();
 	}
 
-	if (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150
+	if ((bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150 || bgunGetWeaponNum(HAND_RIGHT) == WEAPON_SNIPERRIFLE) // added sniper rifle as option for follow-lock-on - Gogglebrian
 			&& g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY) {
 		iscmpsec = true;
 	}
