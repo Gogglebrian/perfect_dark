@@ -2513,17 +2513,17 @@ struct weaponfunc_shootsingle invfunc_shotgun_single = {
 	NULL, //invanim_shotgun_singleshot, // fire animation  (disabled)
 	0, // flags
 	&invrecoilsettings_default,
-	0, // recoverytime60
-	1.8, // damage, originally 0.6
-	30, // spread
-	9, 14, 0, 0, // originally 20, 28, 0, 0, 
-	11, // recoildist, originally 0
+	16, // recoverytime60, originally 0
+	1.2, // damage, originally 0.6
+	25, // spread
+	4, 20, 0, 0, // originally 20, 28, 0, 0,
+	6, // recoildist, originally 0
 	0, // recoilangle
 	0, // slidemax
 	4, // impactforce
 	0, // duration60
 	SFX_FIRE_SHOTGUN, // shootsound
-	3, // penetration, originally 1
+	2, // penetration, originally 1
 };
 
 //Shotgun Secondary, New: Automatic, 3-shot burst fire with higher fire rate at the cost of higher spread. - Gogglebrian
@@ -2532,21 +2532,21 @@ struct weaponfunc_shootauto invfunc_shotgun_automatic = {
 	L_GUN_087, // name
 	0, // unused
 	0, // ammoindex
-	&invnoisesettings_default,
+	&invnoisesettings_loudest,
 	NULL, // fire animation
 	FUNCFLAG_BURST3,
 	&invrecoilsettings_default,
 	0, // recoverytime60
-	1.8, // damage
-	45, // spread
+	1.2, // damage
+	35, // spread
 	6, 18, 2, 8,
-	11, // recoildist
+	6, // recoildist
 	0, // recoilangle
 	0, // slidemax
 	4, // impactforce
-	5, // duration60
+	0, // duration60
 	SFX_FIRE_SHOTGUN, // shootsound
-	3, // penetration
+	2, // penetration, originally 1
 	450, // initialrpm
 	450, // maxrpm
 	NULL, // vibrationstart
@@ -4067,14 +4067,14 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	16, // recoverytime60
 	4.8, // damage, originally 1.2
 	0, // spread
-	9, 14, 0, 0, // originally 6, 10, 0, 0
+	6, 18, 0, 0, // originally 6, 10, 0, 0
 	8, // recoildist
 	0, // recoilangle
 	0, // slidemax
 	4, // impactforce, originally 0
 	4, // duration60
 	SFX_8066, // shootsound, originally SFX_8058
-	5, // penetration, originally 1
+	3, // penetration, originally 1
 };
 
 //Sniperrifle Secondary, New: follow lock on (same as CMP150) (stats equivalent to primary) - Gogglebrian
@@ -4092,14 +4092,14 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_followlockon = {
 	16, // recoverytime60
 	4.8, // damage, originally 1.2
 	0, // spread
-	9, 14, 0, 0, // originally 6, 10, 0, 0
+	6, 18, 0, 0, // originally 6, 10, 0, 0
 	8, // recoildist
 	0, // recoilangle
 	0, // slidemax
 	4, // impactforce, originally 0
 	4, // duration60
 	SFX_8066, // shootsound, originally SFX_8058
-	5, // penetration, originally 1
+	3, // penetration, originally 1
 };
 
 //Sniperrifle Secondary, Original: Crouch - removed and unused - Gogglebrian
