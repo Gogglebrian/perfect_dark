@@ -293,6 +293,7 @@ bool botactIsWeaponThrowable(s32 weaponnum, bool is_secondary)
 	case WEAPON_COMBATKNIFE:
 		return is_secondary;
 	case WEAPON_GRENADE:
+	case WEAPON_IMPACTGRENADE:
 	case WEAPON_NBOMB:
 	case WEAPON_TIMEDMINE:
 	case WEAPON_PROXIMITYMINE:
@@ -309,6 +310,7 @@ u32 botactGetProjectileThrowInterval(u32 weapon)
 	case WEAPON_COMBATKNIFE:
 		return TICKS(120);
 	case WEAPON_GRENADE:
+	case WEAPON_IMPACTGRENADE:
 	case WEAPON_NBOMB:
 		return TICKS(90);
 	case WEAPON_CROSSBOW:
@@ -327,6 +329,7 @@ s32 botactGetWeaponByAmmoType(s32 ammotype)
 	switch (ammotype) {
 	case AMMOTYPE_NBOMB:       return WEAPON_NBOMB;
 	case AMMOTYPE_GRENADE:     return WEAPON_GRENADE;
+	case AMMOTYPE_IMPACTGRENADE: return WEAPON_IMPACTGRENADE;
 	case AMMOTYPE_KNIFE:       return WEAPON_COMBATKNIFE;
 	case AMMOTYPE_REMOTE_MINE: return WEAPON_REMOTEMINE;
 	case AMMOTYPE_PROXY_MINE:  return WEAPON_PROXIMITYMINE;
@@ -357,7 +360,7 @@ void botactThrow(struct chrdata *chr)
 		sp56.x = target->pos.x;
 		sp56.z = target->pos.z;
 
-		if (chr->aibot->weaponnum == WEAPON_GRENADE || chr->aibot->weaponnum == WEAPON_NBOMB) {
+		if (chr->aibot->weaponnum == WEAPON_GRENADE || chr->aibot->weaponnum == WEAPON_IMPACTGRENADE || chr->aibot->weaponnum == WEAPON_NBOMB) {
 			sp56.y = target->chr->manground;
 		} else {
 			sp56.y = target->pos.y;

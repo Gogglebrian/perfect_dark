@@ -2421,16 +2421,36 @@
     },
     {
         "id": "L_GUN_242",
-        "en": null,
-        "gb": null,
-        "jp": null,
-        "it": null,
-        "fr": null,
-        "de": null,
-        "es": null
+        "en": "F-Bomb\n",
+        "gb": "F-Bomb\n",
+        "jp": "F-Bomb\n",
+        "it": "F-Bomb\n",
+        "fr": "F-Bomb\n",
+        "de": "F-Bomb\n",
+        "es": "F-Bomb\n"
+    },
+	{
+        "id": "L_GUN_243",
+        "en": "A simple yet effective grenade that explodes on impact.\n",
+        "gb": "A simple yet effective grenade that explodes on impact.\n",
+        "jp": "A simple yet effective grenade that explodes on impact.\n",
+        "it": "A simple yet effective grenade that explodes on impact.\n",
+        "fr": "A simple yet effective grenade that explodes on impact.\n",
+        "de": "A simple yet effective grenade that explodes on impact.\n",
+        "es": "A simple yet effective grenade that explodes on impact.\n"
     },
     {
-        "id": "L_GUN_243",
+        "id": "L_GUN_244",
+        "en": "Wall Bounce\n",
+        "gb": "Wall Bounce\n",
+        "jp": "Wall Bounce\n",
+        "it": "Wall Bounce\n",
+        "fr": "Wall Bounce\n",
+        "de": "Wall Bounce\n",
+        "es": "Wall Bounce\n"
+    },
+    {
+        "id": "L_GUN_245",
         "en": null,
         "gb": null,
         "jp": null,

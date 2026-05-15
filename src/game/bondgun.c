@@ -1574,7 +1574,7 @@ s32 bgunTickIncReload(struct handweaponinfo *info, s32 handnum, struct hand *han
 						hand->incrementalreloading = true;
 					}
 
-					if (info->weaponnum == WEAPON_GRENADE || info->weaponnum == WEAPON_NBOMB) {
+					if (info->weaponnum == WEAPON_GRENADE || info->weaponnum == WEAPON_IMPACTGRENADE || info->weaponnum == WEAPON_NBOMB) {
 						hand->ejectstate = EJECTSTATE_INACTIVE;
 					}
 				} else {
@@ -1671,6 +1671,7 @@ s32 bgunTickIncReload(struct handweaponinfo *info, s32 handnum, struct hand *han
 				case WEAPON_COMBATKNIFE:
 				case WEAPON_LASER:
 				case WEAPON_GRENADE:
+				case WEAPON_IMPACTGRENADE:
 				case WEAPON_TIMEDMINE:
 				case WEAPON_PROXIMITYMINE:
 				case WEAPON_REMOTEMINE:
@@ -2672,6 +2673,7 @@ s32 bgunTickIncAttackEmpty(struct handweaponinfo *info, s32 handnum, struct hand
 		case WEAPON_UNARMED:
 		case WEAPON_COMBATKNIFE:
 		case WEAPON_GRENADE:
+		case WEAPON_IMPACTGRENADE:
 		case WEAPON_NBOMB:
 		case WEAPON_TIMEDMINE:
 		case WEAPON_PROXIMITYMINE:
@@ -3118,6 +3120,7 @@ s32 bgunTickIncChangeGun(struct handweaponinfo *info, s32 handnum, struct hand *
 				case WEAPON_LAPTOPGUN:
 				case WEAPON_CROSSBOW:
 				case WEAPON_GRENADE:
+				case WEAPON_IMPACTGRENADE:
 				case WEAPON_NBOMB:
 				case WEAPON_COMBATBOOST:
 				case WEAPON_CLOAKINGDEVICE:
@@ -4434,7 +4437,7 @@ struct defaultobj *bgunCreateThrownProjectile2(struct chrdata *chr, struct gset 
 				weaponobj->timer240 = TICKS(weaponobj->timer240 * 4);
 			}
 
-			if (weaponobj->weaponnum == WEAPON_GRENADE || weaponobj->weaponnum == WEAPON_NBOMB) {
+			if (weaponobj->weaponnum == WEAPON_GRENADE || weaponobj->weaponnum == WEAPON_IMPACTGRENADE || weaponobj->weaponnum == WEAPON_NBOMB) {
 				propSetDangerous(weaponobj->base.prop);
 			}
 
@@ -4616,7 +4619,7 @@ void bgunCreateThrownProjectile(s32 handnum, struct gset *gset)
 		velocity.y = gundir.y * 16.666666f;
 		velocity.z = gundir.z * 16.666666f;
 
-		if (gset->weaponnum == WEAPON_GRENADE || gset->weaponnum == WEAPON_NBOMB) {
+		if (gset->weaponnum == WEAPON_GRENADE || gset->weaponnum == WEAPON_IMPACTGRENADE || gset->weaponnum == WEAPON_NBOMB) {
 			velocity.y += 1.6666666f;
 		} else {
 			velocity.y += 5.0f;
@@ -5822,6 +5825,7 @@ u8 g_AutoSwitchWeaponsPrimary[] = {
 	WEAPON_ROCKETLAUNCHER,
 	WEAPON_SLAYER,
 	WEAPON_GRENADE,
+	WEAPON_IMPACTGRENADE,
 	WEAPON_NBOMB,
 	WEAPON_PROXIMITYMINE,
 	WEAPON_TIMEDMINE,
@@ -6353,7 +6357,7 @@ void bgunDisarm(struct prop *attackerprop)
 
 		// Grenade and nbomb: if pin is pulled, throw it?
 		// Or drop it at player's feet with the pin pulled maybe...
-		if (weaponnum == WEAPON_GRENADE || weaponnum == WEAPON_NBOMB) {
+		if (weaponnum == WEAPON_GRENADE || weaponnum == WEAPON_IMPACTGRENADE || weaponnum == WEAPON_NBOMB) {
 			for (i = 0; i < 2; i++) {
 				struct weaponfunc *func = gsetGetWeaponFunction(&player->hands[i].gset);
 
@@ -7784,6 +7788,7 @@ void bgun0f0a5550(s32 handnum)
 		if (hand->unk0cc8_04 > 0) {
 			switch (weaponnum) {
 			case WEAPON_GRENADE:
+			case WEAPON_IMPACTGRENADE:
 			case WEAPON_NBOMB:
 				hand->ejectstate = EJECTSTATE_INIT;
 				hand->ejecttype = EJECTTYPE_GRENADEPIN;
@@ -7845,6 +7850,7 @@ void bgun0f0a5550(s32 handnum)
 				}
 				// fall through
 			case WEAPON_GRENADE:
+			case WEAPON_IMPACTGRENADE:
 			case WEAPON_NBOMB:
 			case WEAPON_TIMEDMINE:
 			case WEAPON_PROXIMITYMINE:
@@ -8032,6 +8038,7 @@ void bgun0f0a5550(s32 handnum)
 					bgun0f0a4e44(hand, weapondef, modeldef, funcdef, sp1e0, mtxallocation, weaponnum, sp1e4, sp6c, &sp234, &sp1f4);
 				}
 			} else if (weaponnum == WEAPON_GRENADE
+					|| weaponnum == WEAPON_IMPACTGRENADE
 					|| weaponnum == WEAPON_TIMEDMINE
 					|| weaponnum == WEAPON_REMOTEMINE
 					|| weaponnum == WEAPON_PROXIMITYMINE
@@ -11931,6 +11938,7 @@ void bgunTickGameplay(bool triggeron)
 		switch (weaponnum) {
 		case WEAPON_COMBATKNIFE:
 		case WEAPON_GRENADE:
+		case WEAPON_IMPACTGRENADE:
 		case WEAPON_NBOMB:
 		case WEAPON_COMBATBOOST:
 		case WEAPON_CLOAKINGDEVICE:
@@ -12145,6 +12153,7 @@ struct ammotype g_AmmoTypes[] = {
 	{ 100,          0, 0  }, // AMMOTYPE_SHOTGUN
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE
+	{ 12,           0, 0  }, // AMMOTYPE_IMPACTGRENADE
 	{ 3,            0, -2 }, // AMMOTYPE_ROCKET
 	{ 10,           0, 0  }, // AMMOTYPE_KNIFE
 	{ 200,          0, 0  }, // AMMOTYPE_MAGNUM

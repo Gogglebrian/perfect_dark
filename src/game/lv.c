@@ -765,6 +765,7 @@ void lvFindThreatsForProp(struct prop *prop, bool inchild, struct coord *playerp
 		if (weapon && prop->obj->type == OBJTYPE_WEAPON) {
 			switch (weapon->weaponnum) {
 			case WEAPON_GRENADE:
+			case WEAPON_IMPACTGRENADE:
 			case WEAPON_NBOMB:
 			case WEAPON_TIMEDMINE:
 			case WEAPON_PROXIMITYMINE:

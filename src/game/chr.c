@@ -4695,6 +4695,7 @@ void chrHit(struct shotdata *shotdata, struct hit *hit)
 
 				// Shooting an explosive in a chr's hand causes it to explode
 				if (weapon->weaponnum == WEAPON_GRENADE
+						|| weapon->weaponnum == WEAPON_IMPACTGRENADE
 						|| weapon->weaponnum == WEAPON_GRENADEROUND
 						|| weapon->weaponnum == WEAPON_ROCKET
 						|| weapon->weaponnum == WEAPON_HOMINGROCKET

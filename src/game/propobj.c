@@ -4271,7 +4271,8 @@ void weaponTick(struct prop *prop)
 
 	// Handle grenade timers
 	if (((weapon->weaponnum == WEAPON_GRENADE && weapon->gunfunc == FUNC_PRIMARY)
-				|| weapon->weaponnum == WEAPON_GRENADEROUND)
+				|| weapon->weaponnum == WEAPON_GRENADEROUND
+				|| weapon->weaponnum == WEAPON_IMPACTGRENADE) // we'll tick the impactgrenade's timer just in case it somehow manages to survive 4 whole seconds - Gogglebrian
 			&& weapon->timer240 >= 0) {
 		// Handle Devastator wall hugger timer
 		if (weapon->weaponnum == WEAPON_GRENADEROUND
@@ -4336,7 +4337,10 @@ void weaponTick(struct prop *prop)
 			if (weapon->timer240 < 0) {
 				propUnsetDangerous(prop);
 
-				if (weapon->gunfunc == FUNC_2) {
+				if (weapon->weaponnum == WEAPON_IMPACTGRENADE) { // impactgrenades use Superdragon's smaller explosions - Gogglebrian
+					propExplode(prop, EXPLOSIONTYPE_SDGRENADE);
+				}
+				else if (weapon->gunfunc == FUNC_2) {
 					propExplode(prop, EXPLOSIONTYPE_SDGRENADE);
 				} else {
 					propExplode(prop, (obj->flags2 & OBJFLAG2_WEAPON_HUGEEXP) ? EXPLOSIONTYPE_HUGE17 : EXPLOSIONTYPE_ROCKET);
@@ -7399,8 +7403,14 @@ s32 projectileTick(struct defaultobj *obj, bool *embedded)
 							} else {
 								smokeCreateSimple(&prop->pos, prop->rooms, SMOKETYPE_HOMINGTAIL);
 							}
+						} else if (weapon->weaponnum == WEAPON_IMPACTGRENADE && weapon->gunfunc == FUNC_PRIMARY) {
+								if (weapon->timer240 >= 0 && cdresult == CDRESULT_COLLISION) { // impactgrenade-primary explodes on ANY collision as long as the pin's been pulled (throw animation was started) - Gogglebrian
+										weapon->timer240 = 0;
+								}
 						} else if (weapon->weaponnum == WEAPON_GRENADEROUND
-								|| (weapon->weaponnum == WEAPON_NBOMB && weapon->gunfunc == FUNC_PRIMARY)) {
+								|| (weapon->weaponnum == WEAPON_NBOMB && weapon->gunfunc == FUNC_PRIMARY)
+								|| (weapon->weaponnum == WEAPON_IMPACTGRENADE) // impactgrenade-secondary explodes floor only like grenaderounds and nbomb-primary - Gogglebrian
+								) {
 							if (sp350
 									|| (projectile->flags & PROJECTILEFLAG_FALLING)
 									|| (projectile->speed.x < 0.1f && projectile->speed.x > -0.1f
@@ -7409,7 +7419,7 @@ s32 projectileTick(struct defaultobj *obj, bool *embedded)
 									|| (prop->pos.x - sp5c8.x < 0.1f && prop->pos.x - sp5c8.x > -0.1f
 										&& prop->pos.y - sp5c8.y < 0.1f && prop->pos.y - sp5c8.y > -0.1f
 										&& prop->pos.z - sp5c8.z < 0.1f && prop->pos.z - sp5c8.z > -0.1f)) {
-								if (weapon->weaponnum != WEAPON_NBOMB || weapon->timer240 >= 0) {
+								if ((weapon->weaponnum == WEAPON_GRENADEROUND) || weapon->timer240 >= 0) { // nbombs and impactgrenade should only detonate if their pin's been pulled (timer240>=0), but grenaderound we obvs don't care - Gogglebrian
 									weapon->timer240 = 0;
 								}
 							} else if (weapon->weaponnum != WEAPON_NBOMB) {
@@ -14664,7 +14674,7 @@ bool objDrop(struct prop *prop, bool lazy)
 		if (obj->type == OBJTYPE_WEAPON) {
 			struct weaponobj *weapon = (struct weaponobj *)obj;
 
-			if (weapon->weaponnum == WEAPON_GRENADE && weapon->timer240 >= 0) {
+			if ((weapon->weaponnum == WEAPON_GRENADE || weapon->weaponnum == WEAPON_IMPACTGRENADE) && weapon->timer240 >= 0) {
 				propSetDangerous(prop);
 			}
 		}
@@ -15406,6 +15416,7 @@ void objDamage(struct defaultobj *obj, f32 damage, struct coord *pos, s32 weapon
 			weapon = (struct weaponobj *) obj;
 
 			if (weapon->weaponnum == WEAPON_GRENADE
+					|| weapon->weaponnum == WEAPON_IMPACTGRENADE
 					|| weapon->weaponnum == WEAPON_TIMEDMINE
 					|| weapon->weaponnum == WEAPON_REMOTEMINE
 					|| weapon->weaponnum == WEAPON_PROXIMITYMINE
@@ -15430,6 +15441,7 @@ void objDamage(struct defaultobj *obj, f32 damage, struct coord *pos, s32 weapon
 			struct ammocrateobj *crate = (struct ammocrateobj *) obj;
 
 			if (crate->ammotype == AMMOTYPE_GRENADE
+					|| crate->ammotype == AMMOTYPE_IMPACTGRENADE
 					|| crate->ammotype == AMMOTYPE_ROCKET
 					|| crate->ammotype == AMMOTYPE_HOMINGROCKET
 					|| crate->ammotype == AMMOTYPE_REMOTE_MINE
@@ -16707,6 +16719,7 @@ void ammotypeGetDeterminer(char *dst, s32 ammotype, s32 qty)
 		break;
 	case AMMOTYPE_FARSIGHT:
 	case AMMOTYPE_NBOMB:
+	case AMMOTYPE_IMPACTGRENADE:
 	case AMMOTYPE_ECM_MINE:
 		if (qty == 1) {
 			determiner_an = true;
@@ -16780,6 +16793,7 @@ void ammotypeGetPickupName(char *dst, s32 ammotype2, s32 qty)
 		case AMMOTYPE_SHOTGUN:      textnum = L_PROPOBJ_011; break; // "cartridge"
 		case AMMOTYPE_FARSIGHT:     textnum = L_PROPOBJ_046; break; // "orb"
 		case AMMOTYPE_GRENADE:      textnum = L_PROPOBJ_014; break; // "grenade"
+		case AMMOTYPE_IMPACTGRENADE: textnum = L_PROPOBJ_052; break;
 		case AMMOTYPE_ROCKET:       textnum = L_PROPOBJ_016; break; // "rocket"
 		case AMMOTYPE_MAGNUM:       textnum = L_PROPOBJ_012; break; // "magnum bullet"
 		case AMMOTYPE_DEVASTATOR:   textnum = L_PROPOBJ_015; break; // "grenade round"
@@ -16819,6 +16833,7 @@ void ammotypePlayPickupSound(u32 ammotype)
 	case AMMOTYPE_RIFLE:
 	case AMMOTYPE_SHOTGUN:
 	case AMMOTYPE_GRENADE:
+	case AMMOTYPE_IMPACTGRENADE:
 	case AMMOTYPE_ROCKET:
 	case AMMOTYPE_MAGNUM:
 	case AMMOTYPE_DEVASTATOR:
@@ -16862,6 +16877,7 @@ s32 propPlayPickupSound(struct prop *prop, s32 weapon)
 			|| weapon == WEAPON_ECMMINE) {
 		sound = SFX_PICKUP_MINE;
 	} else if (weapon == WEAPON_GRENADE
+			|| weapon == WEAPON_IMPACTGRENADE
 			|| weapon == WEAPON_GRENADEROUND
 			|| weapon == WEAPON_ROCKET
 			|| weapon == WEAPON_HOMINGROCKET) {
@@ -16891,6 +16907,7 @@ void weaponPlayPickupSound(s32 weaponnum)
 			|| weaponnum == WEAPON_ECMMINE) {
 		sound = SFX_PICKUP_MINE;
 	} else if (weaponnum == WEAPON_GRENADE
+			|| weaponnum == WEAPON_IMPACTGRENADE
 			|| weaponnum == WEAPON_GRENADEROUND
 			|| weaponnum == WEAPON_ROCKET
 			|| weaponnum == WEAPON_HOMINGROCKET) {
@@ -16982,6 +16999,8 @@ void ammoHandlePickup(s32 ammotype, s32 quantity, bool withsound, bool withhudms
 
 		if (ammotype == AMMOTYPE_GRENADE) {
 			weapon = WEAPON_GRENADE;
+		} else if (ammotype == AMMOTYPE_IMPACTGRENADE) {
+			weapon = WEAPON_IMPACTGRENADE;
 		} else if (ammotype == AMMOTYPE_REMOTE_MINE) {
 			weapon = WEAPON_REMOTEMINE;
 		} else if (ammotype == AMMOTYPE_PROXY_MINE) {
@@ -17537,6 +17556,7 @@ s32 objTestForPickup(struct prop *prop)
 		s32 rightweaponnum;
 
 		if (weapon->weaponnum == WEAPON_GRENADE
+				|| weapon->weaponnum == WEAPON_IMPACTGRENADE
 				|| weapon->weaponnum == WEAPON_GRENADEROUND
 				|| weapon->weaponnum == WEAPON_NBOMB
 				|| weapon->weaponnum == WEAPON_SKROCKET) {
@@ -17617,6 +17637,7 @@ s32 objTestForPickup(struct prop *prop)
 
 		if (bgunGetReservedAmmoCount(crate->ammotype) >= bgunGetCapacityByAmmotype(crate->ammotype)) {
 			if ((crate->ammotype != AMMOTYPE_GRENADE || invHasSingleWeaponExcAllGuns(WEAPON_GRENADE))
+					&& (crate->ammotype != AMMOTYPE_IMPACTGRENADE || invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE))
 					&& (crate->ammotype != AMMOTYPE_CLOAK || invHasSingleWeaponExcAllGuns(WEAPON_CLOAKINGDEVICE))
 					&& (crate->ammotype != AMMOTYPE_BOOST || invHasSingleWeaponExcAllGuns(WEAPON_COMBATBOOST))
 					&& (crate->ammotype != AMMOTYPE_NBOMB || invHasSingleWeaponExcAllGuns(WEAPON_NBOMB))
@@ -17646,6 +17667,7 @@ s32 objTestForPickup(struct prop *prop)
 				}
 
 				if ((ammotype == AMMOTYPE_GRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_GRENADE))
+						|| (ammotype == AMMOTYPE_IMPACTGRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE))
 						|| (ammotype == AMMOTYPE_CLOAK && !invHasSingleWeaponExcAllGuns(WEAPON_CLOAKINGDEVICE))
 						|| (ammotype == AMMOTYPE_BOOST && !invHasSingleWeaponExcAllGuns(WEAPON_COMBATBOOST))
 						|| (ammotype == AMMOTYPE_NBOMB && !invHasSingleWeaponExcAllGuns(WEAPON_NBOMB))

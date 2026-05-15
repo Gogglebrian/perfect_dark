@@ -742,6 +742,7 @@ s32 playermgrGetModelOfWeapon(s32 weapon)
 	case WEAPON_PSYCHOSISGUN:     model = MODEL_CHRDRUGGUN; break;
 	case WEAPON_NBOMB:            model = MODEL_CHRNBOMB; break;
 	case WEAPON_GRENADE:          model = MODEL_CHRGRENADE; break;
+	case WEAPON_IMPACTGRENADE:    model = MODEL_CHRGRENADE; break;
 	case WEAPON_REMOTEMINE:       model = MODEL_CHRREMOTEMINE; break;
 	case WEAPON_PROXIMITYMINE:    model = MODEL_CHRPROXIMITYMINE; break;
 	case WEAPON_TIMEDMINE:        model = MODEL_CHRTIMEDMINE; break;
