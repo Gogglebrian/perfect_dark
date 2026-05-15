@@ -860,7 +860,7 @@ bool botinvAllowsWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 
 	if (chr->aibot->config->type == BOTTYPE_FIST) {
 		if (funcnum != FUNC_PRIMARY) {
-			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE) {
+			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE || weaponnum == WEAPON_LASER) { // made specific exception for laserbeam cause they cheesily use it from like 10+ feet away (I think a bug in this port, but I don't feel like fixing it.) -- Gogglebrian
 				allow = false;
 			}
 		} else {
