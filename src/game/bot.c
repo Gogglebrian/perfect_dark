@@ -661,6 +661,7 @@ s32 botIsObjCollectable(struct defaultobj *obj)
 
 		if (weapon->weaponnum == WEAPON_NBOMB
 				|| weapon->weaponnum == WEAPON_GRENADE
+				|| weapon->weaponnum == WEAPON_IMPACTGRENADE
 				|| weapon->weaponnum == WEAPON_GRENADEROUND
 				|| weapon->weaponnum == WEAPON_PROXIMITYMINE
 				|| weapon->weaponnum == WEAPON_REMOTEMINE

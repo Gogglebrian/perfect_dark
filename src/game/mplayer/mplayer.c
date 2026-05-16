@@ -121,7 +121,8 @@ struct mpweapon g_MpWeapons[NUM_MPWEAPONS] = {
 	/*0x2e*/ { WEAPON_RCP45,            AMMOTYPE_SMG,         150, 0,                   0,  1, 0,                                MODEL_CHRFNP90,         256 },
 #endif
 	/*0x2f*/ { WEAPON_MPSHIELD,         0,                    0,   0,                   0,  1, MPFEATURE_WEAPON_SHIELD,          MODEL_CHRSHIELD,        256 },
-	/*0x30*/ { WEAPON_DISABLED }, // 0x25 on N64
+	/*0x30*/ { WEAPON_IMPACTGRENADE,   AMMOTYPE_IMPACTGRENADE,5,   0,                   0,  0, 0,                                MODEL_CHRGRENADE,       256 },
+	/*0x31*/ { WEAPON_DISABLED }, // 0x25 on N64
 };
 
 #ifndef PLATFORM_N64

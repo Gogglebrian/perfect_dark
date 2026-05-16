@@ -3511,6 +3511,70 @@ struct weapon invitem_grenade = {
 	WEAPONFLAG_THROWABLE | WEAPONFLAG_00000004 | WEAPONFLAG_ONEHANDED | WEAPONFLAG_AICANUSE | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_00002000 | WEAPONFLAG_00008000 | WEAPONFLAG_HASHANDS,
 };
 
+//Impact grenade, primary: detonates on any impact once the pin is pulled. - Gogglebrian
+struct weaponfunc_throw invfunc_impactgrenade_throw = {
+	INVENTORYFUNCTYPE_THROW,
+	L_GUN_134, // name (impact detonation)
+	0, // unused
+	0, // ammoindex
+	&invnoisesettings_silent,
+	invanim_grenade_throw, // fire animation
+	FUNCFLAG_NOAUTOAIM | FUNCFLAG_NOMUZZLEFLASH,
+	MODEL_CHRGRENADE, // projectilemodelnum
+	240, // activatetime60
+	60, // recoverytime60
+	0, // damage
+};
+
+//Impact grenade, secondary: bounces off walls and detonates on impact with the ground (same as grenaderounds and pin-pulled nbomb-primary). - Gogglebrian
+struct weaponfunc_throw invfunc_impactgrenade_wallbounce = {
+	INVENTORYFUNCTYPE_THROW,
+	L_GUN_244, // name
+	0, // unused
+	0, // ammoindex
+	&invnoisesettings_silent,
+	invanim_grenade_throw, // fire animation
+	FUNCFLAG_NOAUTOAIM | FUNCFLAG_NOMUZZLEFLASH,
+	MODEL_CHRGRENADE, // projectilemodelnum
+	240, // activatetime60
+	60, // recoverytime60
+	0, // damage
+};
+
+struct inventory_ammo invammo_impactgrenade = {
+	AMMOTYPE_IMPACTGRENADE,
+	CASING_NONE,
+	1, // clip size
+	invanim_grenade_equip, // reload animation
+	AMMOFLAG_EQUIPPEDISRESERVE | AMMOFLAG_QTYAFFECTSPARTVIS, // flags
+};
+
+// Impact Grenade: new custom weapon! (uses same assets as normal nade.) - Gogglebrian
+struct weapon invitem_impactgrenade = {
+	FILE_GGRENADE, // hi model
+	FILE_GGRENADE, // lo model
+	invanim_grenade_equip, // equip animation
+	NULL, // unequip animation
+	NULL, // pritosec animation
+	NULL, // sectopri animation
+	{ &invfunc_impactgrenade_throw, &invfunc_impactgrenade_wallbounce }, // functions
+	&invammo_impactgrenade, // pri ammo
+	NULL, // sec ammo
+	&invaimsettings_default,
+	1, // muzzlez
+	17, // posx
+	-19.7, // posy
+	-21, // posz
+	1, // sway
+	gunviscmds_grenade, // gunviscmds
+	NULL, // part visibility
+	L_GUN_242, // short name
+	L_GUN_242, // name
+	L_GUN_000, // manufacturer
+	L_GUN_243, // description
+	WEAPONFLAG_THROWABLE | WEAPONFLAG_00000004 | WEAPONFLAG_ONEHANDED | WEAPONFLAG_AICANUSE | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_00002000 | WEAPONFLAG_00008000 | WEAPONFLAG_HASHANDS | WEAPONFLAG_DETERMINER_S_AN | WEAPONFLAG_DETERMINER_F_AN,
+};
+
 struct weaponfunc_throw invfunc_nbomb_throw = {
 	INVENTORYFUNCTYPE_THROW,
 	L_GUN_134, // name
@@ -6292,6 +6356,7 @@ struct weapon *g_Weapons[] = {
 	&invitem_tranquilizer,
 	&invitem_laser,
 	&invitem_grenade,
+	&invitem_impactgrenade,
 	&invitem_nbomb,
 	&invitem_timedmine,
 	&invitem_proximitymine,

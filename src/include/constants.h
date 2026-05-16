@@ -246,32 +246,32 @@
 #define AMMOTYPE_SHOTGUN      0x07
 #define AMMOTYPE_FARSIGHT     0x08
 #define AMMOTYPE_GRENADE      0x09
-#define AMMOTYPE_ROCKET       0x0a
-#define AMMOTYPE_KNIFE        0x0b
-#define AMMOTYPE_MAGNUM       0x0c
-#define AMMOTYPE_DEVASTATOR   0x0d
-#define AMMOTYPE_REMOTE_MINE  0x0e
-#define AMMOTYPE_PROXY_MINE   0x0f
-#define AMMOTYPE_TIMED_MINE   0x10
-#define AMMOTYPE_REAPER       0x11
-#define AMMOTYPE_HOMINGROCKET 0x12
-#define AMMOTYPE_DART         0x13
-#define AMMOTYPE_NBOMB        0x14
-#define AMMOTYPE_SEDATIVE     0x15
-#define AMMOTYPE_CLOAK        0x16
-#define AMMOTYPE_BOOST        0x17
-#define AMMOTYPE_PSYCHOSIS    0x18
-#define AMMOTYPE_17           0x19
-#define AMMOTYPE_BUG          0x1a
-#define AMMOTYPE_MICROCAMERA  0x1b
-#define AMMOTYPE_PLASTIQUE    0x1c
-#define AMMOTYPE_1B           0x1d
-#define AMMOTYPE_1C           0x1e
-#define AMMOTYPE_1D           0x1f
-#define AMMOTYPE_TOKEN        0x20
-#define AMMOTYPE_1F           0x21
-#define AMMOTYPE_ECM_MINE     0x22
-
+#define AMMOTYPE_IMPACTGRENADE 0x0a
+#define AMMOTYPE_ROCKET       0x0b
+#define AMMOTYPE_KNIFE        0x0c
+#define AMMOTYPE_MAGNUM       0x0d
+#define AMMOTYPE_DEVASTATOR   0x0e
+#define AMMOTYPE_REMOTE_MINE  0x0f
+#define AMMOTYPE_PROXY_MINE   0x10
+#define AMMOTYPE_TIMED_MINE   0x11
+#define AMMOTYPE_REAPER       0x12
+#define AMMOTYPE_HOMINGROCKET 0x13
+#define AMMOTYPE_DART         0x14
+#define AMMOTYPE_NBOMB        0x15
+#define AMMOTYPE_SEDATIVE     0x16
+#define AMMOTYPE_CLOAK        0x17
+#define AMMOTYPE_BOOST        0x18
+#define AMMOTYPE_PSYCHOSIS    0x19
+#define AMMOTYPE_17           0x1a
+#define AMMOTYPE_BUG          0x1b
+#define AMMOTYPE_MICROCAMERA  0x1c
+#define AMMOTYPE_PLASTIQUE    0x1d
+#define AMMOTYPE_1B           0x1e
+#define AMMOTYPE_1C           0x1f 
+#define AMMOTYPE_1D           0x20
+#define AMMOTYPE_TOKEN        0x21
+#define AMMOTYPE_1F           0x22
+#define AMMOTYPE_ECM_MINE     0x23
 
 // Active menu slots
 #define AMSLOTFLAG_CURRENT 0x02 // black, eg. current equipped weapon
@@ -2996,8 +2996,9 @@
 #define MPWEAPON_CLOAKINGDEVICE   (VERSION == VERSION_JPN_FINAL ? 0x22 : 0x23)
 #define MPWEAPON_COMBATBOOST      (VERSION == VERSION_JPN_FINAL ? 0x23 : 0x24)
 #define MPWEAPON_SHIELD           (VERSION == VERSION_JPN_FINAL ? 0x24 : 0x25)
-#define MPWEAPON_DISABLED         (VERSION == VERSION_JPN_FINAL ? 0x25 : 0x26)
-#define NUM_MPWEAPONS             (VERSION == VERSION_JPN_FINAL ? 0x26 : 0x27)
+#define MPWEAPON_IMPACTGRENADE    (VERSION == VERSION_JPN_FINAL ? 0x25 : 0x26)
+#define MPWEAPON_DISABLED         (VERSION == VERSION_JPN_FINAL ? 0x26 : 0x27)
+#define NUM_MPWEAPONS             (VERSION == VERSION_JPN_FINAL ? 0x27 : 0x28)
 #else // add all classic weapons to multiplayer and allow combat knife in JPN and add IR Scanner and Night Vision
 #define MPWEAPON_COMBATKNIFE      0x19
 #define MPWEAPON_CROSSBOW         0x1a
@@ -3022,8 +3023,9 @@
 #define MPWEAPON_AR53             0x2d
 #define MPWEAPON_RCP45            0x2e
 #define MPWEAPON_SHIELD           0x2f
-#define MPWEAPON_DISABLED         0x30
-#define NUM_MPWEAPONS             0x31
+#define MPWEAPON_IMPACTGRENADE    0x30
+#define MPWEAPON_DISABLED         0x31
+#define NUM_MPWEAPONS             0x32
 #endif
 
 #define MUSICEVENTTYPE_PLAY        1
@@ -4412,6 +4414,7 @@ enum weaponnum {
 	/*0x1c*/ WEAPON_TRANQUILIZER,
 	/*0x1d*/ WEAPON_LASER,
 	/*0x1e*/ WEAPON_GRENADE,
+			 WEAPON_IMPACTGRENADE, // I'm not moving those hex values up by one, so do it in your head
 	/*0x1f*/ WEAPON_NBOMB,
 	/*0x20*/ WEAPON_TIMEDMINE,
 	/*0x21*/ WEAPON_PROXIMITYMINE,
@@ -4476,7 +4479,8 @@ enum weaponnum {
 	/*0x5a*/ WEAPON_WATCHLASER,
 	/*0x5b*/ WEAPON_MPSHIELD,
 	/*0x5c*/ WEAPON_DISABLED,
-	/*0x5d*/ WEAPON_SUICIDEPILL
+	/*0x5d*/ WEAPON_SUICIDEPILL,
+	//0x5e*/
 };
 
 #define WEAPON_MPLOCATION00 240

@@ -7640,7 +7640,7 @@ bool chrConsiderGrenadeThrow(struct chrdata *chr, u32 attackflags, u32 entityid)
 			if (rightprop) {
 				weapon = rightprop->weapon;
 
-				if (weapon->weaponnum == WEAPON_GRENADE || weapon->weaponnum == WEAPON_NBOMB) {
+				if (weapon->weaponnum == WEAPON_GRENADE || weapon->weaponnum == WEAPON_IMPACTGRENADE || weapon->weaponnum == WEAPON_NBOMB) {
 					chrThrowGrenade(chr, 0, false);
 					chr->act_throwgrenade.flags = attackflags;
 					chr->act_throwgrenade.entityid = entityid;
@@ -7651,7 +7651,7 @@ bool chrConsiderGrenadeThrow(struct chrdata *chr, u32 attackflags, u32 entityid)
 			if (!done && leftprop) {
 				weapon = leftprop->weapon;
 
-				if (weapon->weaponnum == WEAPON_GRENADE || weapon->weaponnum == WEAPON_NBOMB) {
+				if (weapon->weaponnum == WEAPON_GRENADE || weapon->weaponnum == WEAPON_IMPACTGRENADE || weapon->weaponnum == WEAPON_NBOMB) {
 					chrThrowGrenade(chr, 1, false);
 					chr->act_throwgrenade.flags = attackflags;
 					chr->act_throwgrenade.entityid = entityid;
@@ -9516,6 +9516,7 @@ void chrCalculateHit(struct chrdata *chr, bool *angleokptr, bool *hit, struct gs
 	case WEAPON_TRANQUILIZER:
 	case WEAPON_LASER:
 	case WEAPON_GRENADE:
+	case WEAPON_IMPACTGRENADE:
 	case WEAPON_NBOMB:
 	case WEAPON_TIMEDMINE:
 	case WEAPON_PROXIMITYMINE:
@@ -11278,7 +11279,7 @@ void propPrintDangerous(void)
 
 		if (prop) {
 			if (prop->weapon
-					&& prop->weapon->weaponnum == WEAPON_GRENADE
+					&& (prop->weapon->weaponnum == WEAPON_GRENADE || prop->weapon->weaponnum == WEAPON_IMPACTGRENADE)
 					&& prop->type == PROPTYPE_WEAPON) {
 				osSyncPrintf("    Grenade %x", prop);
 			} else if (prop->type == PROPTYPE_EXPLOSION) {
@@ -11383,6 +11384,10 @@ bool chrDetectDangerousObject(struct chrdata *chr, u8 flags)
 					prop->weapon->weaponnum == WEAPON_GRENADE &&
 					prop->weapon->timer240 < TICKS(480)) {
 				pass = true;
+			}
+			else if ((flags & 1) && prop->weapon &&
+					prop->weapon->weaponnum == WEAPON_IMPACTGRENADE) { // impact grenades in the air are always dangerous
+					pass = true;
 			}
 
 			if ((flags & 2) && prop->type == PROPTYPE_EXPLOSION) {

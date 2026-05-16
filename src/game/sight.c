@@ -858,6 +858,10 @@ Gfx *sightDrawDefault(Gfx *gdl, bool sighton, f32 crossx, f32 crossy)
 							// "PROXY" and "IMPACT"
 							textid = (weapon->gunfunc == FUNC_SECONDARY) ? L_GUN_212 : L_GUN_216;
 							break;
+						case WEAPON_IMPACTGRENADE:
+							// "IMPACT"
+							textid = L_GUN_216;
+							break;
 						case WEAPON_TIMEDMINE:
 							textid = L_GUN_213; // "TIMED"
 							break;

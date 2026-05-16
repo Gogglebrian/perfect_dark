@@ -518,5 +518,15 @@
         "fr": "YOUR ",
         "de": "YOUR ",
         "es": "YOUR "
+    },
+    {
+        "id": "L_PROPOBJ_052",
+        "en": "F-Bomb",
+        "gb": "F-Bomb",
+        "jp": "F-Bomb",
+        "it": "F-Bomb",
+        "fr": "F-Bomb",
+        "de": "F-Bomb",
+        "es": "F-Bomb"
     }
 ]
