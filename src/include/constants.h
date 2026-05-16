@@ -241,34 +241,37 @@
 #define AMMOTYPE_SMG          0x02
 #define AMMOTYPE_CROSSBOW     0x03
 #define AMMOTYPE_RIFLE        0x04
-#define AMMOTYPE_SHOTGUN      0x05
-#define AMMOTYPE_FARSIGHT     0x06
-#define AMMOTYPE_GRENADE      0x07
-#define AMMOTYPE_ROCKET       0x08
-#define AMMOTYPE_KNIFE        0x09
-#define AMMOTYPE_MAGNUM       0x0a
-#define AMMOTYPE_DEVASTATOR   0x0b
-#define AMMOTYPE_REMOTE_MINE  0x0c
-#define AMMOTYPE_PROXY_MINE   0x0d
-#define AMMOTYPE_TIMED_MINE   0x0e
-#define AMMOTYPE_REAPER       0x0f
-#define AMMOTYPE_HOMINGROCKET 0x10
-#define AMMOTYPE_DART         0x11
-#define AMMOTYPE_NBOMB        0x12
-#define AMMOTYPE_SEDATIVE     0x13
-#define AMMOTYPE_CLOAK        0x14
-#define AMMOTYPE_BOOST        0x15
-#define AMMOTYPE_PSYCHOSIS    0x16
-#define AMMOTYPE_17           0x17
-#define AMMOTYPE_BUG          0x18
-#define AMMOTYPE_MICROCAMERA  0x19
-#define AMMOTYPE_PLASTIQUE    0x1a
-#define AMMOTYPE_1B           0x1b
-#define AMMOTYPE_1C           0x1c
-#define AMMOTYPE_1D           0x1d
-#define AMMOTYPE_TOKEN        0x1e
-#define AMMOTYPE_1F           0x1f
-#define AMMOTYPE_ECM_MINE     0x20
+#define AMMOTYPE_SNIPER_PIERCING  0x05
+#define AMMOTYPE_SNIPER_EXPLOSIVE 0x06
+#define AMMOTYPE_SHOTGUN      0x07
+#define AMMOTYPE_FARSIGHT     0x08
+#define AMMOTYPE_GRENADE      0x09
+#define AMMOTYPE_ROCKET       0x0a
+#define AMMOTYPE_KNIFE        0x0b
+#define AMMOTYPE_MAGNUM       0x0c
+#define AMMOTYPE_DEVASTATOR   0x0d
+#define AMMOTYPE_REMOTE_MINE  0x0e
+#define AMMOTYPE_PROXY_MINE   0x0f
+#define AMMOTYPE_TIMED_MINE   0x10
+#define AMMOTYPE_REAPER       0x11
+#define AMMOTYPE_HOMINGROCKET 0x12
+#define AMMOTYPE_DART         0x13
+#define AMMOTYPE_NBOMB        0x14
+#define AMMOTYPE_SEDATIVE     0x15
+#define AMMOTYPE_CLOAK        0x16
+#define AMMOTYPE_BOOST        0x17
+#define AMMOTYPE_PSYCHOSIS    0x18
+#define AMMOTYPE_17           0x19
+#define AMMOTYPE_BUG          0x1a
+#define AMMOTYPE_MICROCAMERA  0x1b
+#define AMMOTYPE_PLASTIQUE    0x1c
+#define AMMOTYPE_1B           0x1d
+#define AMMOTYPE_1C           0x1e
+#define AMMOTYPE_1D           0x1f
+#define AMMOTYPE_TOKEN        0x20
+#define AMMOTYPE_1F           0x21
+#define AMMOTYPE_ECM_MINE     0x22
+
 
 // Active menu slots
 #define AMSLOTFLAG_CURRENT 0x02 // black, eg. current equipped weapon
@@ -896,6 +899,7 @@
 #define EXPLOSIONTYPE_DRAGONBOMBSPY 23 // Used by both Dragon and bombspy
 #define EXPLOSIONTYPE_24            24
 #define EXPLOSIONTYPE_HUGE25        25
+#define EXPLOSIONTYPE_SNIPERRIFLE	26
 
 #define EYESPYHIT_NONE   0
 #define EYESPYHIT_BG     1

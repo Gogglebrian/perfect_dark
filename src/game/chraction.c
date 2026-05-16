@@ -10426,15 +10426,15 @@ void chrTickShoot(struct chrdata *chr, s32 handnum)
 							}
 						}
 
-						// Create explosion if using Phoenix
-						if (gset.weaponnum == WEAPON_PHOENIX && gset.weaponfunc == FUNC_SECONDARY) {
+						// Create explosion if using Phoenix (or Sniper Rifle) secondaries
+						if ((gset.weaponnum == WEAPON_PHOENIX || gset.weaponnum == WEAPON_SNIPERRIFLE ) && gset.weaponfunc == FUNC_SECONDARY) {
 							s32 playernum = chr->aibot ? mpPlayerGetIndex(chr) : g_Vars.currentplayernum;
 
 							if (!queriedhitrooms) {
 								func0f065e74(&gunpos, gunrooms, &hitpos, hitrooms);
 							}
 
-							explosionCreateSimple(NULL, &hitpos, hitrooms, EXPLOSIONTYPE_PHOENIX, playernum);
+							explosionCreateSimple(NULL, &hitpos, hitrooms, (gset.weaponnum == WEAPON_PHOENIX) ? EXPLOSIONTYPE_PHOENIX : EXPLOSIONTYPE_SNIPERRIFLE, playernum);
 						}
 					}
 				}

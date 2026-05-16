@@ -1306,6 +1306,9 @@ s32 bgunTickIncIdle(struct handweaponinfo *info, s32 handnum, struct hand *hand,
 						hand->unk0cc8_07 = true;
 
 						if (bgunSetState(handnum, HANDSTATE_CHANGEFUNC)) {
+							if (info->weaponnum == WEAPON_SNIPERRIFLE) {
+								hand->funcSwitchCause = 2; // 2 for ran out of ammo
+							}
 							return lvupdate;
 						}
 					}
@@ -1756,6 +1759,12 @@ s32 bgunTickIncChangeFunc(struct handweaponinfo *info, s32 handnum, struct hand 
 	}
 
 	if (!more && bgunSetState(handnum, HANDSTATE_IDLE)) {
+		if (info->weaponnum == WEAPON_SNIPERRIFLE) { 
+			if (g_Vars.currentplayer->hands[handnum].funcSwitchCause > 0) {
+					bgunForceReloadIfAnyAmmo(handnum, hand->gset.weaponfunc);
+			}
+			g_Vars.currentplayer->hands[handnum].funcSwitchCause = 0;
+		}
 		return lvupdate;
 	}
 
@@ -6057,6 +6066,26 @@ void bgunReloadIfPossible(s32 handnum)
 	if (bgunGetAmmoTypeForWeapon(bgunGetWeaponNum(handnum), FUNC_PRIMARY)
 			&& player->hands[handnum].modenext == HANDMODE_NONE) {
 		player->hands[handnum].modenext = HANDMODE_RELOAD;
+	}
+}
+
+/// <summary>
+/// Forces a reload as long as you have the ammo, even if the gun's already full.
+/// </summary>
+/// <param name="handnum"></param>
+/// <param name="func"></param>
+void bgunForceReloadIfAnyAmmo(s32 handnum, int func)
+{
+	struct player* player = g_Vars.currentplayer;
+	struct handweaponinfo info;
+
+	bgunGetWeaponInfo(&info, handnum);
+
+	if (bgunGetAmmoTypeForWeapon(bgunGetWeaponNum(handnum), func)
+		&& player->hands[handnum].modenext == HANDMODE_NONE
+		&& bgun0f098ca0(func, &info, &g_Vars.currentplayer->hands[handnum]) >= 0)
+	{
+			bgunSetState(handnum, HANDSTATE_RELOAD);
 	}
 }
 
@@ -11741,8 +11770,21 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 	bool docontinue;
 #endif
 	switch (bgunGetWeaponNum(HAND_RIGHT)) {
-	/* Removed Sniperrifle's original unique secondary switch style - Gogglebrian
 	case WEAPON_SNIPERRIFLE:
+		if (!trigpressed) {
+			if (VALIDWEAPON()) {
+				g_Vars.currentplayer->hands[HAND_RIGHT].funcSwitchCause = 1;
+				if (1 - FUNCISSEC()) {
+					SETFUNCSEC();
+				}
+				else {
+					SETFUNCPRI();
+				}
+			}
+			return USETIMER_STOP;
+		}
+		return USETIMER_CONTINUE;
+		/* Replaced Sniperrifle's original unique secondary switch style, but left it here for reference - Gogglebrian
 		if (extcontrols && usedowntime < 0) {
 			return USETIMER_CONTINUE;
 		}
@@ -11815,7 +11857,6 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 		return USETIMER_STOP;
 	case WEAPON_MAULER:
 	case WEAPON_CMP150:
-	case WEAPON_SNIPERRIFLE: // sniper secondary switch style to generic toggle - Gogglebrian
 	case WEAPON_K7AVENGER:
 	case WEAPON_AR34:
 	case WEAPON_FARSIGHT:
@@ -12150,6 +12191,8 @@ struct ammotype g_AmmoTypes[] = {
 	{ 800,          0, 0  }, // AMMOTYPE_SMG
 	{ 69,           0, 0  }, // AMMOTYPE_CROSSBOW
 	{ 400,          0, -2 }, // AMMOTYPE_RIFLE
+	{ 80,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
+	{ 40,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
 	{ 200,          0, 0  }, // AMMOTYPE_SHOTGUN, max up from 100 - Gogglebrian
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE

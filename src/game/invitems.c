@@ -4041,7 +4041,6 @@ struct guncmd invanim_sniperrifle_reload[] = {
 	gunscript_end
 };
 
-//Sniperrifle Aim: added follow-lock-on and autoaim - Gogglebrian
 struct invaimsettings invaimsettings_sniperrifle = {
 	0,
 	3,
@@ -4049,12 +4048,12 @@ struct invaimsettings invaimsettings_sniperrifle = {
 	15,
 	0.9721,
 	0.9767,
-	SIGHTTRACKTYPE_FOLLOWLOCKON,
+	SIGHTTRACKTYPE_DEFAULT,
 	5,
-	INVAIMFLAG_AUTOAIM | INVAIMFLAG_MANUALZOOM | INVAIMFLAG_ACCURATESINGLESHOT,
+	INVAIMFLAG_MANUALZOOM | INVAIMFLAG_ACCURATESINGLESHOT,
 };
 
-//Sniperrifle Primary: quadrupled damage, slightly reduced fire rate. More impact and 5 penetration. Louder, better sound. - Gogglebrian
+//Sniperrifle Primary: massive damage, slightly reduced fire rate. More impact and 5 penetration. Louder, better sound. - Gogglebrian
 struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
 	L_GUN_085, // name
@@ -4065,7 +4064,7 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	0, //FUNCFLAG_NOMUZZLEFLASH,
 	&invrecoilsettings_default,
 	16, // recoverytime60
-	4.8, // damage, originally 1.2
+	4, // damage, originally 1.2
 	0, // spread
 	6, 18, 0, 0, // originally 6, 10, 0, 0
 	8, // recoildist
@@ -4074,23 +4073,21 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	4, // impactforce, originally 0
 	4, // duration60
 	SFX_8066, // shootsound, originally SFX_8058
-	3, // penetration, originally 1
+	5, // penetration, originally 1
 };
 
-//Sniperrifle Secondary, New: follow lock on (same as CMP150) (stats equivalent to primary) - Gogglebrian
-//  To make this work, had to add checks for sniperrifle in bondmove.c and bondgun.c where WEAPON_CMP150 was explicitly checked for
-//  and added a couple flags to sniper's aim settings, and WEAPONFLAG_AIMTRACK to weapon invitem_sniperrifle
-struct weaponfunc_shootsingle invfunc_sniperrifle_followlockon = {
+//Sniperrifle Secondary, New: Explosive Rounds -- less damage and no piercing but explosions, fun - Gogglebrian
+struct weaponfunc_shootsingle invfunc_sniperrifle_explosiverounds = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
-	L_GUN_102, // name, same as CMP150 follow lock on
+	L_GUN_095, // name
 	0, // unused
-	0, // ammoindex
+	1, // ammoindex
 	&invnoisesettings_louder, // originally _sniper
 	NULL, // fire animation
-	0, //FUNCFLAG_NOMUZZLEFLASH,
+	FUNCFLAG_EXPLOSIVESHELLS, //FUNCFLAG_NOMUZZLEFLASH,
 	&invrecoilsettings_default,
 	16, // recoverytime60
-	4.8, // damage, originally 1.2
+	2.0, // damage, originally 1.2
 	0, // spread
 	6, 18, 0, 0, // originally 6, 10, 0, 0
 	8, // recoildist
@@ -4099,7 +4096,7 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_followlockon = {
 	4, // impactforce, originally 0
 	4, // duration60
 	SFX_8066, // shootsound, originally SFX_8058
-	3, // penetration, originally 1
+	1, // penetration, originally 1
 };
 
 //Sniperrifle Secondary, Original: Crouch - removed and unused - Gogglebrian
@@ -4116,13 +4113,22 @@ struct weaponfunc_special invfunc_sniperrifle_crouch = {
 	0, // soundnum (unused)
 };
 
-struct inventory_ammo invammo_sniperrifle = {
-	AMMOTYPE_RIFLE,
+struct inventory_ammo invammo_sniperrifle_piercing = {
+	AMMOTYPE_SNIPER_PIERCING,
 	CASING_RIFLE,
 	8, // clip size
 	invanim_sniperrifle_reload, // reload animation
 	0, // flags
 };
+
+struct inventory_ammo invammo_sniperrifle_explosive = {
+	AMMOTYPE_SNIPER_EXPLOSIVE,
+	CASING_RIFLE,
+	8, // clip size
+	invanim_sniperrifle_reload, // reload animation
+	0, // flags
+};
+
 
 struct modelpartvisibility invpartvisibility_sniperrifle[] = {
 	{ MODELPART_SNIPERRIFLE_MAGAZINE2, false },
@@ -4134,11 +4140,11 @@ struct weapon invitem_sniperrifle = {
 	FILE_GSNIPERLOD, // lo model
 	invanim_sniperrifle_equip, // equip animation
 	NULL, // unequip animation
-	NULL, // pritosec animation
+	NULL, // invanim_sniperrifle_reload, // pritosec animation
 	NULL, // sectopri animation
-	{ &invfunc_sniperrifle_singleshot, &invfunc_sniperrifle_followlockon }, // functions, replaced SniperRifle's original crouch secondary with Follow Lock On. Also tweaked secondary switch style in bondgun.c bgunConsiderToggleGunFunction - Gogglebrian
-	&invammo_sniperrifle, // pri ammo
-	NULL, // sec ammo
+	{ &invfunc_sniperrifle_singleshot, &invfunc_sniperrifle_explosiverounds }, // functions, replaced SniperRifle's original crouch secondary with Explosive Rounds. Also tweaked secondary switch style in bondgun.c bgunConsiderToggleGunFunction - Gogglebrian
+	&invammo_sniperrifle_piercing, // pri ammo
+	&invammo_sniperrifle_explosive, // sec ammo
 	&invaimsettings_sniperrifle,
 	6, // muzzlez
 	21, // posx
@@ -4155,7 +4161,7 @@ struct weapon invitem_sniperrifle = {
 	L_GUN_032, // name
 	L_GUN_000, // manufacturer
 	L_GUN_179, // description
-	WEAPONFLAG_AICANUSE | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_00002000 | WEAPONFLAG_00004000 | WEAPONFLAG_HASHANDS | WEAPONFLAG_AIMTRACK, // added WEAPONFLAG_AIMTRACK for Follow Lock On - Gogglebrian
+	WEAPONFLAG_AICANUSE | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_00002000 | WEAPONFLAG_00004000 | WEAPONFLAG_HASHANDS,
 };
 
 struct guncmd invanim_laser_equip[] = {
