@@ -2296,7 +2296,7 @@ struct hand {
 	/*0x0d94*/ u32 ispare7;
 	/*0x0d98*/ u32 ispare8;
 	/*0x0d9c*/ u32 ispare9;
-	/*0x0da0*/ u32 ispare10;
+	/*0x0da0*/ u32 funcSwitchCause; //was ispare10; set to 0 for automatic on switch-in, 1 for manual, 2 for automatically from running out of ammo. Used by SniperRifle - Gogglebrian
 	/*0x0da4*/ f32 fspare1;
 	/*0x0da8*/ f32 fspare2;
 	/*0x0dac*/ f32 fspare3;
@@ -2643,7 +2643,7 @@ struct player {
 	/*0x179c*/ f32 screenxmaxf;
 	/*0x17a0*/ f32 screenymaxf;
 	/*0x17a4*/ u32 gunsightoff;
-	/*0x17a8*/ s32 ammoheldarr[33]; // ammo quantities not loaded into a gun
+	/*0x17a8*/ s32 ammoheldarr[35]; // ammo quantities not loaded into a gun
 	/*0x182c*/ u32 unk182c;
 	/*0x1830*/ u32 unk1830;
 	/*0x1834*/ u32 unk1834;

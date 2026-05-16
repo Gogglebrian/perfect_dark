@@ -183,5 +183,7 @@ void bgun0f0abd30(s32 handnum);
 s32 bgunGetWeaponNum2(s32 handnum);
 s8 bgunFreeFireslotWrapper(s32 fireslot);
 s8 bgunFreeFireslot(s32 fireslot);
+void bgunForceReloadIfAnyAmmo(s32 handnum, int func);
+
 
 #endif

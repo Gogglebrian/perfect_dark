@@ -465,7 +465,7 @@ s32 bgunGetUnequippedReloadIndex(s32 weaponnum)
 	}
 
 	if (weaponnum == WEAPON_SHOTGUN) {
-		return 1;
+		return -1;// 1; removed passive reload for shotgun - Gogglebrian
 	}
 
 	if (weaponnum == WEAPON_DY357MAGNUM) {
@@ -1043,9 +1043,11 @@ s32 bgun0f098ca0(s32 funcnum, struct handweaponinfo *info, struct hand *hand)
 				&& hand->loadedammo[ammoindex] < hand->clipsizes[ammoindex]) {
 			s32 minqty = 1;
 
+			/* removed this 'cause we replaced Shotgun's secondary with conventional automatic/burst fire - Gogglebrian
 			if (info->weaponnum == WEAPON_SHOTGUN && funcnum == FUNC_SECONDARY) {
 				minqty = 2;
 			}
+			*/
 
 			if (info->weaponnum == WEAPON_TRANQUILIZER && funcnum == FUNC_SECONDARY) {
 				minqty = bgunGetMinClipQty(WEAPON_TRANQUILIZER, FUNC_SECONDARY);
@@ -1304,6 +1306,9 @@ s32 bgunTickIncIdle(struct handweaponinfo *info, s32 handnum, struct hand *hand,
 						hand->unk0cc8_07 = true;
 
 						if (bgunSetState(handnum, HANDSTATE_CHANGEFUNC)) {
+							if (info->weaponnum == WEAPON_SNIPERRIFLE) {
+								hand->funcSwitchCause = 2; // 2 for ran out of ammo
+							}
 							return lvupdate;
 						}
 					}
@@ -1755,6 +1760,12 @@ s32 bgunTickIncChangeFunc(struct handweaponinfo *info, s32 handnum, struct hand 
 	}
 
 	if (!more && bgunSetState(handnum, HANDSTATE_IDLE)) {
+		if (info->weaponnum == WEAPON_SNIPERRIFLE) { 
+			if (g_Vars.currentplayer->hands[handnum].funcSwitchCause > 0) {
+					bgunForceReloadIfAnyAmmo(handnum, hand->gset.weaponfunc);
+			}
+			g_Vars.currentplayer->hands[handnum].funcSwitchCause = 0;
+		}
 		return lvupdate;
 	}
 
@@ -1823,10 +1834,12 @@ s32 bgun0f09a3f8(struct hand *hand, struct weaponfunc *func)
 		if (smallburst) {
 			if (hand->burstbullets > 0) {
 				s32 delay = 3;
-
+				
+				/* removed this 'cause we replaced Shotgun's secondary with conventional automatic/burst fire - Gogglebrian
 				if (hand->gset.weaponnum == WEAPON_SHOTGUN) {
 					delay = TICKS(13);
-				}
+				}*/
+				
 
 				if (hand->stateframes < delay) {
 					return 0;
@@ -6060,6 +6073,26 @@ void bgunReloadIfPossible(s32 handnum)
 	}
 }
 
+/// <summary>
+/// Forces a reload as long as you have the ammo, even if the gun's already full.
+/// </summary>
+/// <param name="handnum"></param>
+/// <param name="func"></param>
+void bgunForceReloadIfAnyAmmo(s32 handnum, int func)
+{
+	struct player* player = g_Vars.currentplayer;
+	struct handweaponinfo info;
+
+	bgunGetWeaponInfo(&info, handnum);
+
+	if (bgunGetAmmoTypeForWeapon(bgunGetWeaponNum(handnum), func)
+		&& player->hands[handnum].modenext == HANDMODE_NONE
+		&& bgun0f098ca0(func, &info, &g_Vars.currentplayer->hands[handnum]) >= 0)
+	{
+			bgunSetState(handnum, HANDSTATE_RELOAD);
+	}
+}
+
 void bgunSetAdjustPos(f32 angle)
 {
 	struct player *player = g_Vars.currentplayer;
@@ -7122,7 +7155,7 @@ void bgunUpdateShotgun(struct hand *hand, u8 *allocation, bool *arg2, struct mod
 	}
 
 	if (hand->matmot1 > 0.0f) {
-		hand->matmot1 -= LVUPDATE60FREAL() / 6.0f;
+		hand->matmot1 -= LVUPDATE60FREAL() / 3.0f; // originally 6.0f. Made the starburst play a little snappier, looks better for automatic/burst fire - Gogglebrian
 
 		if (hand->matmot1 < 0.01f) {
 			hand->matmot1 = 0.0f;
@@ -7142,6 +7175,7 @@ void bgunUpdateShotgun(struct hand *hand, u8 *allocation, bool *arg2, struct mod
 			mtx00015ea8((1.0f - hand->matmot1) * 8.0f + 0.5f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
 			mtx00015df0((1.0f - hand->matmot1) * 3.0f + 1.0f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
 			mtx00015e4c((1.0f - hand->matmot1) * 3.0f + 1.0f, (Mtxf *)((uintptr_t)allocation + sp34 * sizeof(Mtxf)));
+	
 		}
 	}
 }
@@ -11744,6 +11778,20 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 #endif
 	switch (bgunGetWeaponNum(HAND_RIGHT)) {
 	case WEAPON_SNIPERRIFLE:
+		if (!trigpressed) {
+			if (VALIDWEAPON()) {
+				g_Vars.currentplayer->hands[HAND_RIGHT].funcSwitchCause = 1;
+				if (1 - FUNCISSEC()) {
+					SETFUNCSEC();
+				}
+				else {
+					SETFUNCPRI();
+				}
+			}
+			return USETIMER_STOP;
+		}
+		return USETIMER_CONTINUE;
+		/* Replaced Sniperrifle's original unique secondary switch style, but left it here for reference - Gogglebrian
 		if (extcontrols && usedowntime < 0) {
 			return USETIMER_CONTINUE;
 		}
@@ -11785,6 +11833,7 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 		// Do crouch or stand
 		g_Vars.currentplayer->hands[HAND_RIGHT].activatesecondary = true;
 		return (extcontrols ? USETIMER_STOP : USETIMER_REPEAT);
+	*/
 	case WEAPON_RCP120:
 #ifndef PLATFORM_N64
 		// very special alt-button handling for RCP-120's cloaking
@@ -12150,7 +12199,9 @@ struct ammotype g_AmmoTypes[] = {
 	{ 800,          0, 0  }, // AMMOTYPE_SMG
 	{ 69,           0, 0  }, // AMMOTYPE_CROSSBOW
 	{ 400,          0, -2 }, // AMMOTYPE_RIFLE
-	{ 100,          0, 0  }, // AMMOTYPE_SHOTGUN
+	{ 80,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
+	{ 40,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
+	{ 200,          0, 0  }, // AMMOTYPE_SHOTGUN, max up from 100 - Gogglebrian
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE
 	{ 12,           0, 0  }, // AMMOTYPE_IMPACTGRENADE

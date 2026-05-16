@@ -806,7 +806,7 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 					exppos.z = shotdata.hits[i].pos.z;
 
 					func0f065e74(&root->pos, root->rooms, &exppos, exprooms);
-					explosionCreateSimple(0, &exppos, exprooms, EXPLOSIONTYPE_PHOENIX, g_Vars.currentplayernum);
+					explosionCreateSimple(0, &exppos, exprooms, (shotdata.gset.weaponnum == WEAPON_PHOENIX) ? EXPLOSIONTYPE_PHOENIX : EXPLOSIONTYPE_SNIPERRIFLE, g_Vars.currentplayernum);
 				}
 			}
 		}
@@ -852,7 +852,7 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 				bgunPlayBgHitSound(&shotdata.gset, &sp694.pos, sp694.texturenum, rooms2);
 
 				if (explosiveshells) {
-					explosionCreateSimple(NULL, &sp694.pos, rooms2, EXPLOSIONTYPE_PHOENIX, g_Vars.currentplayernum);
+					explosionCreateSimple(NULL, &sp694.pos, rooms2, (shotdata.gset.weaponnum == WEAPON_PHOENIX) ? EXPLOSIONTYPE_PHOENIX : EXPLOSIONTYPE_SNIPERRIFLE, g_Vars.currentplayernum);
 				} else {
 					if (!chrIsUsingPaintball(g_Vars.currentplayer->prop->chr)) {
 						if (PLAYERCOUNT() >= 2) {
@@ -2713,8 +2713,7 @@ void autoaimTick(void)
 		farsightChooseTarget();
 	}
 
-	if (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150
-			&& g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY) {
+	if (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_CMP150 && g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY) {
 		iscmpsec = true;
 	}
 

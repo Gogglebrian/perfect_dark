@@ -515,6 +515,8 @@ void botinvScoreWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum, s32 arg3
 					score1 = extra + 280;
 				} else if (weaponnum == WEAPON_SUPERDRAGON && funcnum != FUNC_PRIMARY) {
 					score1 = extra + 279;
+				} else if (weaponnum == WEAPON_SNIPERRIFLE && funcnum != FUNC_PRIMARY) {
+					score1 = extra + 270;
 				} else if (weaponnum == WEAPON_PHOENIX && funcnum != FUNC_PRIMARY) {
 					score1 = extra + 260;
 				} else if (weaponnum == WEAPON_IMPACTGRENADE) {
@@ -864,7 +866,7 @@ bool botinvAllowsWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 
 	if (chr->aibot->config->type == BOTTYPE_FIST) {
 		if (funcnum != FUNC_PRIMARY) {
-			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE) {
+			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE || weaponnum == WEAPON_LASER) { // made specific exception for laserbeam cause they cheesily use it from like 10+ feet away (I think a bug in this port, but I don't feel like fixing it.) -- Gogglebrian
 				allow = false;
 			}
 		} else {
@@ -1018,6 +1020,8 @@ void botinvTick(struct chrdata *chr)
 			if (newweaponnum == WEAPON_PHOENIX && botactGetAmmoQuantityByWeapon(aibot, WEAPON_PHOENIX, FUNC_SECONDARY, true) > 0) {
 				newfuncnum = FUNC_SECONDARY;
 			} else if (newweaponnum == WEAPON_SUPERDRAGON && botactGetAmmoQuantityByWeapon(aibot, WEAPON_SUPERDRAGON, FUNC_SECONDARY, true) > 0) {
+				newfuncnum = FUNC_SECONDARY;
+			} else if (newweaponnum == WEAPON_SNIPERRIFLE && botactGetAmmoQuantityByWeapon(aibot, WEAPON_SNIPERRIFLE, FUNC_SECONDARY, true) > 0) {
 				newfuncnum = FUNC_SECONDARY;
 			}
 		}

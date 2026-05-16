@@ -2503,28 +2503,59 @@ struct guncmd invanim_shotgun_doubleshot[] = {
 	gunscript_end
 };
 
+//Shotgun Primary: Removed fire animation in favor of basic recoil. Tripled damage, ~doubled fire rate. Added 3 penetration. - Gogglebrian
 struct weaponfunc_shootsingle invfunc_shotgun_single = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
 	L_GUN_089, // name
 	0, // unused
 	0, // ammoindex
 	&invnoisesettings_loudest,
-	invanim_shotgun_singleshot, // fire animation
+	NULL, //invanim_shotgun_singleshot, // fire animation  (disabled)
 	0, // flags
 	&invrecoilsettings_default,
-	0, // recoverytime60
-	0.6, // damage
-	30, // spread
-	20, 28, 0, 0,
-	0, // recoildist
+	16, // recoverytime60, originally 0
+	1.2, // damage, originally 0.6
+	25, // spread
+	4, 20, 0, 0, // originally 20, 28, 0, 0,
+	6, // recoildist, originally 0
 	0, // recoilangle
 	0, // slidemax
 	4, // impactforce
 	0, // duration60
 	SFX_FIRE_SHOTGUN, // shootsound
-	1, // penetration
+	2, // penetration, originally 1
 };
 
+//Shotgun Secondary, New: Automatic, 3-shot burst fire with higher fire rate at the cost of higher spread. - Gogglebrian
+struct weaponfunc_shootauto invfunc_shotgun_automatic = {
+	INVENTORYFUNCTYPE_SHOOT_AUTOMATIC,
+	L_GUN_087, // name
+	0, // unused
+	0, // ammoindex
+	&invnoisesettings_loudest,
+	NULL, // fire animation
+	FUNCFLAG_BURST3,
+	&invrecoilsettings_default,
+	0, // recoverytime60
+	1.2, // damage
+	35, // spread
+	6, 18, 2, 8,
+	6, // recoildist
+	0, // recoilangle
+	0, // slidemax
+	4, // impactforce
+	0, // duration60
+	SFX_FIRE_SHOTGUN, // shootsound
+	2, // penetration, originally 1
+	450, // initialrpm
+	450, // maxrpm
+	NULL, // vibrationstart
+	NULL, // vibrationmax
+	0, // turretaccel
+	0, // turretdecel
+};
+
+//Shotgun Secondary, Original: Unused and replaced - Gogglebrian
 struct weaponfunc_shootsingle invfunc_shotgun_double = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
 	L_GUN_105, // name
@@ -2547,12 +2578,13 @@ struct weaponfunc_shootsingle invfunc_shotgun_double = {
 	1, // penetration
 };
 
+//Shotgun Ammo: Upped clip size 9>12, disabled passive/incremental reload - Gogglebrian
 struct inventory_ammo invammo_shotgun = {
 	AMMOTYPE_SHOTGUN,
 	CASING_SHOTGUN,
-	9, // clip size
+	12, // clip size, originally 9
 	invanim_shotgun_reload, // reload animation
-	AMMOFLAG_INCREMENTALRELOAD, // flags
+	0, //AMMOFLAG_INCREMENTALRELOAD, // flags
 };
 
 struct weapon invitem_shotgun = {
@@ -2562,7 +2594,7 @@ struct weapon invitem_shotgun = {
 	NULL, // unequip animation
 	NULL, // pritosec animation
 	NULL, // sectopri animation
-	{ &invfunc_shotgun_single, &invfunc_shotgun_double }, // functions
+	{ &invfunc_shotgun_single, &invfunc_shotgun_automatic }, // functions - replaced Shotgun's original double-burst secondary with conventional automatic/burst fire - Gogglebrian
 	&invammo_shotgun, // pri ammo
 	NULL, // sec ammo
 	&invaimsettings_default,
@@ -4085,28 +4117,53 @@ struct invaimsettings invaimsettings_sniperrifle = {
 	INVAIMFLAG_MANUALZOOM | INVAIMFLAG_ACCURATESINGLESHOT,
 };
 
+//Sniperrifle Primary: massive damage, slightly reduced fire rate. More impact and 5 penetration. Louder, better sound. - Gogglebrian
 struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
 	L_GUN_085, // name
 	0, // unused
 	0, // ammoindex
-	&invnoisesettings_sniper,
+	&invnoisesettings_louder, // originally _sniper
 	NULL, // fire animation
-	FUNCFLAG_NOMUZZLEFLASH,
+	0, //FUNCFLAG_NOMUZZLEFLASH,
 	&invrecoilsettings_default,
 	16, // recoverytime60
-	1.2, // damage
+	4, // damage, originally 1.2
 	0, // spread
-	6, 10, 0, 0,
+	6, 18, 0, 0, // originally 6, 10, 0, 0
 	8, // recoildist
 	0, // recoilangle
 	0, // slidemax
-	0, // impactforce
+	4, // impactforce, originally 0
 	4, // duration60
-	SFX_8058, // shootsound
-	1, // penetration
+	SFX_8066, // shootsound, originally SFX_8058
+	5, // penetration, originally 1
 };
 
+//Sniperrifle Secondary, New: Explosive Rounds -- less damage and no piercing but explosions, fun - Gogglebrian
+struct weaponfunc_shootsingle invfunc_sniperrifle_explosiverounds = {
+	INVENTORYFUNCTYPE_SHOOT_SINGLE,
+	L_GUN_095, // name
+	0, // unused
+	1, // ammoindex
+	&invnoisesettings_louder, // originally _sniper
+	NULL, // fire animation
+	FUNCFLAG_EXPLOSIVESHELLS, //FUNCFLAG_NOMUZZLEFLASH,
+	&invrecoilsettings_default,
+	16, // recoverytime60
+	2.0, // damage, originally 1.2
+	0, // spread
+	6, 18, 0, 0, // originally 6, 10, 0, 0
+	8, // recoildist
+	0, // recoilangle
+	0, // slidemax
+	4, // impactforce, originally 0
+	4, // duration60
+	SFX_8066, // shootsound, originally SFX_8058
+	1, // penetration, originally 1
+};
+
+//Sniperrifle Secondary, Original: Crouch - removed and unused - Gogglebrian
 struct weaponfunc_special invfunc_sniperrifle_crouch = {
 	INVENTORYFUNCTYPE_SPECIAL,
 	L_GUN_130, // name
@@ -4120,13 +4177,22 @@ struct weaponfunc_special invfunc_sniperrifle_crouch = {
 	0, // soundnum (unused)
 };
 
-struct inventory_ammo invammo_sniperrifle = {
-	AMMOTYPE_RIFLE,
+struct inventory_ammo invammo_sniperrifle_piercing = {
+	AMMOTYPE_SNIPER_PIERCING,
 	CASING_RIFLE,
 	8, // clip size
 	invanim_sniperrifle_reload, // reload animation
 	0, // flags
 };
+
+struct inventory_ammo invammo_sniperrifle_explosive = {
+	AMMOTYPE_SNIPER_EXPLOSIVE,
+	CASING_RIFLE,
+	8, // clip size
+	invanim_sniperrifle_reload, // reload animation
+	0, // flags
+};
+
 
 struct modelpartvisibility invpartvisibility_sniperrifle[] = {
 	{ MODELPART_SNIPERRIFLE_MAGAZINE2, false },
@@ -4138,11 +4204,11 @@ struct weapon invitem_sniperrifle = {
 	FILE_GSNIPERLOD, // lo model
 	invanim_sniperrifle_equip, // equip animation
 	NULL, // unequip animation
-	NULL, // pritosec animation
+	NULL, // invanim_sniperrifle_reload, // pritosec animation
 	NULL, // sectopri animation
-	{ &invfunc_sniperrifle_singleshot, &invfunc_sniperrifle_crouch }, // functions
-	&invammo_sniperrifle, // pri ammo
-	NULL, // sec ammo
+	{ &invfunc_sniperrifle_singleshot, &invfunc_sniperrifle_explosiverounds }, // functions, replaced SniperRifle's original crouch secondary with Explosive Rounds. Also tweaked secondary switch style in bondgun.c bgunConsiderToggleGunFunction - Gogglebrian
+	&invammo_sniperrifle_piercing, // pri ammo
+	&invammo_sniperrifle_explosive, // sec ammo
 	&invaimsettings_sniperrifle,
 	6, // muzzlez
 	21, // posx

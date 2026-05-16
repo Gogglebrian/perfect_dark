@@ -285,7 +285,8 @@ void playerReset(void)
 
 	if (cheatIsActive(CHEAT_SNIPERRIFLE)) {
 		invGiveSingleWeapon(WEAPON_SNIPERRIFLE);
-		bgunSetAmmoQuantity(AMMOTYPE_RIFLE, 200);
+		bgunSetAmmoQuantity(AMMOTYPE_SNIPER_PIERCING, 80);
+		bgunSetAmmoQuantity(AMMOTYPE_SNIPER_EXPLOSIVE, 40);
 	}
 
 	if (cheatIsActive(CHEAT_XRAYSCANNER)) {

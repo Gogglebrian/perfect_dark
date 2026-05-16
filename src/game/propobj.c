@@ -16690,6 +16690,8 @@ void ammotypeGetDeterminer(char *dst, s32 ammotype, s32 qty)
 	case AMMOTYPE_PISTOL:
 	case AMMOTYPE_SMG:
 	case AMMOTYPE_RIFLE:
+	case AMMOTYPE_SNIPER_PIERCING:
+	case AMMOTYPE_SNIPER_EXPLOSIVE:
 	case AMMOTYPE_SEDATIVE:
 	case AMMOTYPE_PSYCHOSIS:
 	case AMMOTYPE_PLASTIQUE:
@@ -16775,7 +16777,7 @@ void ammotypeGetPickupName(char *dst, s32 ammotype2, s32 qty)
 {
 	s32 ammotype = ammotype2;
 
-	if (ammotype == AMMOTYPE_PISTOL || ammotype == AMMOTYPE_SMG || ammotype == AMMOTYPE_RIFLE) {
+	if (ammotype == AMMOTYPE_PISTOL || ammotype == AMMOTYPE_SMG || ammotype == AMMOTYPE_RIFLE || ammotype == AMMOTYPE_SNIPER_PIERCING || ammotype == AMMOTYPE_SNIPER_EXPLOSIVE) {
 		strcat(dst, langGet(L_PROPOBJ_010)); // "ammo"
 	} else if (ammotype == AMMOTYPE_KNIFE) {
 		strcat(dst, langGet(L_PROPOBJ_021)); // "combat"
@@ -16831,6 +16833,8 @@ void ammotypePlayPickupSound(u32 ammotype)
 	case AMMOTYPE_PISTOL:
 	case AMMOTYPE_SMG:
 	case AMMOTYPE_RIFLE:
+	case AMMOTYPE_SNIPER_PIERCING:
+	case AMMOTYPE_SNIPER_EXPLOSIVE:
 	case AMMOTYPE_SHOTGUN:
 	case AMMOTYPE_GRENADE:
 	case AMMOTYPE_IMPACTGRENADE:
@@ -17038,6 +17042,8 @@ s32 ammocrateGetPickupAmmoQty(struct ammocrateobj *crate)
 	case AMMOTYPE_SMG      : qty = 10;            break;
 	case AMMOTYPE_CROSSBOW : qty = 10;            break;
 	case AMMOTYPE_RIFLE    : qty = 10;            break;
+	case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+	case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 	case AMMOTYPE_SHOTGUN  : qty = 5;             break;
 	case AMMOTYPE_MAGNUM   : qty = 5;             break;
 	case AMMOTYPE_REAPER   : qty = 200;           break;
@@ -17079,6 +17085,8 @@ s32 weaponGetPickupAmmoQty(struct weaponobj *weapon)
 		case AMMOTYPE_SMG:          qty = 20;          break;
 		case AMMOTYPE_CROSSBOW:     qty = 5;           break;
 		case AMMOTYPE_RIFLE:        qty = 20;          break;
+		case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+		case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 		case AMMOTYPE_SHOTGUN:      qty = 10;          break;
 		case AMMOTYPE_FARSIGHT:     qty = 4;           break;
 		case AMMOTYPE_MAGNUM:       qty = 10;          break;
@@ -17095,6 +17103,8 @@ s32 weaponGetPickupAmmoQty(struct weaponobj *weapon)
 		case AMMOTYPE_SMG:        qty = 10;          break;
 		case AMMOTYPE_CROSSBOW:   qty = 5;           break;
 		case AMMOTYPE_RIFLE:      qty = 10;          break;
+		case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+		case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 		case AMMOTYPE_SHOTGUN:    qty = 5;           break;
 		case AMMOTYPE_FARSIGHT:   qty = 4;           break;
 		case AMMOTYPE_MAGNUM:     qty = 5;           break;
@@ -17425,6 +17435,20 @@ s32 propPickupByPlayer(struct prop *prop, bool showhudmsg)
 				}
 			}
 
+			else if (weapon->weaponnum == WEAPON_SNIPERRIFLE) {
+				s32 pickupqty = weaponGetPickupAmmoQty(weapon);
+
+				if (bgunGetReservedAmmoCount(AMMOTYPE_SNIPER_EXPLOSIVE) < bgunGetCapacityByAmmotype(AMMOTYPE_SNIPER_EXPLOSIVE)) {
+					s32 quantity = bgunGetReservedAmmoCount(AMMOTYPE_SNIPER_EXPLOSIVE) + 5;
+
+					bgunSetAmmoQuantity(AMMOTYPE_SNIPER_EXPLOSIVE, quantity);
+
+					if (!sp70 && showhudmsg) {
+						currentPlayerQueuePickupAmmoHudmsg(AMMOTYPE_SNIPER_EXPLOSIVE, pickupqty);
+					}
+				}
+			}
+
 			if (weapon->weaponnum == WEAPON_EYESPY && g_Vars.currentplayer->eyespy == NULL) {
 				playerInitEyespy();
 			}
@@ -17595,6 +17619,11 @@ s32 objTestForPickup(struct prop *prop)
 			}
 
 			if (weapon->weaponnum == WEAPON_SUPERDRAGON) {
+				if (bgunGetAmmoQtyForWeapon(weapon->weaponnum, FUNC_SECONDARY) < bgunGetAmmoCapacityForWeapon(weapon->weaponnum, FUNC_SECONDARY)) {
+					maybe = false;
+				}
+			}
+			else if (weapon->weaponnum == WEAPON_SNIPERRIFLE) {
 				if (bgunGetAmmoQtyForWeapon(weapon->weaponnum, FUNC_SECONDARY) < bgunGetAmmoCapacityForWeapon(weapon->weaponnum, FUNC_SECONDARY)) {
 					maybe = false;
 				}
