@@ -1,0 +1,53 @@
+Picked up 
+Double 
+some 
+Some 
+a 
+A 
+an 
+An 
+the 
+The 
+ammo
+cartridge
+magnum bullet
+golden bullet
+grenade
+grenade round
+rocket
+homing rocket
+remote mine
+proximity mine
+timed mine
+combat 
+knife
+knives
+s
+dart
+N-Bomb
+sedatives
+explosive pen
+explosive case
+flare
+piton
+of dynamite
+stick 
+sticks 
+bug
+micro camera
+GoldenEye key
+token
+plastique
+Picked up a key.*
+Picked up a shield.*
+A shield.*
+Picked up something.*
+This door is locked.*
+bolt
+orb
+Reaper ammo
+cloaking device
+boost pill
+your 
+Your 
+F-Bomb

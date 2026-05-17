@@ -3025,7 +3025,8 @@
 #define MPWEAPON_SHIELD           0x2f
 #define MPWEAPON_IMPACTGRENADE    0x30
 #define MPWEAPON_DISABLED         0x31
-#define NUM_MPWEAPONS             0x32
+#define MPWEAPON_UBERKL013        0x32
+#define NUM_MPWEAPONS             0x33
 #endif
 
 #define MUSICEVENTTYPE_PLAY        1
@@ -4414,7 +4415,8 @@ enum weaponnum {
 	/*0x1c*/ WEAPON_TRANQUILIZER,
 	/*0x1d*/ WEAPON_LASER,
 	/*0x1e*/ WEAPON_GRENADE,
-			 WEAPON_IMPACTGRENADE, // I'm not moving those hex values up by one, so do it in your head
+					 WEAPON_IMPACTGRENADE, // I'm not moving those hex values up by one, so do it in your head
+					 WEAPON_UBERKL01313,   // whoops offset all those labels by another. Putting this here so that it'll be valid for secondary.
 	/*0x1f*/ WEAPON_NBOMB,
 	/*0x20*/ WEAPON_TIMEDMINE,
 	/*0x21*/ WEAPON_PROXIMITYMINE,

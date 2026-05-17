@@ -4447,7 +4447,7 @@ struct weapon invitem_cc13 = {
 
 struct weaponfunc_shootauto invfunc_kl01313_shoot = {
 	INVENTORYFUNCTYPE_SHOOT_AUTOMATIC,
-	L_GUN_086, // name
+	L_GUN_249, // name
 	0, // unused
 	0, // ammoindex
 	&invnoisesettings_default,
@@ -4504,6 +4504,68 @@ struct weapon invitem_kl01313 = {
 	L_GUN_000, // manufacturer
 	L_GUN_000, // description
 	WEAPONFLAG_00000004 | WEAPONFLAG_ONEHANDED | WEAPONFLAG_AICANUSE | WEAPONFLAG_DUALFLIP | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_DUALWIELD | WEAPONFLAG_00008000,
+};
+
+//New gun: uberklobb
+struct weaponfunc_shootauto invfunc_uberkl01313_shoot = {
+	INVENTORYFUNCTYPE_SHOOT_AUTOMATIC,
+	L_GUN_248, // name
+	0, // unused
+	0, // ammoindex
+	&invnoisesettings_default,
+	NULL, // fire animation
+	0, // flags
+	&invrecoilsettings_default,
+	0, // recoverytime60
+	0.6, // damage
+	21, // spread
+	0, 0, 0, 6,
+	0, // recoildist
+	0, // recoilangle
+	0, // slidemax
+	0, // impactforce
+	11, // duration60
+	SFX_806B, // shootsound
+	1, // penetration
+	1600, // initialrpm
+	1600, // maxrpm
+	NULL, // vibrationstart
+	NULL, // vibrationmax
+	0, // turretaccel
+	0, // turretdecel
+};
+
+struct inventory_ammo invammo_uberkl01313 = {
+	AMMOTYPE_SMG,
+	CASING_STANDARD,
+	40, // clip size
+	NULL, // reload animation
+	0, // flags
+};
+
+struct weapon invitem_uberkl01313 = {
+	FILE_GSKORPION, // hi model
+	FILE_GSKORPION, // lo model
+	NULL, // equip animation
+	NULL, // unequip animation
+	NULL, // pritosec animation
+	NULL, // sectopri animation
+	{ &invfunc_uberkl01313_shoot, NULL }, // functions
+	&invammo_uberkl01313, // pri ammo
+	NULL, // sec ammo
+	&invaimsettings_default,
+	1, // muzzlez
+	8.5, // posx
+	-13, // posy
+	-29.5, // posz
+	1, // sway
+	NULL, // gunviscmds
+	invpartvisibility_classic, // part visibility
+	L_GUN_247, // short name
+	L_GUN_247, // name
+	L_GUN_000, // manufacturer
+	L_GUN_000, // description
+	WEAPONFLAG_00000004 | WEAPONFLAG_ONEHANDED | WEAPONFLAG_AICANUSE | WEAPONFLAG_DUALFLIP | WEAPONFLAG_00000040 | WEAPONFLAG_TRACKTIMEUSED | WEAPONFLAG_00000400 | WEAPONFLAG_DUALWIELD | WEAPONFLAG_00008000 | WEAPONFLAG_DETERMINER_S_THE | WEAPONFLAG_DETERMINER_F_THE,
 };
 
 struct weaponfunc_shootauto invfunc_kf7special_shoot = {
@@ -6357,6 +6419,7 @@ struct weapon *g_Weapons[] = {
 	&invitem_laser,
 	&invitem_grenade,
 	&invitem_impactgrenade,
+	&invitem_uberkl01313,
 	&invitem_nbomb,
 	&invitem_timedmine,
 	&invitem_proximitymine,
