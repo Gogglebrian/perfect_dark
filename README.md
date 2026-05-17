@@ -1,6 +1,22 @@
-# Perfect Dark port
+# Perfect Dark port: More 'n' Better Weapons Mod
 
-This repository contains a work-in-progress port of the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) to modern platforms.
+This is a work-in-progress mod of the lovely work-in-progress [port](https://github.com/fgsfdsfgs/perfect_dark) of the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark), with new bespoke weapon variants, overhauls, enhancements, and/or and balance tweaks. Balance decisions are oriented around "zombies mode" (Combat Simulator rounds against a team of 8 FistSims).
+
+## Features
+
+**New variants:**
+* F-Bomb: A more precise grenade that detonates on impact. Primary: detonates on any impact. Secondary: bounces off of walls/enemies, like SuperDragon/Devastator rounds).
+* U13ERKL01313: An upgraded KL01313 with absurdly higher fire rate (but equally pathetic base damage and even worse spread).
+
+**Overhauls:**
+* Sniper Rifle: Massively increased damage, reduced fire rate. Reloads on function switch, and remembers its function when dropped. Primary: piercing rounds. Secondary: explosive rounds.
+* Shotgun: Increased damage and fire rate, and added limited piercing. Reload is all-at-once instead of incremental. New secondary: automatic burst-fire.
+
+**Miscellaneous Tweaks**
+* Banned FistSims from using the Laser.
+* Renamed KL01313 primary function.
+
+# Original port readme:
 
 To run the port, you must already have a Perfect Dark ROM, specifically one of the following:
 * `ntsc-final`/`US V1.1`/`US Rev 1` (md5 `e03b088b6ac9e0080440efed07c1e40f`).  
