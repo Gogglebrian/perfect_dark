@@ -183,7 +183,9 @@ void bgun0f0abd30(s32 handnum);
 s32 bgunGetWeaponNum2(s32 handnum);
 s8 bgunFreeFireslotWrapper(s32 fireslot);
 s8 bgunFreeFireslot(s32 fireslot);
-void bgunForceReloadIfAnyAmmo(s32 handnum, int func);
-
+bool bgunForceReloadIfAnyAmmo(s32 handnum, int func);
+void bgunSetCurrentPlayerSavedFunc(s8 weaponnum, bool secondary);
+s8 bgunGetCurrentPlayerSavedFunc(s8 weaponnum);
+bool bgunDoesFuncHaveAnyAmmo(s32 handnum, s8 func);
 
 #endif

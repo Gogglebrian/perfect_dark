@@ -2295,8 +2295,8 @@ struct hand {
 	/*0x0d90*/ u32 ispare6;
 	/*0x0d94*/ u32 ispare7;
 	/*0x0d98*/ u32 ispare8;
-	/*0x0d9c*/ u32 ispare9;
-	/*0x0da0*/ u32 funcSwitchCause; //was ispare10; set to 0 for automatic on switch-in, 1 for manual, 2 for automatically from running out of ammo. Used by SniperRifle - Gogglebrian
+	/*0x0d9c*/ u32 sniperSwitchCause; // 0 for other, 1 for out of ammo, 2 for manual
+	/*0x0da0*/ u32 isSniperExplosiveMagEquipped; //was ispare10;
 	/*0x0da4*/ f32 fspare1;
 	/*0x0da8*/ f32 fspare2;
 	/*0x0dac*/ f32 fspare3;

@@ -17042,7 +17042,7 @@ s32 ammocrateGetPickupAmmoQty(struct ammocrateobj *crate)
 	case AMMOTYPE_SMG      : qty = 10;            break;
 	case AMMOTYPE_CROSSBOW : qty = 10;            break;
 	case AMMOTYPE_RIFLE    : qty = 10;            break;
-	case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+	case AMMOTYPE_SNIPER_PIERCING: qty = 8;			 break;
 	case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 	case AMMOTYPE_SHOTGUN  : qty = 5;             break;
 	case AMMOTYPE_MAGNUM   : qty = 5;             break;
@@ -17085,7 +17085,7 @@ s32 weaponGetPickupAmmoQty(struct weaponobj *weapon)
 		case AMMOTYPE_SMG:          qty = 20;          break;
 		case AMMOTYPE_CROSSBOW:     qty = 5;           break;
 		case AMMOTYPE_RIFLE:        qty = 20;          break;
-		case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+		case AMMOTYPE_SNIPER_PIERCING: qty = 8;	  		 break;
 		case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 		case AMMOTYPE_SHOTGUN:      qty = 10;          break;
 		case AMMOTYPE_FARSIGHT:     qty = 4;           break;
@@ -17103,7 +17103,7 @@ s32 weaponGetPickupAmmoQty(struct weaponobj *weapon)
 		case AMMOTYPE_SMG:        qty = 10;          break;
 		case AMMOTYPE_CROSSBOW:   qty = 5;           break;
 		case AMMOTYPE_RIFLE:      qty = 10;          break;
-		case AMMOTYPE_SNIPER_PIERCING: qty = 12;			 break;
+		case AMMOTYPE_SNIPER_PIERCING: qty = 8;			 break;
 		case AMMOTYPE_SNIPER_EXPLOSIVE: qty = 8;			 break;
 		case AMMOTYPE_SHOTGUN:    qty = 5;           break;
 		case AMMOTYPE_FARSIGHT:   qty = 4;           break;
@@ -17439,7 +17439,7 @@ s32 propPickupByPlayer(struct prop *prop, bool showhudmsg)
 				s32 pickupqty = weaponGetPickupAmmoQty(weapon);
 
 				if (bgunGetReservedAmmoCount(AMMOTYPE_SNIPER_EXPLOSIVE) < bgunGetCapacityByAmmotype(AMMOTYPE_SNIPER_EXPLOSIVE)) {
-					s32 quantity = bgunGetReservedAmmoCount(AMMOTYPE_SNIPER_EXPLOSIVE) + 5;
+					s32 quantity = bgunGetReservedAmmoCount(AMMOTYPE_SNIPER_EXPLOSIVE) + 8;
 
 					bgunSetAmmoQuantity(AMMOTYPE_SNIPER_EXPLOSIVE, quantity);
 
@@ -21275,6 +21275,14 @@ void weaponCreateForPlayerDrop(s32 weaponnum)
 	prop = weaponCreateForChr(chr, playermgrGetModelOfWeapon(weaponnum), weaponnum, OBJFLAG_WEAPON_AICANNOTUSE, NULL, NULL);
 
 	if (prop) {
+		// Dropped sniper rifle should remember which mag was equipped
+		if (weaponnum == WEAPON_SNIPERRIFLE) {
+			if (g_Vars.currentplayer->hands[0].isSniperExplosiveMagEquipped)
+				prop->obj->flags3 |= OBJFLAG3_00000008;
+			g_Vars.currentplayer->hands[0].isSniperExplosiveMagEquipped = 0;
+			bgunSetCurrentPlayerSavedFunc(WEAPON_SNIPERRIFLE, 0);
+		}
+
 		objSetDropped(prop, DROPTYPE_DEFAULT);
 		objDrop(prop, true);
 

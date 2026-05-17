@@ -528,6 +528,13 @@ s32 invGiveWeaponsByProp(struct prop *prop)
 
 			if (invGiveSingleWeapon(weaponnum)) {
 				numgiven = 1;
+
+				//If sniperrifle, update which sniper mag is equipped to match the picked-up gun
+				if (weaponnum == WEAPON_SNIPERRIFLE) {
+					g_Vars.currentplayer->hands[HAND_RIGHT].isSniperExplosiveMagEquipped = (obj->flags3 & OBJFLAG3_00000008);
+					bgunSetCurrentPlayerSavedFunc(WEAPON_SNIPERRIFLE, g_Vars.currentplayer->hands[HAND_RIGHT].isSniperExplosiveMagEquipped);
+					g_Vars.currentplayer->hands[HAND_RIGHT].sniperSwitchCause = 0;
+				}
 			}
 
 			if (g_Vars.normmplayerisrunning

@@ -2451,6 +2451,26 @@
     },
     {
         "id": "L_GUN_245",
+        "en": "Piercing Rounds\n",
+        "gb": "Piercing Rounds\n",
+        "jp": "Piercing Rounds\n",
+        "it": "Piercing Rounds\n",
+        "fr": "Piercing Rounds\n",
+        "de": "Piercing Rounds\n",
+        "es": "Piercing Rounds\n"
+    },
+    {
+        "id": "L_GUN_246",
+        "en": "Explosive Rounds\n",
+        "gb": "Explosive Rounds\n",
+        "jp": "Explosive Rounds\n",
+        "it": "Explosive Rounds\n",
+        "fr": "Explosive Rounds\n",
+        "de": "Explosive Rounds\n",
+        "es": "Explosive Rounds\n"
+    },
+    {
+        "id": "L_GUN_247",
         "en": null,
         "gb": null,
         "jp": null,

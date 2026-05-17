@@ -1306,9 +1306,7 @@ s32 bgunTickIncIdle(struct handweaponinfo *info, s32 handnum, struct hand *hand,
 						hand->unk0cc8_07 = true;
 
 						if (bgunSetState(handnum, HANDSTATE_CHANGEFUNC)) {
-							if (info->weaponnum == WEAPON_SNIPERRIFLE) {
-								hand->funcSwitchCause = 2; // 2 for ran out of ammo
-							}
+							g_Vars.currentplayer->hands[HAND_RIGHT].sniperSwitchCause = 1;
 							return lvupdate;
 						}
 					}
@@ -1737,11 +1735,13 @@ s32 bgunTickIncChangeFunc(struct handweaponinfo *info, s32 handnum, struct hand 
 	struct guncmd *cmd;
 	bool more = false;
 
-	if (hand->statecycles == 0) {
+	if (hand->statecycles == 0) { // first tick of the state
+
 		if (hand->gset.weaponfunc == FUNC_PRIMARY) {
 			cmd = gsetGetPriToSecAnim(&hand->gset);
 			hand->gset.weaponfunc = FUNC_SECONDARY;
-		} else {
+		}
+		else {
 			cmd = gsetGetSecToPriAnim(&hand->gset);
 			hand->gset.weaponfunc = FUNC_PRIMARY;
 		}
@@ -1753,19 +1753,24 @@ s32 bgunTickIncChangeFunc(struct handweaponinfo *info, s32 handnum, struct hand 
 			more = true;
 			g_Vars.currentplayer->hands[HAND_RIGHT].unk0dd4 = -1;
 		}
-	} else {
-		if (hand->animmode == HANDANIMMODE_BUSY) {
+
+	} else { // beyond the first tick of the state
+		 if (hand->animmode == HANDANIMMODE_BUSY) {
 			more = true;
 		}
 	}
 
 	if (!more && bgunSetState(handnum, HANDSTATE_IDLE)) {
-		if (info->weaponnum == WEAPON_SNIPERRIFLE) { 
-			if (g_Vars.currentplayer->hands[handnum].funcSwitchCause > 0) {
-					bgunForceReloadIfAnyAmmo(handnum, hand->gset.weaponfunc);
+		//Sniperrifle should force a reload to visually swap mag type if appropriate
+		if (info->weaponnum == WEAPON_SNIPERRIFLE) {
+			if (hand->gset.weaponfunc != hand->isSniperExplosiveMagEquipped && g_Vars.currentplayer->hands[HAND_RIGHT].sniperSwitchCause > 0) {
+				if (bgunForceReloadIfAnyAmmo(handnum, hand->gset.weaponfunc)) {
+					hand->isSniperExplosiveMagEquipped = hand->gset.weaponfunc;
+					bgunSetCurrentPlayerSavedFunc(info->weaponnum, hand->gset.weaponfunc);
+				} 
 			}
-			g_Vars.currentplayer->hands[handnum].funcSwitchCause = 0;
 		}
+
 		return lvupdate;
 	}
 
@@ -6073,24 +6078,28 @@ void bgunReloadIfPossible(s32 handnum)
 	}
 }
 
+bool bgunDoesFuncHaveAnyAmmo(s32 handnum, s8 func) {
+	struct handweaponinfo info;
+	bgunGetWeaponInfo(&info, handnum);
+
+	return bgun0f098ca0(func, &info, &g_Vars.currentplayer->hands[handnum]) >= 0;
+}
+
 /// <summary>
 /// Forces a reload as long as you have the ammo, even if the gun's already full.
 /// </summary>
 /// <param name="handnum"></param>
 /// <param name="func"></param>
-void bgunForceReloadIfAnyAmmo(s32 handnum, int func)
+bool bgunForceReloadIfAnyAmmo(s32 handnum, int func)
 {
-	struct player* player = g_Vars.currentplayer;
-	struct handweaponinfo info;
-
-	bgunGetWeaponInfo(&info, handnum);
-
 	if (bgunGetAmmoTypeForWeapon(bgunGetWeaponNum(handnum), func)
-		&& player->hands[handnum].modenext == HANDMODE_NONE
-		&& bgun0f098ca0(func, &info, &g_Vars.currentplayer->hands[handnum]) >= 0)
+		&& g_Vars.currentplayer->hands[handnum].modenext == HANDMODE_NONE
+		&& bgunDoesFuncHaveAnyAmmo(handnum, func))
 	{
 			bgunSetState(handnum, HANDSTATE_RELOAD);
+			return true;
 	}
+	return false;
 }
 
 void bgunSetAdjustPos(f32 angle)
@@ -6425,6 +6434,14 @@ void bgunDisarm(struct prop *attackerprop)
 				if (obj->hidden & OBJHFLAG_PROJECTILE) {
 					obj->projectile->pickuptimer240 = TICKS(240);
 					obj->projectile->pickupby = attackerprop;
+				}
+
+				// Dropped sniper rifle should remember which mag was equipped
+				if (weaponnum == WEAPON_SNIPERRIFLE) {
+					if (player->hands[0].isSniperExplosiveMagEquipped)
+						obj->flags3 |= OBJFLAG3_00000008;
+					player->hands[0].isSniperExplosiveMagEquipped = 0;
+					bgunSetCurrentPlayerSavedFunc(WEAPON_SNIPERRIFLE, 0);
 				}
 
 				objDrop(prop2, true);
@@ -11759,6 +11776,19 @@ void bgunSetTriggerOn(s32 handnum, bool on)
 #define SETFUNCPRI() g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(g_Vars.currentplayer->gunctrl.weaponnum - 1) >> 3] &= ~(1 << ((g_Vars.currentplayer->gunctrl.weaponnum - 1) & 7))
 #define SETFUNCSEC() g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(g_Vars.currentplayer->gunctrl.weaponnum - 1) >> 3] |= 1 << ((g_Vars.currentplayer->gunctrl.weaponnum - 1) & 7)
 
+void bgunSetCurrentPlayerSavedFunc(s8 weaponnum, bool secondary) {
+	if (secondary) {
+		g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(weaponnum - 1) >> 3] |= 1 << ((weaponnum - 1) & 7);
+	}
+	else {
+		g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(weaponnum - 1) >> 3] &= ~(1 << ((weaponnum - 1) & 7));
+	}
+}
+
+s8 bgunGetCurrentPlayerSavedFunc(s8 weaponnum) {
+	return g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(weaponnum - 1) >> 3];
+}
+
 /**
  * This is called once B has been held for 25 ticks, or earlier if pressing B+Z.
  *
@@ -11780,7 +11810,11 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 	case WEAPON_SNIPERRIFLE:
 		if (!trigpressed) {
 			if (VALIDWEAPON()) {
-				g_Vars.currentplayer->hands[HAND_RIGHT].funcSwitchCause = 1;
+				if (!bgunDoesFuncHaveAnyAmmo(HAND_RIGHT, 1 - FUNCISSEC()))
+					return USETIMER_CONTINUE;
+
+				g_Vars.currentplayer->hands[HAND_RIGHT].sniperSwitchCause = 1;
+
 				if (1 - FUNCISSEC()) {
 					SETFUNCSEC();
 				}
@@ -12199,8 +12233,8 @@ struct ammotype g_AmmoTypes[] = {
 	{ 800,          0, 0  }, // AMMOTYPE_SMG
 	{ 69,           0, 0  }, // AMMOTYPE_CROSSBOW
 	{ 400,          0, -2 }, // AMMOTYPE_RIFLE
-	{ 80,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
-	{ 40,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
+	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
+	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
 	{ 200,          0, 0  }, // AMMOTYPE_SHOTGUN, max up from 100 - Gogglebrian
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE

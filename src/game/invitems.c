@@ -4120,7 +4120,7 @@ struct invaimsettings invaimsettings_sniperrifle = {
 //Sniperrifle Primary: massive damage, slightly reduced fire rate. More impact and 5 penetration. Louder, better sound. - Gogglebrian
 struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
-	L_GUN_085, // name
+	L_GUN_245, // name
 	0, // unused
 	0, // ammoindex
 	&invnoisesettings_louder, // originally _sniper
@@ -4143,7 +4143,7 @@ struct weaponfunc_shootsingle invfunc_sniperrifle_singleshot = {
 //Sniperrifle Secondary, New: Explosive Rounds -- less damage and no piercing but explosions, fun - Gogglebrian
 struct weaponfunc_shootsingle invfunc_sniperrifle_explosiverounds = {
 	INVENTORYFUNCTYPE_SHOOT_SINGLE,
-	L_GUN_095, // name
+	L_GUN_246, // name
 	0, // unused
 	1, // ammoindex
 	&invnoisesettings_louder, // originally _sniper
@@ -4204,7 +4204,7 @@ struct weapon invitem_sniperrifle = {
 	FILE_GSNIPERLOD, // lo model
 	invanim_sniperrifle_equip, // equip animation
 	NULL, // unequip animation
-	NULL, // invanim_sniperrifle_reload, // pritosec animation
+	NULL, // pritosec animation
 	NULL, // sectopri animation
 	{ &invfunc_sniperrifle_singleshot, &invfunc_sniperrifle_explosiverounds }, // functions, replaced SniperRifle's original crouch secondary with Explosive Rounds. Also tweaked secondary switch style in bondgun.c bgunConsiderToggleGunFunction - Gogglebrian
 	&invammo_sniperrifle_piercing, // pri ammo
