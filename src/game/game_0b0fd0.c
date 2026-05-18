@@ -658,7 +658,7 @@ u32 currentPlayerGetSight(void)
 	case WEAPON_PP9I:
 	case WEAPON_CC13:
 	case WEAPON_KL01313:
-	case WEAPON_UBERKL01313:
+	case WEAPON_U13ERKL01313:
 	case WEAPON_KF7SPECIAL:
 	case WEAPON_ZZT:
 	case WEAPON_DMC:

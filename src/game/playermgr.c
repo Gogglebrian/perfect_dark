@@ -751,7 +751,7 @@ s32 playermgrGetModelOfWeapon(s32 weapon)
 	case WEAPON_PP9I:             model = MODEL_CHRWPPK; break;
 	case WEAPON_CC13:             model = MODEL_CHRTT33; break;
 	case WEAPON_KL01313:          model = MODEL_CHRSKORPION; break;
-	case WEAPON_UBERKL01313:          model = MODEL_CHRSKORPION; break;
+	case WEAPON_U13ERKL01313:     model = MODEL_CHRSKORPION; break;
 	case WEAPON_KF7SPECIAL:       model = MODEL_CHRKALASH; break;
 	case WEAPON_ZZT:              model = MODEL_CHRUZI; break;
 	case WEAPON_DMC:              model = MODEL_CHRMP5K; break;

@@ -9525,7 +9525,7 @@ void chrCalculateHit(struct chrdata *chr, bool *angleokptr, bool *hit, struct gs
 	case WEAPON_PP9I:
 	case WEAPON_CC13:
 	case WEAPON_KL01313:
-	case WEAPON_UBERKL01313:
+	case WEAPON_U13ERKL01313:
 	case WEAPON_KF7SPECIAL:
 	case WEAPON_ZZT:
 	case WEAPON_DMC:
@@ -10474,7 +10474,7 @@ void chrTickShoot(struct chrdata *chr, s32 handnum)
 			case WEAPON_PP9I:
 			case WEAPON_CC13:
 			case WEAPON_KL01313:
-			case WEAPON_UBERKL01313:
+			case WEAPON_U13ERKL01313:
 			case WEAPON_KF7SPECIAL:
 			case WEAPON_ZZT:
 			case WEAPON_DMC:
