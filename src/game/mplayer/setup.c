@@ -6197,6 +6197,14 @@ struct menuitem g_MpExtGameOptionsMenuItems[] = {
 		MPOPTION_NODOORS,
 		menuhandlerMpCheckboxOption,
 	},
+	{
+		MENUITEMTYPE_CHECKBOX,
+		0,
+		MENUITEMFLAG_LOCKABLEMINOR | MENUITEMFLAG_LITERAL_TEXT,
+		(uintptr_t)"Fair Sim Targeting",
+		MPOPTION_FAIRSIMTARGETING,
+		menuhandlerMpCheckboxOption,
+	},
 	{ MENUITEMTYPE_END },
 };
 
