@@ -1579,6 +1579,20 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 
 		aibot->canseecloaked = false;
 	}
+	
+	// Fair Targeting:
+	//	Because performance is no longer an issue, we can just calculate all distance/LoS checks every frame.
+	//	As a result, a freshly-spawned bot will actually target the closest player.
+	if (fairTargeting) {
+		for (i = 0; i < g_MpNumChrs; i++) {
+			trychr = mpGetChrFromPlayerIndex(i);
+			if (trychr != botchr) {
+				aibot->chrdistances[i] = chrGetDistanceToCoord(botchr, &trychr->prop->pos);
+				aibot->chrsinsight[i] = chrHasLosToChr(botchr, trychr, &room);
+				aibot->chrrooms[i] = room;
+			}
+		}
+	}
 
 	// Fair Targeting:
 	//	Because performance is no longer an issue, we can just calculate all distance/LoS checks every frame.
