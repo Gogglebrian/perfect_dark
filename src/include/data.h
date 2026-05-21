@@ -528,6 +528,7 @@ extern struct menudialogdef g_HtDetailsMenuDialog;
 extern struct menudialogdef g_HtFailedMenuDialog;
 extern struct menudialogdef g_HtCompletedMenuDialog;
 extern struct menudialogdef g_HangarListMenuDialog;
+extern struct customweaponvarianttint g_CustomWeaponVariantTints[CUSTOMWEAPONVARIANT_COUNT];
 
 #ifndef PLATFORM_N64
 

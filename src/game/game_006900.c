@@ -40,6 +40,33 @@ u32 colourBlend(u32 a, u32 b, u32 aweight)
 		| ((aweight * (a & 0xff) + bweight * (b & 0xff)) >> 8);
 }
 
+/// <summary>
+/// Applies an environmental/ambient color to a baseline tint by weighted blending.
+/// </summary>
+/// <param name="tint">tint colour, RGBA</param>
+/// <param name="env">environmental colour, RGBA</param>
+/// <param name="mintintweight">0-255, min weight for the tint colour to guarantee it doesn't get totally washed out by the enviromental colour/lighting</param>
+/// <returns></returns>
+u32 addTintUnderneathEnvColor(u32 tint, u32 env, u32 mintintweight) {
+	u32 blendedcolour;
+	u8 blendedalpha;
+	u8 tintalpha = tint & 0xFF;
+	u8 maxenvweight = 255 - mintintweight;
+
+	u32 weight = (env & 0xFF) * 1.2; // use the env's alpha, but we want its weight to be a bit disproportionately high hence the multiplier
+	if (weight > maxenvweight) // make sure the min tint weight is respected so the tint doesn't get totally washed out if the environmental colour is intense
+		weight = maxenvweight;
+	blendedcolour = colourBlend(env, tint, weight); // use the env's alpha value as weight to blend it in - this way the tint doesn't get washed out if the envcolour is subtle
+
+	// don't let alpha go any lower than the tint colour's alpha
+	blendedalpha = blendedcolour & 0xFF;
+	if (blendedalpha < tintalpha) {
+		blendedcolour = (blendedcolour & 0xFFFFFF00) | tintalpha;
+	}
+
+	return blendedcolour;
+}
+
 void menuTickTimers(void)
 {
 #if VERSION >= VERSION_PAL_BETA

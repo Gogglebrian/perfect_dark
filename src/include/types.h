@@ -2312,6 +2312,11 @@ struct hand {
 	/*0x0dd8*/ Mtxf *unk0dd8;
 };
 
+struct customweaponvarianttint {
+	u32 colour;
+	u8 minweight;
+};
+
 struct texpool {
 	u8 *start;
 	union {

@@ -57,6 +57,7 @@
 #include "game/propobj.h"
 #include "game/wallhit.h"
 #include "game/shards.h"
+#include "game/game_006900.h" // for colourBlend
 #include "bss.h"
 #include "tvcmds.h"
 #include "lib/vi.h"
@@ -13866,6 +13867,17 @@ Gfx *objRender(struct prop *prop, Gfx *gdl, bool xlupass)
 	}
 
 	renderdata.fogcolour = colour[0] << 24 | colour[1] << 16 | colour[2] << 8 | colour[3];
+
+	if (obj->type == OBJTYPE_WEAPON) {
+		struct weaponobj* weapon = (struct weaponobj*)obj;
+
+		// apply tint for custom weapon variants
+		if (weapon->weaponnum >= CUSTOMWEAPONVARIANT_FIRST && weapon->weaponnum < (CUSTOMWEAPONVARIANT_FIRST + CUSTOMWEAPONVARIANT_COUNT)) {
+			struct customweaponvarianttint tint = g_CustomWeaponVariantTints[weapon->weaponnum - CUSTOMWEAPONVARIANT_FIRST];
+			renderdata.fogcolour = addTintUnderneathEnvColor(tint.colour, renderdata.fogcolour, tint.minweight);
+		}
+	}
+
 	objRenderProp(prop, &renderdata, xlupass);
 
 	gdl = renderdata.gdl;

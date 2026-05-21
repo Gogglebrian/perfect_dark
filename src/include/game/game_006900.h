@@ -5,6 +5,7 @@
 #include "types.h"
 
 u32 colourBlend(u32 a, u32 b, u32 weight);
+u32 addTintUnderneathEnvColor(u32 tint, u32 env, u32 mintintweight);
 void menuTickTimers(void);
 f32 menuGetSinOscFrac(f32 freq);
 f32 menuGetCosOscFrac(f32 freq);

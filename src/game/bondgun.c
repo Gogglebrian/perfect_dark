@@ -196,6 +196,11 @@ char var800700bc[][10] = {
 	{ 'x','x','x'                         }, // "xxx"
 };
 
+struct customweaponvarianttint g_CustomWeaponVariantTints[CUSTOMWEAPONVARIANT_COUNT] = { // colour, minweight
+	{0xff7f0048, 25}, // WEAPON_IMPACTGRENADE - orange
+	{0xff007f19,  5}, // WEAPON_U13ERKL01313 - purple
+};
+
 #ifndef PLATFORM_N64
 s32 g_BgunGeMuzzleFlashes = false;
 #endif
@@ -8166,6 +8171,34 @@ void bgun0f0a5550(s32 handnum)
 #endif
 }
 
+/// <summary>
+/// Tick up the U13ERKL01313's glow when it's firing and fade it when it's not
+/// </summary>
+void bgunTickU13ERKL01313Charge(void) {
+	struct player* player = g_Vars.currentplayer;
+	f32 heatuprate = 0.4f;
+	f32 cooloffrate = 0.15f;
+	s32 i;
+
+	for (i = 0; i < 2; i++) {
+		struct hand * hand = &player->hands[i];
+		if (hand->inuse) {
+			if (bgunIsFiring(i)) {
+				hand->matmot1 += g_Vars.lvupdate60freal * heatuprate;
+
+				if (hand->matmot1 > 5) {
+					hand->matmot1 = 5;
+				}
+			} else { // not firing
+				hand->matmot1 -= g_Vars.lvupdate60freal * cooloffrate;
+				if (hand->matmot1 < 0) {
+					hand->matmot1 = 0;
+				}
+			}
+		}
+	}
+}
+
 void bgunTickMaulerCharge(void)
 {
 	struct player *player = g_Vars.currentplayer;
@@ -8317,6 +8350,9 @@ void bgunTickGameplay2(void)
 
 	if (player->gunctrl.weaponnum == WEAPON_MAULER) {
 		bgunTickMaulerCharge();
+	}
+	else if (player->gunctrl.weaponnum == WEAPON_U13ERKL01313) {
+		bgunTickU13ERKL01313Charge();
 	}
 
 	if (g_Vars.lvupdate240 == 0) {
@@ -11129,6 +11165,20 @@ void bgunRender(Gfx **gdlptr)
 				if (hand->gset.weaponnum == WEAPON_MAULER) {
 					u32 weight = hand->matmot1 * 50.0f;
 					renderdata.envcolour = colourBlend(0xff00007f, renderdata.envcolour, weight);
+				}
+				else if (hand->gset.weaponnum >= CUSTOMWEAPONVARIANT_FIRST && hand->gset.weaponnum < (CUSTOMWEAPONVARIANT_FIRST + CUSTOMWEAPONVARIANT_COUNT)) { // for custom weapon variants
+					
+					if (hand->gset.weaponnum == WEAPON_U13ERKL01313) { //For U13ERKL01313, blend its special glow with the envcolour first
+						u32 weight = hand->matmot1 * 50.0f; // 0 - 255, how energetic the gun is
+						u32 dimglowcolour = 0xff007fa0; // we'll start from this colour when the glow starts
+						u32 brightglowcolour = 0xff0055a0; // and hit this colour at full blast
+						u32 glowcolour = colourBlend(brightglowcolour, dimglowcolour, weight); // first tween between min glow and max glow
+						renderdata.envcolour = colourBlend(glowcolour, renderdata.envcolour, weight); // the more enrgetic the gun is, the glow becomes more intense while the env colours get overwhelmed
+					}
+
+					// Now add in a baseline tint (this'll make it look like the tint is baked into the model and then the environmental/lighting colour is applied onto it
+					struct customweaponvarianttint tint = g_CustomWeaponVariantTints[hand->gset.weaponnum - CUSTOMWEAPONVARIANT_FIRST];
+					renderdata.envcolour = addTintUnderneathEnvColor(tint.colour, renderdata.envcolour, tint.minweight);	
 				}
 			}
 

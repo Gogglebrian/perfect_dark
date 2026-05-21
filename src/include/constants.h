@@ -4416,8 +4416,8 @@ enum weaponnum {
 	/*0x1c*/ WEAPON_TRANQUILIZER,
 	/*0x1d*/ WEAPON_LASER,
 	/*0x1e*/ WEAPON_GRENADE,
-					 WEAPON_IMPACTGRENADE, // I'm not moving those hex values up by one, so do it in your head
-					 WEAPON_U13ERKL01313,   // whoops offset all those labels by another. Putting this here so that it'll be valid for secondary.
+					 WEAPON_IMPACTGRENADE, // Keep all custom weapon variants together AFTER ImpactGrenade, and increment CUSTOMWEAPON_NUM below when we add a new one.
+					 WEAPON_U13ERKL01313,  //   also those hex labels are offset now, but I'm not changing them ;) - Gogglebrian
 	/*0x1f*/ WEAPON_NBOMB,
 	/*0x20*/ WEAPON_TIMEDMINE,
 	/*0x21*/ WEAPON_PROXIMITYMINE,
@@ -4485,6 +4485,9 @@ enum weaponnum {
 	/*0x5d*/ WEAPON_SUICIDEPILL,
 	//0x5e*/
 };
+
+#define CUSTOMWEAPONVARIANT_FIRST	WEAPON_IMPACTGRENADE 
+#define CUSTOMWEAPONVARIANT_COUNT	2											// update me when we add a new custom weapon variant
 
 #define WEAPON_MPLOCATION00 240
 #define WEAPON_MPLOCATION01 241
