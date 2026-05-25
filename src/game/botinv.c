@@ -1008,6 +1008,7 @@ void botinvTick(struct chrdata *chr)
 
 		// Consider setting knives to secondary function (throw)
 		if (newweaponnum == WEAPON_COMBATKNIFE
+			  && chr->aibot->config->type != BOTTYPE_FIST
 				&& botactGetAmmoQuantityByWeapon(aibot, WEAPON_COMBATKNIFE, FUNC_SECONDARY, true) >= 2
 				&& chr->target != -1
 				&& chr->aibot->chrdistances[mpPlayerGetIndex(chrGetTargetProp(chr)->chr)] > 200
