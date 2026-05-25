@@ -1548,8 +1548,10 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	RoomNum room = -1;
 	struct chrdata *trychr;
 	s32 playernum;
+#ifndef PLATFORM_N64
 	bool fairTargeting = g_MpSetup.options & MPOPTION_FAIRSIMTARGETING;
-	
+#endif
+
 	// Advance the bot's internal pointer to the next chr
 	// and update stats about that chr
 	aibot->queryplayernum = (aibot->queryplayernum + 1) % g_MpNumChrs;
@@ -1570,11 +1572,15 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		//	Because a target must be selected in the first frame of play, and queryplayernum always points to 1 first,
 		//	a freshly-spawned bot will default to targeting the player at index 1 (counting up from there if dead,
 		//	cloaked, or on the same team) every single time, and regardless of distance.
+#ifndef PLATFORM_N64
 		if (!fairTargeting) {
-			aibot->chrdistances[aibot->queryplayernum] = chrGetDistanceToCoord(botchr, &trychr->prop->pos);
-			aibot->chrsinsight[aibot->queryplayernum] = chrHasLosToChr(botchr, trychr, &room);
-			aibot->chrrooms[aibot->queryplayernum] = room;
+#endif
+		aibot->chrdistances[aibot->queryplayernum] = chrGetDistanceToCoord(botchr, &trychr->prop->pos);
+		aibot->chrsinsight[aibot->queryplayernum] = chrHasLosToChr(botchr, trychr, &room);
+		aibot->chrrooms[aibot->queryplayernum] = room;
+#ifndef PLATFORM_N64
 		}
+#endif
 
 		aibot->canseecloaked = false;
 	}
@@ -1582,6 +1588,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	// Fair Targeting:
 	//	Because performance is no longer an issue, we can just calculate all distance/LoS checks every frame.
 	//	As a result, a freshly-spawned bot will actually target the closest player.
+#ifndef PLATFORM_N64
 	if (fairTargeting) {
 		for (i = 0; i < g_MpNumChrs; i++) {
 			trychr = mpGetChrFromPlayerIndex(i);
@@ -1592,6 +1599,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 			}
 		}
 	}
+#endif
 
 	// Update last seen timestamps for all visible chrs
 	for (i = 0; i < g_MpNumChrs; i++) {
