@@ -4807,13 +4807,13 @@ MenuItemHandlerResult menuhandlerMainMenuSoloMissions(s32 operation, struct menu
 		g_MissionConfig.isanti = false;
 		menuPushDialog(&g_SelectMissionMenuDialog);
 	}
-
+	/* Removing this because we want to default to combat simulator
 	if (operation == MENUOP_CHECKPREFOCUSED) {
 		if (isStageDifficultyUnlocked(SOLOSTAGEINDEX_INVESTIGATION, DIFF_A)) {
 			return true;
 		}
 	}
-
+	*/
 	return 0;
 }
 
@@ -4827,6 +4827,10 @@ MenuItemHandlerResult menuhandlerMainMenuCombatSimulator(s32 operation, struct m
 		g_Vars.mpsetupmenu = MPSETUPMENU_GENERAL;
 		func0f0f820c(&g_CombatSimulatorMenuDialog, MENUROOT_MPSETUP);
 		func0f0f8300();
+	}
+
+	if (operation == MENUOP_CHECKPREFOCUSED) { // default to Combat Simulator
+		return true;
 	}
 
 	return 0;

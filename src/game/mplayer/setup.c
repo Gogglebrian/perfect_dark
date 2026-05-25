@@ -5414,6 +5414,9 @@ MenuItemHandlerResult menuhandlerMpAdvancedSetup(s32 operation, struct menuitem 
 	if (operation == MENUOP_SET) {
 		func0f0f820c(&g_MpAdvancedSetupMenuDialog, 3);
 	}
+	if (operation == MENUOP_CHECKPREFOCUSED) { // default to Advanced
+		return true;
+	}
 
 	return 0;
 }
