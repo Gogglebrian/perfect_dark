@@ -3025,8 +3025,8 @@
 #define MPWEAPON_RCP45            0x2e
 #define MPWEAPON_SHIELD           0x2f
 #define MPWEAPON_IMPACTGRENADE    0x30
-#define MPWEAPON_DISABLED         0x31
-#define MPWEAPON_U13ERKL01313     0x32
+#define MPWEAPON_U13ERKL01313     0x31
+#define MPWEAPON_DISABLED         0x32
 #define NUM_MPWEAPONS             0x33
 #endif
 

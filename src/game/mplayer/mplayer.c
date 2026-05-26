@@ -609,10 +609,34 @@ void mpInit(bool resetplayers)
 
 #ifndef PLATFORM_N64
 	for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
-		g_MpWeaponSetRandomFilters[i] = 1;
+		mpApplyDefaultRandomFilter(i);
 	}
 #endif
 }
+
+#ifndef PLATFORM_N64
+void mpApplyDefaultRandomFilter(s32 mpWeaponIndex) {
+	switch (g_MpWeapons[mpWeaponIndex].weaponnum) {
+	case WEAPON_NONE:
+	case WEAPON_FALCON2:
+	case WEAPON_FALCON2_SILENCER:
+	case WEAPON_DISABLED:
+	case WEAPON_COMBATKNIFE:
+	case WEAPON_TRANQUILIZER:
+	case WEAPON_MPSHIELD:
+	case WEAPON_XRAYSCANNER:
+	case WEAPON_NIGHTVISION:
+	case WEAPON_IRSCANNER:
+	case WEAPON_CLOAKINGDEVICE:
+	case WEAPON_COMBATBOOST:
+		g_MpWeaponSetRandomFilters[mpWeaponIndex] = 0;
+		break;
+	default:
+		g_MpWeaponSetRandomFilters[mpWeaponIndex] = 1;
+		break;
+	}
+}
+#endif
 
 #if VERSION >= VERSION_PAL_BETA
 void mpGetTeamsWithDefaultName(u8 *mask)

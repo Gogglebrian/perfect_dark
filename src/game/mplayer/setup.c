@@ -1194,6 +1194,7 @@ struct menudialogdef g_MpSaveSetupExistsMenuDialog = {
 MenuItemHandlerResult mpSelectRandomWeaponListHandler(s32 operation, struct menuitem *item, union handlerdata *data)
 {
 	static const char *labels[] = {
+		"Select Recommended",
 		"Select Dark",
 		"Select Classic",
 		"Select All",
@@ -1202,7 +1203,7 @@ MenuItemHandlerResult mpSelectRandomWeaponListHandler(s32 operation, struct menu
 
 	switch (operation) {
 	case MENUOP_GETOPTIONCOUNT:
-		data->list.value = mpGetNumWeaponOptions() + 4;
+		data->list.value = mpGetNumWeaponOptions() + 5;
 		break;
 	case MENUOP_GETOPTIONTEXT:
 		{
@@ -1238,22 +1239,18 @@ MenuItemHandlerResult mpSelectRandomWeaponListHandler(s32 operation, struct menu
 
 				switch (index) {
 				case 0:
-					// Select Dark
+					// Select Recommended
 					for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
-						if ((i >= MPWEAPON_NONE && i <= MPWEAPON_XRAYSCANNER)
-								|| i == MPWEAPON_CLOAKINGDEVICE
-								|| i == MPWEAPON_COMBATBOOST
-								|| i >= MPWEAPON_SHIELD) {
-							g_MpWeaponSetRandomFilters[i] = 1;
-						} else {
-							g_MpWeaponSetRandomFilters[i] = 0;
-						}
+						mpApplyDefaultRandomFilter(i);
 					}
 					break;
 				case 1:
-					// Select Classic
+					// Select Dark
 					for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
-						if (i >= MPWEAPON_PP9I && i <= MPWEAPON_RCP45) {
+						if ((i > MPWEAPON_NONE && i <= MPWEAPON_XRAYSCANNER)
+								|| i == MPWEAPON_CLOAKINGDEVICE
+								|| i == MPWEAPON_COMBATBOOST
+								|| i == MPWEAPON_SHIELD) {
 							g_MpWeaponSetRandomFilters[i] = 1;
 						} else {
 							g_MpWeaponSetRandomFilters[i] = 0;
@@ -1261,12 +1258,27 @@ MenuItemHandlerResult mpSelectRandomWeaponListHandler(s32 operation, struct menu
 					}
 					break;
 				case 2:
-					// Select All
+					// Select Classic
 					for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
-						g_MpWeaponSetRandomFilters[i] = 1;
+						if (i == MPWEAPON_PROXIMITYMINE || i == MPWEAPON_REMOTEMINE || (i >= MPWEAPON_PP9I && i <= MPWEAPON_RCP45)) {
+							g_MpWeaponSetRandomFilters[i] = 1;
+						} else {
+							g_MpWeaponSetRandomFilters[i] = 0;
+						}
 					}
 					break;
 				case 3:
+					// Select All
+					for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
+						if (i == MPWEAPON_NONE || i == MPWEAPON_DISABLED) {
+							g_MpWeaponSetRandomFilters[i] = 0;
+						}
+						else {
+							g_MpWeaponSetRandomFilters[i] = 1;
+						}
+					}
+					break;
+				case 4:
 					// Select None
 					for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
 						g_MpWeaponSetRandomFilters[i] = 0;

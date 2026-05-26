@@ -124,5 +124,8 @@ void mpsetupfileGetOverview(char *arg0, char *filename, u16 *numsims, u16 *stage
 s32 mpsetupfileSave(s32 device, s32 filenum, u16 deviceserial);
 void func0f18e558(void);
 struct modeldef *func0f18e57c(s32 index, s32 *headnum);
+#ifndef PLATFORM_N64
+void mpApplyDefaultRandomFilter(s32 index);
+#endif
 
 #endif
