@@ -554,7 +554,7 @@ void mpInit(bool resetplayers)
 
 #ifndef PLATFORM_N64
 	g_MpSetup.options |= MPOPTION_FRIENDLYFIRE;
-	g_MpSetup.options |= MPOPTION_FAIRSIMTARGETING;
+	g_MpSetup.options |= MPOPTION_ENHANCEDSIMTARGETING;
 #endif
 
 	g_Vars.mphilltime = 10;
