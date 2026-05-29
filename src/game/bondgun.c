@@ -11791,9 +11791,13 @@ s32 bgunConsiderToggleGunFunction(s32 usedowntime, bool trigpressed, bool fromac
 			return USETIMER_STOP;
 		}
 #endif
+	case WEAPON_REMOTEMINE:
+		if (trigpressed) { // disallow funcbtn+trigger for remote mine
+			return USETIMER_CONTINUE;
+		}
+		//fall through
 	case WEAPON_LAPTOPGUN:
 	case WEAPON_DRAGON:
-	case WEAPON_REMOTEMINE:
 		// These weapons use temporary alt functions
 		if (extcontrols) {
 			g_Vars.currentplayer->gunctrl.invertgunfunc = !g_Vars.currentplayer->gunctrl.invertgunfunc;

@@ -6168,6 +6168,7 @@ struct extplayerconfig {
 	f32 crosshairedgeboundary;
 	s32 crosshairhealth;
 	s32 usereloads;
+	s32 funcbtndetonates; // if func switch button quick-detonates remote mines without having to press trigger
 };
 
 struct setupblock {

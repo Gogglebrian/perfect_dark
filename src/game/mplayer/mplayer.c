@@ -142,6 +142,7 @@ struct mpweapon g_MpWeapons[NUM_MPWEAPONS] = {
 	.crosshairedgeboundary = 0.7f, \
 	.crosshairhealth = CROSSHAIR_HEALTH_OFF, \
 	.usereloads = false, \
+	.funcbtndetonates = true, \
 }
 
 struct extplayerconfig g_PlayerExtCfg[MAX_PLAYERS] = {
