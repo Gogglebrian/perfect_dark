@@ -43,6 +43,16 @@
 #include "input.h"
 #include "video.h"
 
+/// <summary>
+/// Simple quick detonate for remote mines, unconcerned with inputs
+/// </summary>
+static void bgunProcessFuncBtnQuickDetonate(struct movedata* data) {
+	data->detonating = true;
+	data->btapcount = 0;
+	g_Vars.currentplayer->invdowntime = -2;
+	g_Vars.currentplayer->usedowntime = -2;
+}
+
 static void bgunProcessQuickDetonate(struct movedata *data, u32 c1buttons, u32 c1buttonsthisframe, u32 buttons1, u32 buttons2) {
 	if ((((c1buttons & (buttons1)) && (c1buttonsthisframe & (buttons2)))
 			|| ((c1buttons & (buttons2)) && (c1buttonsthisframe & (buttons1))))
@@ -65,6 +75,12 @@ static void bgunProcessInputAltButton(struct movedata *data, s8 contpad, s32 i)
 	s32 buttons = joyGetButtonsOnSample(i, contpad, 0xffffffff);
 	if (buttons & (BUTTON_ALTMODE)) {
 		if (g_Vars.currentplayer->altdowntime >= -1) {
+			if (bgunGetWeaponNum(HAND_RIGHT) == WEAPON_REMOTEMINE // Allow remote mine to hold-switch
+				&& g_PlayerExtCfg[g_Vars.currentplayernum].funcbtndetonates
+				&& g_Vars.currentplayer->altdowntime >= 0
+				&& bgunConsiderToggleGunFunction(g_Vars.currentplayer->altdowntime, false, false, true) != USETIMER_CONTINUE) {
+				g_Vars.currentplayer->altdowntime = -4;
+			}
 			if (buttons & (Z_TRIG)
 					&& g_Vars.currentplayer->altdowntime >= 0
 					&& bgunConsiderToggleGunFunction(g_Vars.currentplayer->altdowntime, true, false, true) != USETIMER_CONTINUE) {
@@ -1581,6 +1597,23 @@ void bmoveProcessInput(bool allowc1x, bool allowc1y, bool allowc1buttons, bool i
 						// handle L button : alt switching
 						for (i = 0; i < numsamples; i++) {
 							bgunProcessInputAltButton(&movedata, contpad1, i);
+						}
+
+						//Handle bespoke secondaryfunc remotemine quick detonates -- not to be mistaken with A+B quick detonates which are handled elsewhere
+						if (weaponnum == WEAPON_REMOTEMINE) {
+							if (g_PlayerExtCfg[g_Vars.currentplayernum].funcbtndetonates) { // func button itself quick-detonates
+								if (c1buttonsthisframe & (BUTTON_ALTMODE)) {
+									bgunProcessFuncBtnQuickDetonate(&movedata);
+								}
+							}
+							else { // func button switches, but trigger can then quick-detonate immediately after
+								if ((g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY
+									 || g_Vars.currentplayer->hands[HAND_RIGHT].activatesecondary == true
+									 || g_Vars.currentplayer->gunctrl.invertgunfunc == true)
+									 && c1buttonsthisframe & (shootbuttons)) {
+									bgunProcessFuncBtnQuickDetonate(&movedata); // this is a quick and dirty way of achieving parity between quick detonate and secondary detonate
+								}
+							}
 						}
 
 						// Handle ALT1 / MI Reload Hack

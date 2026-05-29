@@ -1463,7 +1463,8 @@ void handTickAttack(s32 handnum)
 			handInflictMeleeDamage(handnum, &gset, true);
 			break;
 		case HANDATTACKTYPE_DETONATE:
-			playerActivateRemoteMineDetonator(g_Vars.currentplayernum);
+			// Removed standard detonation because we replaced it with quick detonations processed in bondmove.c
+			//playerActivateRemoteMineDetonator(g_Vars.currentplayernum);
 			break;
 		case HANDATTACKTYPE_UPLINK:
 			propFindForUplink();

@@ -460,6 +460,11 @@ void amGetSlotDetails(s32 slot, u32 *flags, char *label)
 			prifunc = weaponGetFunction(&g_Vars.currentplayer->hands[HAND_RIGHT].gset, FUNC_PRIMARY);
 			secfunc = weaponGetFunction(&g_Vars.currentplayer->hands[HAND_RIGHT].gset, FUNC_SECONDARY);
 
+			if (g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponnum == WEAPON_REMOTEMINE
+				&& g_PlayerExtCfg[g_Vars.currentplayernum].funcbtndetonates) {
+				secfunc = NULL; // if the func button detonates, we don't want to be able to select secondary from menu
+			}
+
 			if (slot == 1) {
 				if (!secfunc || !FUNCISSEC()) {
 					*flags |= AMSLOTFLAG_CURRENT;
