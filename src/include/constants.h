@@ -255,9 +255,9 @@
 #define AMMOTYPE_PROXY_MINE   0x10
 #define AMMOTYPE_TIMED_MINE   0x11
 #define AMMOTYPE_REAPER       0x12
-#define AMMOTYPE_HOMINGROCKET 0x13
-#define AMMOTYPE_DART         0x14
-#define AMMOTYPE_NBOMB        0x15
+#define AMMOTYPE_NBOMB        0x13
+#define AMMOTYPE_HOMINGROCKET 0x14
+#define AMMOTYPE_DART         0x15
 #define AMMOTYPE_SEDATIVE     0x16
 #define AMMOTYPE_CLOAK        0x17
 #define AMMOTYPE_BOOST        0x18
