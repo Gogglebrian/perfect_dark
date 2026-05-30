@@ -13102,7 +13102,7 @@ Gfx *bgunDrawHud(Gfx *gdl)
 
 			colour = 0xff5555ff;
 
-			if ((ctrl->curfnstr != func->name && ctrl->fnfader > 128) || ctrl->curfnstr == 0) {
+			if ((ctrl->curfnstr != func->name && (ctrl->fnfader > 128 || player->gunctrl.weaponnum == WEAPON_REMOTEMINE)) || ctrl->curfnstr == 0) { //remotemine - avoid janky func label when switching fast
 				ctrl->fnstrtimer = 0;
 				ctrl->curfnstr = func->name;
 			}
