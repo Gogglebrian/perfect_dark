@@ -1599,19 +1599,24 @@ void bmoveProcessInput(bool allowc1x, bool allowc1y, bool allowc1buttons, bool i
 							bgunProcessInputAltButton(&movedata, contpad1, i);
 						}
 
-						//Handle bespoke secondaryfunc remotemine quick detonates -- not to be mistaken with A+B quick detonates which are handled elsewhere
+						//Handle remote mine Secondary function detonations (not to be mistaken with A+B quick dets which are handled elsewhere)
+						//this is to eliminate the arbitrary delays that normally only apply to Secondary dets but not A+B dets
 						if (weaponnum == WEAPON_REMOTEMINE) {
-							if (g_PlayerExtCfg[g_Vars.currentplayernum].funcbtndetonates) { // func button itself quick-detonates
+							if (g_PlayerExtCfg[g_Vars.currentplayernum].funcbtndetonates) { // func btn detonates directly
 								if (c1buttonsthisframe & (BUTTON_ALTMODE)) {
 									bgunProcessFuncBtnQuickDetonate(&movedata);
 								}
+								else if ((c1buttons & (BUTTON_ALTMODE)) == 0
+									&& g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY) {
+									bgunConsiderToggleGunFunction(0, false, false, 0); // if we're somehow in secondary when we're not holding the func btn, revert to primary
+								}
 							}
 							else { // func button switches, but trigger can then quick-detonate immediately after
-								if ((g_Vars.currentplayer->hands[HAND_RIGHT].gset.weaponfunc == FUNC_SECONDARY
-									 || g_Vars.currentplayer->hands[HAND_RIGHT].activatesecondary == true
-									 || g_Vars.currentplayer->gunctrl.invertgunfunc == true)
-									 && c1buttonsthisframe & (shootbuttons)) {
-									bgunProcessFuncBtnQuickDetonate(&movedata); // this is a quick and dirty way of achieving parity between quick detonate and secondary detonate
+								if (g_Vars.currentplayer->gunctrl.invertgunfunc == true
+									&& c1buttonsthisframe & (shootbuttons)) { // if trigger pressed while in secondary or transitioning into secondary
+									bgunProcessFuncBtnQuickDetonate(&movedata);
+									g_Vars.currentplayer->waitforzrelease = true; // wait til Z releases to allow next attack
+									bgunConsiderToggleGunFunction(0, false, false, 0); // revert back to primary
 								}
 							}
 						}

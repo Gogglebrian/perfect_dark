@@ -3212,7 +3212,7 @@ struct weaponfunc_special invfunc_remotemine_detonate = {
 	NULL, // fire animation
 	FUNCFLAG_NOMUZZLEFLASH | FUNCFLAG_AUTOSWITCHUNSELECTABLE,
 	HANDATTACKTYPE_DETONATE,
-	30, // recoverytime60
+	0, // recoverytime60 -- removed cause this is a dud detonation now
 	0, // soundnum (unused)
 };
 
