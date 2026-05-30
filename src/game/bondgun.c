@@ -12288,12 +12288,9 @@ struct ammotype g_AmmoTypes[] = {
 	{ 800,          0, 0  }, // AMMOTYPE_SMG
 	{ 69,           0, 0  }, // AMMOTYPE_CROSSBOW
 	{ 400,          0, -2 }, // AMMOTYPE_RIFLE
-	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
-	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
 	{ 200,          0, 0  }, // AMMOTYPE_SHOTGUN, max up from 100 - Gogglebrian
 	{ 100,          0, 0  }, // AMMOTYPE_FARSIGHT
 	{ 12,           0, 0  }, // AMMOTYPE_GRENADE
-	{ 12,           0, 0  }, // AMMOTYPE_IMPACTGRENADE
 	{ 3,            0, -2 }, // AMMOTYPE_ROCKET
 	{ 10,           0, 0  }, // AMMOTYPE_KNIFE
 	{ 200,          0, 0  }, // AMMOTYPE_MAGNUM
@@ -12306,6 +12303,9 @@ struct ammotype g_AmmoTypes[] = {
 	{ 50,           0, 0  }, // AMMOTYPE_DART
 	{ 10,           0, 0  }, // AMMOTYPE_NBOMB
 	{ 200,          0, 0  }, // AMMOTYPE_SEDATIVE
+	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_PIERCING
+	{ 48,           0, 0  }, // AMMOTYPE_SNIPER_EXPLOSIVE
+	{ 12,           0, 0  }, // AMMOTYPE_IMPACTGRENADE
 	{ TICKS(18000), 0, 0  }, // AMMOTYPE_CLOAK
 	{ 4,            0, 0  }, // AMMOTYPE_BOOST
 	{ 200,          0, 0  }, // AMMOTYPE_PSYCHOSIS

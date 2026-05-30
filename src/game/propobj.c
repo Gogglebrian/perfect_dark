@@ -17326,6 +17326,21 @@ s32 propPickupByPlayer(struct prop *prop, bool showhudmsg)
 
 				ammoHandlePickup(i + 1, qty, false, showhudmsg);
 			}
+			// Janky workaround for custom ammo types: check the first four slots' modelnums to see if we squirreled some data away in there
+			if (g_Vars.normmplayerisrunning) {		
+				if (crate->slots[0].modelnum != 0xffff
+					&& crate->slots[0].modelnum > AMMOTYPE_LASTFORMULTIAMMOBOX_N64
+					&& crate->slots[1].modelnum != 0xffff
+					&& crate->slots[1].modelnum > 0) {
+					ammoHandlePickup(crate->slots[0].modelnum, crate->slots[1].modelnum, false, showhudmsg);
+				}
+				if (crate->slots[2].modelnum != 0xffff
+					&& crate->slots[2].modelnum > AMMOTYPE_LASTFORMULTIAMMOBOX_N64
+					&& crate->slots[3].modelnum != 0xffff
+					&& crate->slots[3].modelnum > 0) {
+					ammoHandlePickup(crate->slots[2].modelnum, crate->slots[3].modelnum, false, showhudmsg);
+				}
+			}
 
 			if (g_Vars.in_cutscene == false) {
 				sndStart(var80095200, SFX_PICKUP_AMMO, NULL, -1, -1, -1, -1, -1);
@@ -17722,7 +17737,6 @@ s32 objTestForPickup(struct prop *prop)
 				}
 
 				if ((ammotype == AMMOTYPE_GRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_GRENADE))
-						|| (ammotype == AMMOTYPE_IMPACTGRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE))
 						|| (ammotype == AMMOTYPE_CLOAK && !invHasSingleWeaponExcAllGuns(WEAPON_CLOAKINGDEVICE))
 						|| (ammotype == AMMOTYPE_BOOST && !invHasSingleWeaponExcAllGuns(WEAPON_COMBATBOOST))
 						|| (ammotype == AMMOTYPE_NBOMB && !invHasSingleWeaponExcAllGuns(WEAPON_NBOMB))
@@ -17732,6 +17746,23 @@ s32 objTestForPickup(struct prop *prop)
 						|| (ammotype == AMMOTYPE_KNIFE && !invHasSingleWeaponExcAllGuns(WEAPON_COMBATKNIFE))) {
 					ignore = false;
 					break;
+				}
+			}
+		}
+		//Janky workaround for custom ammo types: do the same check as above, but for custom types squirreled away in the slots' modelnums
+		if (g_Vars.normmplayerisrunning) {
+			for (i = 0; i < 4; i += 2) {
+				s32 ammotype;
+				if (crate->slots[i].modelnum != 0xffff && crate->slots[i + 1].modelnum != 0xffff && crate->slots[i + 1].modelnum > 0) {
+					ammotype = crate->slots[i].modelnum;
+					if (bgunGetReservedAmmoCount(ammotype) < bgunGetCapacityByAmmotype(ammotype)) {
+						ignore = false;
+						break;
+					}
+					if (ammotype == AMMOTYPE_IMPACTGRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE)) {
+						ignore = false;
+						break;
+					}
 				}
 			}
 		}
