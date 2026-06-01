@@ -237,6 +237,7 @@
 #define AMMOFLAG_INCREMENTALRELOAD 4 // Shotgun and crossbow
 #define AMMOFLAG_QTYAFFECTSPARTVIS 8 // Quantity of ammo in the clip affects model part visibility on the weapon (Devastator)
 
+// 19 Vanilla ammo types that can appear in multiammocrates:   -- Don't change these
 #define AMMOTYPE_PISTOL       0x01
 #define AMMOTYPE_SMG          0x02
 #define AMMOTYPE_CROSSBOW     0x03
@@ -256,9 +257,11 @@
 #define AMMOTYPE_DART         0x11
 #define AMMOTYPE_NBOMB        0x12
 #define AMMOTYPE_SEDATIVE     0x13
+// Custom ammo types that can appear in multiammocrates:       -- Add future custom ammo types here
 #define AMMOTYPE_SNIPER_PIERCING  0x14
 #define AMMOTYPE_SNIPER_EXPLOSIVE 0x15
-#define AMMOTYPE_IMPACTGRENADE 0x16
+#define AMMOTYPE_IMPACTGRENADE    0x16
+// Vanilla ammo types that CAN'T appear in multiammocrates:    -- Increment these as we add new ammotypes, but don't change the order
 #define AMMOTYPE_CLOAK        0x17
 #define AMMOTYPE_BOOST        0x18
 #define AMMOTYPE_PSYCHOSIS    0x19
@@ -273,8 +276,15 @@
 #define AMMOTYPE_1F           0x22
 #define AMMOTYPE_ECM_MINE     0x23
 
-#define AMMOTYPE_LASTFORMULTIAMMOBOX_N64 AMMOTYPE_SEDATIVE
-#define AMMOTYPE_LASTFORMULTIAMMOBOX_MOD AMMOTYPE_IMPACTGRENADE
+// Vanilla/custom ammo meta
+#define AMMOTYPE_LASTFORMULTICRATE_CUSTOM    AMMOTYPE_IMPACTGRENADE // Update this if you add more custom ammo types after IMPACTGRENADE
+#define AMMOTYPE_LASTFORMULTICRATE_VANILLA   AMMOTYPE_SEDATIVE      // Shouldn't ever change
+#define AMMOTYPE_COUNT                       AMMOTYPE_ECM_MINE      // Shouldn't ever change
+
+// Multi ammo crate slots (these shouldn't ever change)
+#define MULTIAMMOCRATE_SLOTS_COUNT_VANILLA   19   // slots for vanilla ammo from PISTOL thru SEDATIVE
+#define MULTIAMMOCRATE_SLOTS_COUNT_CUSTOM    2    // primary and secondary custom ammo types
+#define MULTIAMMOCRATE_SLOTS_COUNT           21				
 
 // Active menu slots
 #define AMSLOTFLAG_CURRENT 0x02 // black, eg. current equipped weapon

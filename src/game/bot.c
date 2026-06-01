@@ -115,7 +115,7 @@ void botReset(struct chrdata *chr, u8 respawning)
 			chr->lift = NULL;
 			chr->height = 185;
 
-			for (i = 0; i < 33; i++) {
+			for (i = 0; i <= AMMOTYPE_COUNT; i++) { // extra empty slot presumably at i=0
 				aibot->ammoheld[i] = 0;
 			}
 
@@ -353,6 +353,7 @@ u32 botPickupProp(struct prop *prop, struct chrdata *chr)
 			struct multiammocrateobj *crate = (struct multiammocrateobj *)prop->obj;
 			u32 padding[1];
 			s32 qty;
+			u16 ammotype;
 			s32 i;
 #if PIRACYCHECKS
 			{
@@ -376,15 +377,16 @@ u32 botPickupProp(struct prop *prop, struct chrdata *chr)
 #endif
 			dprint();
 
-			for (i = 0; i != 19; i++) {
-				qty = crate->slots[i].quantity;
+			for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
+				ammotype = ammoGetTypeFromMultiCrateByIndex(crate, i);
+				qty = ammoGetQuantityFromMultiCrateByIndex(crate, i);
 
 				if (qty) {
 					dprint();
 				}
 
 				if (qty) {
-					botactGiveAmmoByType(chr->aibot, i + 1, qty);
+					botactGiveAmmoByType(chr->aibot, ammotype, qty);
 				}
 			}
 
@@ -579,11 +581,13 @@ bool botTestPropForPickup(struct prop *prop, struct chrdata *chr)
 			return false;
 		}
 
-		for (i = 0; i < 0x13; i++) {
-			weaponnum = botactGetWeaponByAmmoType(i + 1);
+		for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
+			u16 ammotype = ammoGetTypeFromMultiCrateByIndex(crate2, i);
+			u16 ammoqty = ammoGetQuantityFromMultiCrateByIndex(crate2, i);
+			weaponnum = botactGetWeaponByAmmoType(ammotype);
 
-			if (crate2->slots[i].quantity > 0) {
-				if (botactGetAmmoQuantityByType(chr->aibot, i + 1, false) < bgunGetCapacityByAmmotype(i + 1)) {
+			if (ammoqty > 0) {
+				if (botactGetAmmoQuantityByType(chr->aibot, ammotype, false) < bgunGetCapacityByAmmotype(ammotype)) {
 					ignore1 = false;
 
 					if (weaponnum && !botinvGetItemType(chr, weaponnum)) {
@@ -1961,10 +1965,11 @@ struct prop *botFindPickup(struct chrdata *chr, s32 criteria)
 						crate = (struct multiammocrateobj *)prop->obj;
 						sqdist2 = chrGetSquaredDistanceToCoord(chr, &prop->pos);
 
-						for (i = 0; i < 19; i++) {
-							s32 ammotype = i + 1;
+						for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
+							s32 ammotype = ammoGetTypeFromMultiCrateByIndex(crate, i);
+							u16 ammoqty = ammoGetQuantityFromMultiCrateByIndex(crate, i);
 
-							if (crate->slots[i].quantity > 0) {
+							if (ammoqty > 0) {
 								weaponnum = botactGetWeaponByAmmoType(ammotype);
 
 								if (weaponnum > 0) {

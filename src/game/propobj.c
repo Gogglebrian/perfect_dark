@@ -136,6 +136,153 @@ struct autogunobj *g_ThrownLaptops = NULL;
 struct beam *g_ThrownLaptopBeams = NULL;
 s32 g_MaxThrownLaptops = 0;
 
+//=== Custom ammo mutliammocrate funcs ======================================================================
+// These implement a hacky workaround the 19 ammo type limit in multiammocrates.
+// - The approach is to store up to two custom ammo types/quantities when a multiammocrate is created,
+// putting them in the first four of the 19 slots' modelnum fields.
+// - I believe these modelnums are unused in combat simualtor, but just in case, wait to
+// overwite them til after they've been passed to setupLoadModeldef.
+
+bool ammoIsCustomType(u16 ammotype) {
+	return (ammotype > AMMOTYPE_LASTFORMULTICRATE_VANILLA && ammotype <= AMMOTYPE_LASTFORMULTICRATE_CUSTOM);
+}
+
+/// <summary>
+/// Stores custom ammo type/qty in a combat simulator multiammocrate
+/// slots 0-1 for primary type/qty, slots 2-3 for secondary type-qty
+/// </summary>
+/// <returns>true if custom ammo successfully set</returns>
+bool ammoTrySetCustomForMultiCrate(struct multiammocrateobj* crate, bool secondary, u16 ammotype, u16 ammoquantity) {
+	u16 typeslot = 0;
+
+	if (!crate || !g_Vars.normmplayerisrunning) { // combat simulator only
+		return false;
+	}
+
+	if (secondary) {
+		typeslot = 2; // slots 0 and 1 for primary, 2 and 3 for secondary
+	}
+
+	if (ammotype > AMMOTYPE_LASTFORMULTICRATE_VANILLA && ammoquantity > 0) {
+		crate->slots[typeslot].modelnum = ammotype;
+		crate->slots[typeslot + 1].modelnum = ammoquantity;
+		return true;
+	}
+
+	return false;
+}
+
+bool ammoIsCustomInMultiCrate(struct multiammocrateobj* crate, bool secondary) {
+	u16 typeslot = 0;
+
+	if (!crate || !g_Vars.normmplayerisrunning) { // combat simulator only
+		return false;
+	}
+
+	if (secondary) {
+		typeslot = 2; // slots 0 and 1 for primary, 2 and 3 for secondary
+	}
+
+	return (crate->slots[typeslot].modelnum != 0xffff
+		&& crate->slots[typeslot].modelnum > AMMOTYPE_LASTFORMULTICRATE_VANILLA
+		&& crate->slots[typeslot+1].modelnum != 0xffff
+		&& crate->slots[typeslot+1].modelnum > 0);
+}
+
+/// <summary>
+/// Returns the custom ammo type or quantity from a multiammocrate, if any
+/// </summary>
+/// <returns>Quantity if param getquantity==true, returns Ammotype if getquantity==false</returns>
+u16 ammoGetCustomDataInMultiCrate(struct multiammocrateobj* crate, bool secondary, bool getquantity) {
+	u16 typeslot = 0;
+
+	if (secondary) {
+		typeslot = 2; // slots 0 and 1 for primary, 2 and 3 for secondary
+	}
+
+	if (ammoIsCustomInMultiCrate(crate, secondary)) { // this also ensures crate's not null and we're in combat simulator
+		if (getquantity) {
+			return crate->slots[typeslot+1].modelnum;
+		}
+		else {
+			return crate->slots[typeslot].modelnum;
+		}
+	}
+
+	return 0;
+}
+
+u16 ammoGetCustomTypeInMultiCrate(struct multiammocrateobj* crate, bool secondary) {
+	return ammoGetCustomDataInMultiCrate(crate, secondary, 0);
+}
+
+u16 ammoGetCustomQuantityInMultiCrate(struct multiammocrateobj* crate, bool secondary) {
+	return ammoGetCustomDataInMultiCrate(crate, secondary, 1);
+}
+
+void ammoHandleCustomPickup(struct multiammocrateobj* crate) {
+	//handle primary
+	if (ammoIsCustomInMultiCrate(crate, 0)) {
+		ammoHandlePickup(crate->slots[0].modelnum, crate->slots[1].modelnum, false, true);
+	}
+
+	//handle secondary
+	if (ammoIsCustomInMultiCrate(crate, 1)) {
+		ammoHandlePickup(crate->slots[2].modelnum, crate->slots[3].modelnum, false, true);
+	}
+}
+
+/// <summary>
+/// Get ammotype or quantity from a multiammocrate by index (0-20) where
+/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+/// </summary>
+/// <param name="i">0-20</param>
+/// <returns>ammo type, or quantity if param getquantity==true</returns>
+u16 ammoGetDataFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i, bool getquantity) {
+	if (i < MULTIAMMOCRATE_SLOTS_COUNT_VANILLA) { // Slots for vanilla ammo types through SEDATIVE
+		if (getquantity) {
+			return crate->slots[i].quantity;
+		}
+		else {
+			return i + 1;
+		}
+	}
+	else if (i < MULTIAMMOCRATE_SLOTS_COUNT) { // 2 bespoke slots (primary and secondary) for custom ammo types
+		if (getquantity) {
+			return ammoGetCustomQuantityInMultiCrate(crate, i - MULTIAMMOCRATE_SLOTS_COUNT_VANILLA);
+		}
+		else {
+			return ammoGetCustomTypeInMultiCrate(crate, i - MULTIAMMOCRATE_SLOTS_COUNT_VANILLA);
+		} 
+	}
+
+	return 0;
+}
+
+/// <summary>
+/// Get ammotype from a multiammocrate by index (0-20) where
+/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+/// </summary>
+/// <param name="i">0-20</param>
+/// <returns>ammo type</returns>
+u16 ammoGetTypeFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i) {
+	return ammoGetDataFromMultiCrateByIndex(crate, i, false);
+}
+
+/// <summary>
+/// Get ammo quantity from a multiammocrate by index (0-20) where
+/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+/// </summary>
+/// <param name="i">0-20</param>
+/// <returns>ammo quantity</returns>
+u16 ammoGetQuantityFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i) {
+	return ammoGetDataFromMultiCrateByIndex(crate, i, true);
+}
+//=== End of custom ammo funcs ==============================================================================
+
 /**
  * Attempt to call a lift from the given door.
  *
@@ -4508,9 +4655,11 @@ void weaponTick(struct prop *prop)
 		// RemoteMineFix: Because we're giving remotemines a fulltick for every player, every frame
 		// (to allow any player's mines to detonate in any frame) we'll return early here all but once
 		// a frame so we don't repeat the hardfree shenanigans towards the end of the function.
+		/* REVERTED: I replaced normal secondary func detonations with Quick Dets for timing parity,
+		*    so the original RM fix is no longer necessary, but I'll leave this here just in case.
 		if (g_Vars.currentplayernum != playermgrGetPlayerAtOrder(0)) {
 			return;
-		}
+		}*/
 
 	} else if (weapon->weaponnum == WEAPON_PROXIMITYMINE
 			|| (weapon->weaponnum == WEAPON_DRAGON && weapon->gunfunc == FUNC_SECONDARY)
@@ -4737,7 +4886,9 @@ void func0f07063c(struct prop *prop, bool arg1)
 		//RemoteMineFix: Allow Remote Mines to be ticked for every player every frame.
 		//This ensures that every player's mines get a chance to explode before gPlayersDetonatingMines
 		//gets reset in alarmTick (in the last player's propsTickPlayer tick).
-		if (arg1 || weapon->weaponnum == WEAPON_REMOTEMINE) {
+		//REVERTED: I replaced normal secondary func detonations with Quick Dets for timing parity,
+		//  so the original RM fix is no longer necessary, but I'll leave this here just in case.
+		if (arg1) { //|| weapon->weaponnum == WEAPON_REMOTEMINE) {
 			weaponTick(prop);
 		}
 	}
@@ -17326,21 +17477,8 @@ s32 propPickupByPlayer(struct prop *prop, bool showhudmsg)
 
 				ammoHandlePickup(i + 1, qty, false, showhudmsg);
 			}
-			// Janky workaround for custom ammo types: check the first four slots' modelnums to see if we squirreled some data away in there
-			if (g_Vars.normmplayerisrunning) {		
-				if (crate->slots[0].modelnum != 0xffff
-					&& crate->slots[0].modelnum > AMMOTYPE_LASTFORMULTIAMMOBOX_N64
-					&& crate->slots[1].modelnum != 0xffff
-					&& crate->slots[1].modelnum > 0) {
-					ammoHandlePickup(crate->slots[0].modelnum, crate->slots[1].modelnum, false, showhudmsg);
-				}
-				if (crate->slots[2].modelnum != 0xffff
-					&& crate->slots[2].modelnum > AMMOTYPE_LASTFORMULTIAMMOBOX_N64
-					&& crate->slots[3].modelnum != 0xffff
-					&& crate->slots[3].modelnum > 0) {
-					ammoHandlePickup(crate->slots[2].modelnum, crate->slots[3].modelnum, false, showhudmsg);
-				}
-			}
+
+			ammoHandleCustomPickup(crate); // give any custom ammo in the crate
 
 			if (g_Vars.in_cutscene == false) {
 				sndStart(var80095200, SFX_PICKUP_AMMO, NULL, -1, -1, -1, -1, -1);
@@ -17727,16 +17865,18 @@ s32 objTestForPickup(struct prop *prop)
 			return TICKOP_NONE;
 		}
 
-		for (i = 0; i <= AMMOTYPE_NBOMB; i++) {
-			s32 ammotype = i + 1;
+		for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
+			s32 ammotype = ammoGetTypeFromMultiCrateByIndex(crate, i);
+			u16 ammoqty = ammoGetQuantityFromMultiCrateByIndex(crate, i);
 
-			if (crate->slots[i].quantity > 0) {
+			if (ammoqty > 0) {
 				if (bgunGetReservedAmmoCount(ammotype) < bgunGetCapacityByAmmotype(ammotype)) {
 					ignore = false;
 					break;
 				}
 
 				if ((ammotype == AMMOTYPE_GRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_GRENADE))
+					  || (ammotype == AMMOTYPE_IMPACTGRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE))
 						|| (ammotype == AMMOTYPE_CLOAK && !invHasSingleWeaponExcAllGuns(WEAPON_CLOAKINGDEVICE))
 						|| (ammotype == AMMOTYPE_BOOST && !invHasSingleWeaponExcAllGuns(WEAPON_COMBATBOOST))
 						|| (ammotype == AMMOTYPE_NBOMB && !invHasSingleWeaponExcAllGuns(WEAPON_NBOMB))
@@ -17746,23 +17886,6 @@ s32 objTestForPickup(struct prop *prop)
 						|| (ammotype == AMMOTYPE_KNIFE && !invHasSingleWeaponExcAllGuns(WEAPON_COMBATKNIFE))) {
 					ignore = false;
 					break;
-				}
-			}
-		}
-		//Janky workaround for custom ammo types: do the same check as above, but for custom types squirreled away in the slots' modelnums
-		if (g_Vars.normmplayerisrunning) {
-			for (i = 0; i < 4; i += 2) {
-				s32 ammotype;
-				if (crate->slots[i].modelnum != 0xffff && crate->slots[i + 1].modelnum != 0xffff && crate->slots[i + 1].modelnum > 0) {
-					ammotype = crate->slots[i].modelnum;
-					if (bgunGetReservedAmmoCount(ammotype) < bgunGetCapacityByAmmotype(ammotype)) {
-						ignore = false;
-						break;
-					}
-					if (ammotype == AMMOTYPE_IMPACTGRENADE && !invHasSingleWeaponExcAllGuns(WEAPON_IMPACTGRENADE)) {
-						ignore = false;
-						break;
-					}
 				}
 			}
 		}

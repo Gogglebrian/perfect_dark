@@ -363,9 +363,12 @@ bool botinvGiveProp(struct chrdata *chr, struct prop *prop)
 	} else if (obj->type == OBJTYPE_MULTIAMMOCRATE) {
 		struct multiammocrateobj *multi = (struct multiammocrateobj *)prop->obj;
 
-		for (i = 0; i < 19; i++) {
-			if (multi->slots[i].quantity > 0) {
-				s32 weaponnum = botactGetWeaponByAmmoType(i + 1);
+		for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
+			s32 ammotype = ammoGetTypeFromMultiCrateByIndex(multi, i);
+			u16 ammoqty = ammoGetQuantityFromMultiCrateByIndex(multi, i);
+
+			if (ammoqty > 0) {
+				s32 weaponnum = botactGetWeaponByAmmoType(ammotype);
 
 				if (weaponnum > 0) {
 					botinvGiveSingleWeapon(chr, weaponnum);

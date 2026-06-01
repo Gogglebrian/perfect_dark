@@ -1834,29 +1834,27 @@ void setupCreateProps(s32 stagenum)
 						struct multiammocrateobj *crate = (struct multiammocrateobj *)obj;
 						s32 ammoqty = 1;
 						s32 i;
-						u16 pri_customammo_type = 0;
-						u16 pri_customammo_quantity = 0;
-						u16 sec_customammo_type = 0;
-						u16 sec_customammo_quantity = 0;
+						u16 custom_ammo_types[] = { 0, 0 };
+						u16 custom_ammo_qtys[] = { 0, 0 };
 
 						if (g_Vars.normmplayerisrunning && g_SetupCurMpLocation >= 0) {
 							struct mpweapon *mpweapon = mpGetMpWeaponByLocation(g_SetupCurMpLocation);
 							ammoqty = mpweapon->priammoqty;
 
-							if (mpweapon->priammotype > 0 && mpweapon->priammotype <= AMMOTYPE_LASTFORMULTIAMMOBOX_N64) {
+							if (mpweapon->priammotype > 0 && mpweapon->priammotype <= AMMOTYPE_LASTFORMULTICRATE_VANILLA) {
 								crate->slots[mpweapon->priammotype - 1].quantity = ammoqty;
 							}
-							else if (mpweapon->priammotype > AMMOTYPE_LASTFORMULTIAMMOBOX_N64 && mpweapon->priammotype <= AMMOTYPE_LASTFORMULTIAMMOBOX_MOD) { //set our custom ammo info aside
-								pri_customammo_type = mpweapon->priammotype;
-								pri_customammo_quantity = ammoqty;
+							else if (ammoIsCustomType(mpweapon->priammotype)) { //set our Primary custom ammo info aside
+								custom_ammo_types[0] = mpweapon->priammotype;
+								custom_ammo_qtys[0] = ammoqty;
 							}
 
-							if (mpweapon->secammotype > 0 && mpweapon->secammotype <= AMMOTYPE_LASTFORMULTIAMMOBOX_N64) {
+							if (mpweapon->secammotype > 0 && mpweapon->secammotype <= AMMOTYPE_LASTFORMULTICRATE_VANILLA) {
 								crate->slots[mpweapon->secammotype - 1].quantity = mpweapon->secammoqty;
 							}
-							else if (mpweapon->secammotype > AMMOTYPE_LASTFORMULTIAMMOBOX_N64 && mpweapon->secammotype <= AMMOTYPE_LASTFORMULTIAMMOBOX_MOD) { //set our custom ammo info aside
-								sec_customammo_type = mpweapon->secammotype;
-								sec_customammo_quantity = mpweapon->secammoqty;
+							else if (ammoIsCustomType(mpweapon->secammotype)) { //set our Secondary custom ammo info aside
+								custom_ammo_types[1] = mpweapon->secammotype;
+								custom_ammo_qtys[1] = mpweapon->secammoqty;
 							}
 						}
 
@@ -1867,21 +1865,9 @@ void setupCreateProps(s32 stagenum)
 								}
 							}
 
-							// Janky workaround for custom ammo types: now that we're done with the model, we're gonna use the modelnum parts of the first four slots to store our custom ammo data
-							if (pri_customammo_type > AMMOTYPE_LASTFORMULTIAMMOBOX_N64 && pri_customammo_quantity > 0) {
-								crate->slots[0].modelnum = pri_customammo_type;
-								crate->slots[1].modelnum = pri_customammo_quantity;
-							}
-							else {
-								crate->slots[0].modelnum = crate->slots[1].modelnum = 0xffff;
-							}
-							if (sec_customammo_type > AMMOTYPE_LASTFORMULTIAMMOBOX_N64 && sec_customammo_quantity > 0) {
-								crate->slots[2].modelnum = sec_customammo_type;
-								crate->slots[3].modelnum = sec_customammo_quantity;
-							}
-							else {
-								crate->slots[2].modelnum = crate->slots[3].modelnum = 0xffff;
-							}
+							// Custom ammo types: now that we're done with the model, store our custom ammo data in the first four modelnum fields
+							ammoTrySetCustomForMultiCrate(crate, 0, custom_ammo_types[0], custom_ammo_qtys[0]);
+							ammoTrySetCustomForMultiCrate(crate, 1, custom_ammo_types[1], custom_ammo_qtys[1]);
 
 							setupCreateObject(obj, index);
 						}

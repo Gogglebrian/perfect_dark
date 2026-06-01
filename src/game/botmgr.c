@@ -103,9 +103,9 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					g_MpAllChrConfigPtrs[g_MpNumChrs] = &g_BotConfigsArray[aibotnum].base;
 					g_MpNumChrs++;
 
-					aibot->ammoheld = mempAlloc(36 * sizeof(s32), MEMPOOL_STAGE);
+					aibot->ammoheld = mempAlloc((AMMOTYPE_COUNT+4) * sizeof(s32), MEMPOOL_STAGE); // 1 extra slot makes sense, but not sure why 4 total extra. But I'm gonna keep it just in case
 
-					for (i = 0; i < 33; i++) {
+					for (i = 0; i <= AMMOTYPE_COUNT; i++) { // extra empty slot presumably at i=0 so that ammotype can be index
 						aibot->ammoheld[i] = 0;
 					}
 
