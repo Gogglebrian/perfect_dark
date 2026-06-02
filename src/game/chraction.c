@@ -4513,6 +4513,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 	}
 
 	// If using the shotgun, scale the damage based on distance
+	/* REMOVED due to shotgun overhaul, but leaving this here just in case
 	if (aprop && aprop->type == PROPTYPE_CHR && gset->weaponnum == WEAPON_SHOTGUN) {
 		f32 xdiff = aprop->pos.x - vprop->pos.x;
 		f32 ydiff = aprop->pos.y - vprop->pos.y;
@@ -4529,6 +4530,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 			damage *= 1.0f + (s32)(rngRandom() % 2); // 1 or 2
 		}
 	}
+	*/
 
 	// damageshield is an argument to this function,
 	// but is forced on if using the Farsight.
