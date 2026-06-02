@@ -1114,6 +1114,10 @@ bool botinvSwitchToWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 	if (changingfunc && !changinggun) {
 		for (i = 0; i < 2; i++) {
 			if (chr->weapons_held[i]) {
+				if (weaponnum == WEAPON_SNIPERRIFLE) {
+					botScheduleReload(chr, HAND_RIGHT);	// Sniper func change forces a reload like it's actually swapping out the mag, so bots have to do it too
+					break;
+				}
 				botactReload(chr, i, false);
 			}
 		}
