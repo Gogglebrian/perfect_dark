@@ -1,19 +1,26 @@
 # Perfect Dark port: More 'n' Better Weapons Mod
 
-This is a work-in-progress mod of the lovely work-in-progress [port](https://github.com/fgsfdsfgs/perfect_dark) of the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark), with new bespoke weapon variants, overhauls, enhancements, and/or and balance tweaks. Balance decisions are oriented around "zombies mode" (Combat Simulator rounds against a team of 8 FistSims).
+This is a work-in-progress mod of the lovely work-in-progress [port](https://github.com/fgsfdsfgs/perfect_dark) of the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark), with new bespoke weapon variants, overhauls, enhancements, and/or and balance tweaks. Balance decisions are oriented around the new Combat Simulator preset, Zombies Mode – randomized rounds against a team of 8 FistSims.
 
 ## Features
 
-**New variants:**
-* F-Bomb: A more precise grenade that detonates on impact. Primary: detonates on any impact. Secondary: bounces off of walls/enemies, like SuperDragon/Devastator rounds).
-* U13ERKL01313: An upgraded KL01313 with absurdly higher fire rate (but equally pathetic base damage and even worse spread).
+**New Variants:**
+* F-Bomb: A more precise grenade that detonates on impact. Primary: detonates on any impact. Secondary: bounces off of walls/enemies, like SuperDragon or Devastator grenade rounds.
+* U13ERKL01313: An upgraded KL01313 with absurdly higher fire rate, but equally pathetic base damage and even worse spread. Its power can't be contained.
 
 **Overhauls:**
-* Sniper Rifle: Massively increased damage, reduced fire rate. Reloads on function switch, and remembers its function when dropped. Primary: piercing rounds. Secondary: explosive rounds.
-* Shotgun: Increased damage and fire rate, and added limited piercing. Reload is all-at-once instead of incremental. New secondary: automatic burst-fire.
+* Sniper Rifle: Massively increased damage, reduced fire rate. Primary: piercing rounds. Secondary: explosive rounds. Switching between the two ammo types requires swapping out the mag (in other words, it forces a reload). 
+* Shotgun: Significantly increased damage and fire rate with limited piercing. Reload is all-at-once instead of incremental. New secondary: automatic 3-round burst-fire. Also removed the distance-based damage scaling that only applied to mission NPCs.
 
-**Miscellaneous Tweaks**
-* Banned FistSims from using the Laser.
+**Enhancements:**
+* Remote Mine: Detonate with a single press of the Function Switch key/button, without even having to wait for the throw animation to finish - just like vanilla A+B quick detonations. Also fixed the original bug that made the secondary-function detonator unreliable in multiplayer. (If you prefer to press the Function Switch button THEN the trigger to detonate, there's a per-player option for that in the ini.) 
+
+**Miscellaneous Tweaks/Fixes:**
+* Added new Combat Simulator preset, Zombies Mode. Survive and compete for points against a team of obnoxious FistSims who'll steal your guns and rip you limb from limb. Play with Random weapons and the recommended selection for best results – a constantly shifting tactical landscape with a shockingly deep metagame in and of itself. I love Perfect Dark.
+* Curated the default Random weapon selection (this recommended preset can also be selected in the Random menu). Also tweaked the other Random presets for authenticity and quality control.
+* Fixed the original bug that made simulants always target player 2 by default (or the first simulant, in single-player) every time they spawned. They'll now choose the closest valid target, as intended. (This fix can be toggled off in the ini, if you want that for some reason.)
+* Banned FistSims from using the Laser and from throwing knives.
+* New launch options: --combat-simulator to skip the menus straight into the full Combat Simulator menu, and --skip-jo-on-pc to do that.
 * Renamed KL01313 primary function.
 
 # Original port readme:
