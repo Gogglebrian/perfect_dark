@@ -1691,6 +1691,25 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				scale = 2.5f;
 			}
 		}
+		// Bot variety head/shoulder scaling
+		else if (g_Vars.normmplayerisrunning) {
+			if (g_CurModelChr->convtalk & BOTVARIETY_FLAG_MINI) {
+				if (joint == neckjoint) {
+					scale = BOTVARIETY_MINI_HEADSCALE;
+				}
+				else if (joint == lshoulderjoint || joint == rshoulderjoint) {
+					scale = BOTVARIETY_MINI_SHOULDERSCALE;
+				}
+			}
+			else if (g_CurModelChr->convtalk & BOTVARIETY_FLAG_WUMBO) {
+				if (joint == neckjoint) {
+					scale = BOTVARIETY_WUMBO_HEADSCALE;
+				}
+				else if (joint == lshoulderjoint || joint == rshoulderjoint) {
+					scale = BOTVARIETY_WUMBO_SHOULDERSCALE;
+				}
+			}
+		}
 
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
 			xrot = 0.0f;

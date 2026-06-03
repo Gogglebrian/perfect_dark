@@ -228,6 +228,33 @@ void botReset(struct chrdata *chr, u8 respawning)
 	}
 }
 
+void botHandleVariety(struct chrdata *chr) {
+	s32 bodynum = chr->bodynum;
+	s32 headnum;
+	f32 scale = g_HeadsAndBodies[bodynum].scale * 0.10000001f;
+	f32 animscale = g_HeadsAndBodies[bodynum].animscale;
+	f32 randfrac_size = RANDOMFRAC();
+	chr->convtalk = 0;
+
+	// Handle mini and wumbo bots
+	if (randfrac_size < BOTVARIETY_CHANCE_MINI) {
+		chr->convtalk |= BOTVARIETY_FLAG_MINI; // Set flag for individual joint handling in chrHandleJointPositioned in chr.c
+		scale *= BOTVARIETY_MINI_BODYSCALE; // Body scale
+		scale *= RANDOMFRAC() * 0.05f + 0.975f; // Apply random height variance between 97.5% and 102.5%
+	}
+	else if (RANDOMFRAC() > (1-BOTVARIETY_CHANCE_WUMBO)) {
+		chr->convtalk |= BOTVARIETY_FLAG_WUMBO;
+		scale *= BOTVARIETY_WUMBO_BODYSCALE;
+		scale *= RANDOMFRAC() * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
+	}
+	else {
+		scale *= RANDOMFRAC() * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
+	}
+
+	modelSetScale(chr->model, scale);
+	modelSetAnimScale(chr->model, animscale);
+}
+
 void botSpawn(struct chrdata *chr, u8 respawning)
 {
 	f32 thing;
@@ -253,6 +280,9 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 
 	if (aibot) {
 		botReset(chr, respawning);
+		if (g_MpSetup.options & MPOPTION_BOTVARIETY) {
+			botHandleVariety(chr);
+		}
 		splatResetChr(chr);
 		thing = scenarioChooseSpawnLocation(chr->radius, &pos, rooms, chr->prop);
 		chr->hidden |= CHRHFLAG_WARPONSCREEN;
@@ -266,7 +296,7 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 		func0f02e9a0(chr, 0);
 
 #ifndef PLATFORM_N64
-		if (g_FixBotPlayer2Bias || g_MpSetup.options & MPOPTION_ENHANCEDSIMTARGETING) {
+		if (g_FixBotPlayer2Bias) {
 			aibot->queryplayernum = -1; // we'll take this to mean freshly spawned
 		}
 
@@ -745,6 +775,20 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
+	// Mini bots never have to crouch
+	if (chr->convtalk & BOTVARIETY_FLAG_MINI) {
+		return CROUCHPOS_STAND;
+	}
+
+	// Wumbo bots
+	if (chr->convtalk & BOTVARIETY_FLAG_WUMBO) {
+		if (chr->height <= 135) {
+			return CROUCHPOS_SQUAT;
+		}
+		return CROUCHPOS_STAND;
+	}
+
+	// Normal bots
 	if (chr->height <= 90) {
 		crouchpos = CROUCHPOS_SQUAT;
 	} else if (chr->height <= 135) {
@@ -1561,7 +1605,6 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	RoomNum room = -1;
 	struct chrdata *trychr;
 	s32 playernum;
-	bool enhancedTargeting = g_MpSetup.options & MPOPTION_ENHANCEDSIMTARGETING;
 
  /* Original bug: Spawning bots default to targeting Player2
   *
@@ -1582,7 +1625,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
   * and choose their first target accordingly, as intended.
 	*/
 #ifndef PLATFORM_N64
-	if ((enhancedTargeting || g_FixBotPlayer2Bias) && aibot->queryplayernum < 0) { // queryplayernum -1 means freshly spawned bot
+	if (g_FixBotPlayer2Bias && aibot->queryplayernum < 0) { // queryplayernum -1 means freshly spawned bot
 		for (i = 1; i < g_MpNumChrs; i++) { // pre-calculate dist, insight, and rooms to players 2+ (vanilla tick behavior will calc p1 first frame)
 			trychr = mpGetChrFromPlayerIndex(i);
 			if (trychr != botchr) {
