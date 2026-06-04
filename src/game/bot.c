@@ -268,7 +268,8 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 	}
 
 	// Apply incoming damage multiplier for Wumbo (effectively doubling health)
-	if (victimbotvarietyflags & BOTVARIETY_FLAG_WUMBO) {
+	if (victimbotvarietyflags & BOTVARIETY_FLAG_WUMBO
+			&& !(vchr->cshield > 0)) { // only if unshielded
 		damage *= BOTVARIETY_WUMBO_DAMAGETAKENMULT;
 	}
 
