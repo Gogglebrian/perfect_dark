@@ -60,4 +60,9 @@ bool botShouldReturnCtcToken(struct chrdata *chr);
 s32 botGetNumTeammatesDefendingHill(struct chrdata *bot);
 void botCheckFetch(struct chrdata *chr);
 
+bool botvarietyIsActive();
+f32 botvarietyTryApplyJointScaling(struct chrdata* chr, s32 joint, f32 scale);
+f32 botvarietyTryApplySpeedMultiplier(struct chrdata* chr, f32 speed);
+f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage);
+
 #endif

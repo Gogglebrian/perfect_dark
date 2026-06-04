@@ -4386,6 +4386,8 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		damage = 0;
 	}
 
+	damage = botvarietyTryAdjustDamage(aprop->chr, chr, gset, damage);
+
 	// Apply damage scaling based on difficulty settings
 	if (g_Vars.mplayerisrunning == false) {
 		// Solo

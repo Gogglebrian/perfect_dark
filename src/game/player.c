@@ -54,6 +54,7 @@
 #include "game/propobj.h"
 #include "game/splat.h"
 #include "game/mpstats.h"
+#include "game/bot.h"
 #include "bss.h"
 #include "lib/ailist.h"
 #include "lib/collision.h"
@@ -5809,6 +5810,8 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 			endframe = row->endframe;
 		}
 	}
+
+	speed = botvarietyTryApplySpeedMultiplier(chr, speed);
 
 	if (animcfg != NULL && animnum == 0) {
 		animnum = animcfg->animnum;
