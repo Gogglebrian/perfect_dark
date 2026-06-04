@@ -1,0 +1,262 @@
+%shas the*%s
+%shas the %s%s
+%shas our*%s
+Got the %s%s
+You captured*the %s%s
+%scaptured our*%s
+%scaptured*the %s%s
+Have a point for living!*
+You're supposed to look*
+after your friends!*
+Well done!*
+You popped a cap!*
+Have 2 Points...*
+You are the victim!*
+Protect %s!*
+Get %s!*
+Download successful.*
+Connection broken.*
+Starting download.*
+You need to use the Data Uplink.*
+King of*the Hill!*
+We have*the Hill!*
+%shas captured*the Hill!*
+%ds/Point*
+1 Point!*
+No Shield*
+Automatics*
+Rocket Launcher*
+Simulants*
+King of the Hill*
+Complex FarSight*
+Hold the Briefcase*
+Pistol One-Hit Kills*
+Capture the Case*
+Cloaking*
+Temple Explosives*
+Slayer*
+Tranquilizer*
+Slow Motion*
+Press START*
+Paused*
+Custom*
+Random*
+Random Five*
+Close Combat*
+Proximity Mine*
+Rocket Launcher*
+Grenade Launcher*
+Explosive*
+Golden Magnum*
+Heavy*
+Tranquilizer*
+FarSight*
+Power*
+Automatics*
+Pistols*
+Test*
+4mb Test*
+Nothing*
+Shield*
+Disabled*
+Objectives Complete*
+Unknown*
+Missing*
+Damaged Controller Pak*
+is damaged or*
+inserted incorrectly.*
+Attempt Repair*
+Retry*
+Continue without using*the Controller Pak*
+Full Controller Pak*
+is too full to save*note - 1 note and 28*pages required to save.*
+Enter the Controller*Pak Menu to free some*space (hold START*while powering up.)*
+OK*
+----------*
+Hurricane Fists*
+Cloaking Device*
+Invincible*
+All Guns in Solo*
+Unlimited Ammo*
+Unlimited Ammo, No Reloads*
+Slo-mo Single Player*
+DK Mode*
+Trent's Magnum*
+FarSight*
+Small Jo*
+Small Characters*
+Enemy Shields*
+Jo Shield*
+Super Shield*
+Classic Sight*
+Team Heads Only*
+Play as Elvis*
+Enemy Rockets*
+Unlimited Ammo - Laptop Sentry Gun*
+Marquis of Queensbury Rules*
+Perfect Darkness*
+Pugilist*
+Hotshot*
+Hit and Run*
+Alien*
+R-Tracker/Weapon Cache Locations*
+Rocket Launcher*
+Sniper Rifle*
+X-Ray Scanner*
+SuperDragon*
+Laptop Gun*
+Phoenix*
+Psychosis Gun*
+PP9i*
+CC13*
+KL01313*
+KF7 Special*
+ZZT (9mm)*
+DMC*
+AR53*
+RC-P45*
+Velvet Dark*
+Fun*
+Gameplay*
+Weapons*
+Buddies*
+Weapons for Jo in Solo*
+Classic Weapons for Jo in Solo*
+dataDyne Defection
+dataDyne Extraction
+A51 Infiltration
+A51 Rescue
+A51 Escape
+Difficulty:*
+Cheat Solo Missions*
+Cheat Combat Simulator*
+Cheat Co-Operative*
+Cheat Counter-Operative*
+Dishonored*
+Cheated*
+Cheat available
+Complete
+for cheat:
+on
+in under
+ or insert Game Boy (r) Perfect Dark into Transfer Pak (tm), connect Transfer Pak to any controller, then exit and enter menu
+Select cheat for information*
+Buddy Available
+Win Golds on the firing range to enable classic guns.*
+Sight on Screen*
+Target*
+Zoom Range*
+Show Ammo*
+Gun Function*
+Paintball*
+Subtitles*
+Mission Time*
+Mode*
+Split*
+Do you want to abort*the mission?*
+Joanna Leather*
+Joanna Negotiator*
+Elvis (Waistcoat)*
+Error*
+Cannot delete file as*it is being used.*
+Cancel*
+Time Limit:*
+Score Limit:*
+Team Score Limit:*
+Challenge Completed!*
+Challenge Failed!*
+Challenge Cheated!*
+Cutscene Subtitles*
+In-Game Subtitles*
+Alternative Title Screen*
+Start Challenge*
+dataDyne Investigation
+Error*
+The Controller Pak*has been removed.*
+Attempt Repair*
+Are you sure you want*to attempt repair of*this Controller Pak?*
+Data may be lost!*
+Cancel*
+Repair*
+Repair Successful*
+The Controller Pak has*been repaired.*
+Repair Failed*
+The Controller Pak *cannot be repaired.*You will not be able to*load from or save to*this Controller Pak.*
+Player Handicaps*
+L/R BUTTONS: 
+UP C BUTTON: 
+LEFT/RIGHT C BUTTONS: 
+DOWN C BUTTON: 
+A BUTTON: 
+B BUTTON: 
+CONTROL STICK: 
+Z BUTTON: 
++ CONTROL PAD: 
+AIM
+AIM TOGGLE
+LOOK UP
+LOOK DOWN
+LOOK DOWN
+LOOK UP
+FORWARDS
+BACKWARDS
+STRAFE
+WEAPON
+ACTION/RELOAD
+FIRE
+WALK/TURN
+LOOK
+WALK/STRAFE
+LOOK/STRAFE
+AS C BUTTONS
+Controller 1:
+Controller 2:
+Control Style %s %s*
+(One-Handed)
+(Two-Handed)
+Hold Weapon button for quick-menu.*Hold Action button to toggle function.*Action+Fire temporarily changes function.*Aim allows you to target accurately.*Aim + Down C Button crouches.*Aim + Up C Button gets up.*
+Turn off all Cheats*
+Language Filter*
+USERNAME:*
+PASSWORD:*
+Perfect Dark*
+Choose Settings:*
+Enemy Reaction Speed:*
+Enemy Health:*
+Enemy Damage:*
+Enemy Accuracy:*
+OK*
+Cancel*
+Controller Pak Not Found*
+Name:*
+Location:*
+Duplicate File Name*
+already contains*
+a file named*
+Rename File*
+Change Location*
+Cancel*
+Change File Name*
+Enter new file name:*
+The file you are copying*cannot be deleted.*
+ShockSim:%d*
+Target Time:*
+New Cheat Available!:*
+Continue*
+Replay Last Level*
+Save Player*
+Save new player*and statistics?*
+Save Now*
+No Thanks!*
+Confirm player name:*
+The saved file has*been erased due*to corruption*or damage.*
+Continue*
+Error*
+Cannot read Game Boy Game Pak.*Check connections and make sure*correct Game Boy Game Pak is*being used.*
+Cancel*
+Error*
+The saved data has*
+been erased due to*
+corruption or damage.*
+Cancel*
+Zombies!*

@@ -233,22 +233,22 @@ void botReset(struct chrdata *chr, u8 respawning)
 // appearance and properties.
 // - Size variants: Mini, Wumbo
 
-#define chrbotvarietyflags      chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
+#define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
 
 bool botvarietyIsActive() {
 	return g_Vars.normmplayerisrunning && g_MpSetup.options & MPOPTION_BOTVARIETY;
 }
 
-#define attackerbotvarietyflags achr->convtalk
-#define victimbotvarietyflags   vchr->convtalk
-
+#define ATTACKER_BOTVARIETY_FLAGS achr->convtalk
+#define VICTIM_BOTVARIETY_FLAGS   vchr->convtalk
 f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage) {
+
 	if (!botvarietyIsActive()) {
 		return damage;
 	}
 
 	// Mini blunt damage bebuff (disarm still does 0)
-	if (attackerbotvarietyflags & BOTVARIETY_FLAG_MINI) {
+	if (ATTACKER_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
 		if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
 			if (!gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)) { // don't bother multiplying disarm's 0
 				damage *= BOTVARIETY_MINI_BLUNTDAMAGEMULT;
@@ -256,7 +256,7 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 		}
 	}
 	// Wumbo blunt damage buff
-	else if (attackerbotvarietyflags & BOTVARIETY_FLAG_WUMBO) {
+	else if (ATTACKER_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
 		if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
 			if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)) {
 				damage = BOTVARIETY_WUMBO_DISARMDAMAGE;
@@ -268,26 +268,27 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 	}
 
 	// Apply incoming damage multiplier for Wumbo (effectively doubling health)
-	if (victimbotvarietyflags & BOTVARIETY_FLAG_WUMBO
+	if (VICTIM_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO
 			&& !(vchr->cshield > 0)) { // only if unshielded
 		damage *= BOTVARIETY_WUMBO_DAMAGETAKENMULT;
 	}
 
 	return damage;
 }
+#undef ATTACKER_BOTVARIETY_FLAGS
+#undef VICTIM_BOTVARIETY_FLAGS 
 
 #define lshoulderjoint 2
 #define rshoulderjoint 3
 #define waistjoint     1
 #define neckjoint      0
-
 f32 botvarietyTryApplyJointScaling(struct chrdata* chr, s32 joint, f32 scale) {
 	if (!botvarietyIsActive()) {
 		return scale;
 	}
 
 	// Mini scaling
-	if (chrbotvarietyflags & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
 		if (joint == neckjoint) {
 			scale = BOTVARIETY_MINI_HEADSCALE;
 		}
@@ -296,7 +297,7 @@ f32 botvarietyTryApplyJointScaling(struct chrdata* chr, s32 joint, f32 scale) {
 		}
 	}
 	// Wumbo scaling
-	else if (chrbotvarietyflags & BOTVARIETY_FLAG_WUMBO) {
+	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
 		if (joint == neckjoint) {
 			scale = BOTVARIETY_WUMBO_HEADSCALE;
 		}
@@ -307,6 +308,10 @@ f32 botvarietyTryApplyJointScaling(struct chrdata* chr, s32 joint, f32 scale) {
 
 	return scale;
 }
+#undef lshoulderjoint
+#undef rshoulderjoint
+#undef waistjoint
+#undef neckjoint
 
 f32 botvarietyTryApplySpeedMultiplier(struct chrdata *chr, f32 speed) {
 	if (!botvarietyIsActive()) {
@@ -314,11 +319,11 @@ f32 botvarietyTryApplySpeedMultiplier(struct chrdata *chr, f32 speed) {
 	}
 
 	// Mini bot speed bonus
-	if (chrbotvarietyflags & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
 		speed *= BOTVARIETY_MINI_SPEEDMULT;
 	}
 	// Wumbo bot speed debuff
-	else if (chrbotvarietyflags & BOTVARIETY_FLAG_WUMBO) {
+	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
 		speed *= BOTVARIETY_WUMBO_SPEEDMULT;
 	}
 
@@ -336,13 +341,13 @@ bool botvarietyGuessCrochpos(struct chrdata* chr, s32* crouchpos) {
 	}
 
 	// Mini bots never have to crouch
-	if (chrbotvarietyflags & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
 		*crouchpos = CROUCHPOS_STAND;
 		return true;
 	}
 
 	// Wumbo bots skip middle-crouch
-	if (chrbotvarietyflags & BOTVARIETY_FLAG_WUMBO) {
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
 		if (chr->height <= 135) {
 			*crouchpos = CROUCHPOS_SQUAT;
 			return true;
@@ -363,13 +368,13 @@ void botvarietyHandleSize(struct chrdata* chr, s32 bodynum) {
 
 	// Mini
 	if (randfrac_size < BOTVARIETY_CHANCE_MINI) {
-		chrbotvarietyflags |= BOTVARIETY_FLAG_MINI; // for joint scaling, crouch, speed, punch/disarm damage
+		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI; // for joint scaling, crouch, speed, punch/disarm damage
 		scale *= BOTVARIETY_MINI_BODYSCALE; // Body scale
 		scale *= RANDOMFRAC() * 0.05f + 0.975f; // Apply random height variance between 97.5% and 102.5%
 	}
 	// Wumbo
 	else if (RANDOMFRAC() > (1 - BOTVARIETY_CHANCE_WUMBO)) {
-		chrbotvarietyflags |= BOTVARIETY_FLAG_WUMBO; // for joint scaling, crouch, speed, punch/disarm damage
+		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO; // for joint scaling, crouch, speed, punch/disarm damage
 		scale *= BOTVARIETY_WUMBO_BODYSCALE;
 		scale *= RANDOMFRAC() * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
 	}
@@ -386,10 +391,11 @@ void botvarietyApplyOnSpawn(struct chrdata *chr) {
 	s32 bodynum = chr->bodynum;
 	s32 headnum;
 
-	chrbotvarietyflags = 0;
+	CHR_BOTVARIETY_FLAGS = 0;
 
 	botvarietyHandleSize(chr, bodynum); // roll for a size variation
 }
+#undef CHR_BOTVARIETY_FLAGS
 //=== End of botvariety funcs ===============================================================================
 
 void botSpawn(struct chrdata *chr, u8 respawning)

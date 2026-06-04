@@ -3765,6 +3765,8 @@ s32 mpplayerfileLoad(s32 playernum, s32 device, s32 fileid, u16 deviceserial)
 }
 
 struct mppreset g_MpPresets[] = {
+
+	{ L_MPWEAPONS_261, MPCONFIG_ZOMBIES    }, // "Zombies!"
 	{ L_MPWEAPONS_025, MPCONFIG_NOSHIELD   }, // "No Shield"
 	{ L_MPWEAPONS_026, MPCONFIG_AUTOMATICS }, // "Automatics"
 	{ L_MPWEAPONS_027, MPCONFIG_ROCKETS    }, // "Rocket Launcher"
@@ -3911,6 +3913,75 @@ void mpApplyConfig(struct mpconfigfull *config)
 
 	func0f18913c();
 	challengeRemoveForceUnlocks();
+
+	// Set random weapons going into the menu (zombies mode)
+	if (config->config.setup.options & MPOPTION_AUTORANDOMWEAPON_END) {
+		mpSetWeaponSet(ARRAYCOUNT(g_MpWeaponSets) + 1);
+		mpApplyWeaponSet();
+	}
+}
+
+u8 zombieheads[8] = {
+	MPHEAD_GARETH, MPHEAD_DAVEC, MPHEAD_MARK2, MPHEAD_SILKE,
+	MPHEAD_ROBERT, MPHEAD_MOTO,  MPHEAD_KEN,   MPHEAD_JOEL
+};
+
+void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* setup) {
+	u8 i, j;
+	char number[2] = "0";
+	struct mpconfigsim* thissimulant;
+
+	// Customize bots
+	for (i = 0; i < MAX_BOTS; i++) {
+		thissimulant = &config->config.simulants[i];
+
+		// Set team
+		thissimulant->team = MPTEAM_7;
+
+		// Set type and difficulty
+		thissimulant->type = BOTTYPE_FIST;
+		for (j = 0; j < MAX_PLAYERS; j++) {
+			thissimulant->difficulties[j] = BOTDIFF_NORMAL;
+		}
+
+		// Set appearance
+		thissimulant->mpheadnum = zombieheads[i];
+		thissimulant->mpbodynum = MPBODY_DDSHOCK;
+
+		// Set name
+		char name[15] = "Zombie ";
+		number[0] = '1' + i;
+		strcat(name, number);
+		strcpy(config->strings.aibotnames[i], name);
+	}
+
+	// enable all bots
+	setup->chrslots |= 0x0ff0;
+}
+
+char zombiesname[] = "Zombies!";
+
+void mpSetUpConfigZombies(struct mpconfigfull* config) {
+	struct mpsetup* setup = &config->config.setup;
+	u8 i;
+
+	// Set options
+	setup->options |= MPOPTION_TEAMSENABLED | MPOPTION_NOAUTOAIM | MPOPTION_DISPLAYTEAM | MPOPTION_BOTVARIETY | MPOPTION_FRIENDLYFIRE | MPOPTION_AUTORANDOMWEAPON_END;
+	setup->stagenum = STAGE_MP_RANDOM;
+	setup->timelimit = 11;
+	setup->scorelimit = 100;
+	setup->teamscorelimit = 400;
+
+	// Set up simulants
+	mpSetUpConfigZombiesSimulants(config, setup);
+
+	// Set player team
+	for (i = 0; i < MAX_PLAYERS; i++) {
+		g_PlayerConfigsArray[i].base.team = MPTEAM_4;
+	}
+
+	// Set setup name (only used when saving a customized copy of this setup)
+	strcpy(setup->name, zombiesname);
 }
 
 void mp0f18dec4(s32 slot)
@@ -3931,7 +4002,13 @@ void mp0f18dec4(s32 slot)
 		}
 	}
 
-	config = challengeLoadConfig(confignum, buffer, sizeof(buffer));
+	if (confignum == MPCONFIG_ZOMBIES) {
+		config = challengeLoadConfig(MPCONFIG_NOSHIELD, buffer, sizeof(buffer));
+		mpSetUpConfigZombies(config);
+	}
+	else {
+		config = challengeLoadConfig(confignum, buffer, sizeof(buffer));
+	}
 
 	mpApplyConfig(config);
 
@@ -4038,6 +4115,11 @@ void mpsetupfileLoadWad(struct savebuffer *buffer, u8 version)
 	}
 
 	challengeForceUnlockBotFeatures();
+
+	// Set random weapons right away
+	if (g_MpWeaponSetNum == WEAPONSET_RANDOM || g_MpWeaponSetNum == WEAPONSET_RANDOMFIVE) {
+		mpApplyWeaponSet();
+	}
 }
 
 void mpsetupfileSaveWad(struct savebuffer *buffer)
