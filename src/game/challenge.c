@@ -862,7 +862,7 @@ void challengeConsiderMarkingComplete(void)
 
 bool challengeIsFeatureUnlocked(s32 featurenum)
 {
-	if (featurenum == 0) {
+	if (featurenum == 0 || featurenum == MPFEATURE_8BOTS) { // 8bots unlocked by default
 		return true;
 	}
 

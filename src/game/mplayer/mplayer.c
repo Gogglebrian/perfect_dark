@@ -3792,6 +3792,10 @@ bool mpIsPresetUnlocked(s32 presetnum)
 {
 	s32 i;
 
+	if (presetnum == 0) { // Force show Zombies preset
+		return true;
+	}
+
 	for (i = 0; i < ARRAYCOUNT(g_MpPresets[presetnum].requirefeatures); i++) {
 		if (!challengeIsFeatureUnlocked(g_MpPresets[presetnum].requirefeatures[i]) &&
 				g_MpPresets[presetnum].requirefeatures[i] != MPFEATURE_WEAPON_SHIELD) {
@@ -3916,15 +3920,13 @@ void mpApplyConfig(struct mpconfigfull *config)
 
 	// Set random weapons going into the menu (zombies mode)
 	if (config->config.setup.options & MPOPTION_AUTORANDOMWEAPON_END) {
-		mpSetWeaponSet(ARRAYCOUNT(g_MpWeaponSets) + 1);
+		g_MpWeaponSetNum = WEAPONSET_RANDOM;
 		mpApplyWeaponSet();
 	}
 }
 
-u8 zombieheads[8] = {
-	MPHEAD_GARETH, MPHEAD_DAVEC, MPHEAD_MARK2, MPHEAD_SILKE,
-	MPHEAD_ROBERT, MPHEAD_MOTO,  MPHEAD_KEN,   MPHEAD_JOEL
-};
+char zombiesname[] = "Zombies!";
+u8 zombieheads[8] = { MPHEAD_GARETH, MPHEAD_DAVEC, MPHEAD_MARK2, MPHEAD_SILKE, MPHEAD_ROBERT, MPHEAD_MOTO,  MPHEAD_KEN,   MPHEAD_JOEL };
 
 void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* setup) {
 	u8 i, j;
@@ -3949,7 +3951,7 @@ void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* 
 		thissimulant->mpbodynum = MPBODY_DDSHOCK;
 
 		// Set name
-		char name[15] = "Zombie ";
+		char name[15] = "FistSim:";
 		number[0] = '1' + i;
 		strcat(name, number);
 		strcpy(config->strings.aibotnames[i], name);
@@ -3958,8 +3960,6 @@ void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* 
 	// enable all bots
 	setup->chrslots |= 0x0ff0;
 }
-
-char zombiesname[] = "Zombies!";
 
 void mpSetUpConfigZombies(struct mpconfigfull* config) {
 	struct mpsetup* setup = &config->config.setup;
