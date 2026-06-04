@@ -29,7 +29,7 @@ u32 g_TeamColours[] = {
 	0xff00ff00, // Magenta
 	0x00ffff00, // Cyan
 	0xff885500, // Orange
-	0x8800ff00, // Pink
+	0x44884400, // Green, was Pink (0x8800ff00)
 	0x88445500, // Brown
 };
 
@@ -40,7 +40,7 @@ u32 var80087ce4[] = {
 	0xf83ff83f,
 	0x07ff07ff,
 	0xfc55fc55,
-	0xfc63fc63,
+	0x44504450, // Green, was Pink (0xfc63fc63)
 	0x8a158a15,
 };
 

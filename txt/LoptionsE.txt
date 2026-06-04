@@ -1,0 +1,494 @@
+Complete*
+Incomplete*
+Failed*
+*
+
+earth:
+   prehistory
+rare presents
+Red*
+Yellow*
+Blue*
+Magenta*
+Cyan*
+Orange*
+Green*
+Brown*
+Joanna Combat*
+Joanna Trench Coat*
+Joanna Party Frock*
+Joanna Frock (Ripped)*
+Joanna Stewardess*
+Joanna Wet Suit*
+Joanna Aqualung*
+Joanna Arctic*
+Joanna Lab Tech.*
+Elvis*
+Maian*
+Daniel Carrington*
+Carrington Evening Wear*
+Mr. Blonde*
+Cassandra De Vries*
+Trent Easton*
+Jonathan*
+CI Male Lab Technician*
+CI Female Lab Technician*
+CI Soldier*
+dataDyne Shock Trooper*
+dataDyne Female Guard*
+dataDyne Security*
+dataDyne Infantry*
+dataDyne Trooper*
+Secretary*
+Office Suit*
+Office Casual*
+Negotiator*
+dataDyne Sniper*
+G5 Guard*
+G5 SWAT Guard*
+CIA Agent*
+FBI Agent*
+Area 51 Guard*
+Area 51 Trooper*
+Pilot*
+Overalls*
+NSA Bodyguard*
+Male Lab Technician*
+Female Lab Technician*
+dataDyne Lab Technician*
+Biotechnician*
+Alaskan Guard*
+Air Force One Pilot*
+Steward*
+Stewardess*
+Head Stewardess*
+The President*
+NSA Lackey*
+Presidential Security*
+President"s Clone*
+Pelagic II Guard*
+Maian Soldier*
+Dinner Jacket*
+- no controller in controller socket 1 -
+please power off and attach a controller
+DETECTED
+NOT DETECTED
+tm
+N64 EXPANSION PAK
+Nintendo 64 Product Identification*
+Product ID:*
+Product Code:*
+Variant:*
+Developer:*
+Perfect Dark*
+NUS-NPDE-USA*
+NTSC version 8.7 final*
+Rare Ltd. (twycross)*
+Copyright Rare Ltd. 2000*
+The Rareware Logo and Perfect Dark are trademarks of Rare Ltd.*
+Presented in Dolby Surround.  Dolby and the double-D*symbol are trademarks of Dolby Laboratories.
+Uses Miles Sound System Copyright 1991-1999 RAD Game Tools Inc.*MPEG Layer-3 playback supplied with the Miles Sound System from*RAD Game Tools, Inc. MPEG Layer-3 audio compression technology*licensed by Fraunhofer IIS and THOMSON multimedia*
+
+
+
+rare designs on the future <<<*
+Published by Rareware.*
+Perfect Dark*
+Choose Your Reality*
+New...*
+New Agent...*
+Game Files*
+Copy:*
+Delete:*
+Delete Game Notes...*
+Single Player Agent File*
+Combat Simulator Settings File*
+Combat Simulator Player File*
+PerfectHead Files*
+Controller Pak Menu*
+Use this menu to delete game notes*from your Controller Paks.*
+Choose Controller Pak to Edit:*
+Exit*
+Game Pak*
+Controller Pak 1*
+Controller Pak 2*
+Controller Pak 3*
+Controller Pak 4*
+Perfect Menu*
+Solo Missions*
+Combat Simulator*
+Co-Operative*
+Counter-Operative*
+Cinema*
+Mission Select*
+Mission 1*
+Mission 2*
+Mission 3*
+Mission 4*
+Mission 5*
+Mission 6*
+Mission 7*
+Mission 8*
+Mission 9*
+Special Assignments*
+dataDyne Central
+- Defection
+dataDyne Research
+- Investigation
+dataDyne Central
+- Extraction
+Carrington Villa
+- Hostage One
+Chicago
+- Stealth
+G5 Building
+- Reconnaissance
+Area 51
+- Infiltration
+Area 51
+- Rescue
+Area 51
+- Escape
+Air Base
+- Espionage
+Air Force One
+- Antiterrorism
+Crash Site
+- Confrontation
+Pelagic II
+- Exploration
+Deep Sea
+- Nullify Threat
+Carrington Institute
+- Defense
+Attack Ship
+- Covert Assault
+Skedar Ruins
+- Battle Shrine
+Mr. Blonde's Revenge
+Maian SOS
+Retaking the Institute
+WAR!
+The Duel
+Status*
+Abort!*
+Warning*
+Do you want to abort the mission?*
+Cancel*
+Abort*
+Inventory*
+Weapons Available*
+Options*
+Audio*
+Video*
+Control*
+Display*
+Cheats*
+Save Game*
+Change Agent...*
+Warning*
+Do you want to load another agent?*
+Yes*
+No*
+Control Options*
+Control Player 2*
+Control Style*
+Reverse Pitch*
+Look Ahead*
+Head Roll*
+Auto-Aim*
+Aim Control*
+Back*
+Hold*
+Toggle*
+Display Options*
+Display Player 2*
+Sight on Screen*
+Always Show Target*
+Show Zoom Range*
+Ammo on Screen*
+Show Gun Function*
+Paintball*
+Subtitles*
+Show Mission Time*
+Back*
+Video Options*
+Screen Size*
+Ratio*
+Hi-Res*
+2-Player Screen Split*
+Back*
+Full*
+Wide*
+Cinema*
+Normal*
+16:9*
+Horizontal*
+Vertical*
+Audio Options*
+Sound*
+Music*
+Sound Mode*
+Back*
+Mono
+Stereo
+Headphone
+Surround
+Control*
+Single*
+Double*
+1.1
+1.2
+1.3
+1.4
+2.1
+2.2
+2.3
+2.4
+Briefing*
+Select Difficulty*
+Difficulty*
+Best Time*
+Agent*
+Special Agent*
+Perfect Agent*
+Cancel*
+Co-Operative Options*
+Radar On*
+Friendly Fire*
+Perfect Buddy*
+Continue*
+Cancel*
+Human
+1 Simulant
+2 Simulants
+3 Simulants
+4 Simulants
+Counter-Operative Options*
+Radar On*
+Counter-Operative*
+Continue*
+Cancel*
+Player 1
+Player 2
+Overview*
+Accept*
+Decline*
+Completed*
+Failed*
+Mission Status:*
+Agent Status:*
+Mission Time:*
+Weapon of Choice:*
+Kills:*
+Accuracy:*
+Shot Total:*
+    Head Shots:*
+    Body Shots:*
+    Limb Shots:*
+    Others:*
+Press START*
+Deceased*
+Active*
+Disavowed*
+Failed*
+Completed*
+Aborted*
+Retry
+Next Mission
+Accept*
+Decline*
+Objectives*
+Press START*
+Small but Perfect Menu*
+Combat Simulator*
+Training*
+Audio/Video*
+Change Agent*
+Audio/Visual*
+Sound*
+Music*
+Sound Mode*
+Ratio*
+Back*
+< Empty >*
+DEL
+CAPS
+CANCEL
+OK
+Combat Simulator Heads*
+Mission Heads*
+Error*
+Cancel*
+The Controller Pak*was not found*in any controller.*
+File was not saved.*
+File would not load.*
+Could not delete the file.*
+Out of memory.*
+This player is already*loaded for this game.*
+has been removed.*
+Controller Pak is damaged or incorrectly inserted.*
+Game note delete failed.*
+Error Loading Game*
+Error Saving Game*
+Error Loading Player*
+Error Saving Player*
+Error Loading PerfectHead*
+Error Saving PerfectHead*
+Error Reading File*
+Error Writing File*
+Error*
+Delete Failed*
+Could not delete the file.*
+- Check that the Controller Pak is*inserted correctly.*
+Cancel*
+There is no space.*
+Cool!*
+File Saved.*
+OK*
+An error occurred while*trying to save.*
+Try Again*
+Save Elsewhere*
+Cancel*
+An error occurred while*trying to load.*
+Try Again*
+Cancel*
+Need Space For Head*
+Choose a head to load over:*
+OK*
+Cancel*
+Save*
+Would you like to save*your file elsewhere?*
+Yes*
+No*
+Please insert the Controller Pak containing your %s into any controller.*
+Please insert the*Controller Pak*you are saving to*into any controller.*
+OK*
+Cancel*
+Select Location*
+Where*
+Spaces*
+Delete Files...*
+Cancel*
+Full
+Copy File*
+Select a file to copy:*
+Press B Button to exit.*
+Delete File*
+Select a file to delete:*
+Press B Button to exit.*
+Warning*
+Are you sure you want*to delete this file?*
+Cancel*
+OK*
+Delete Game Note*
+Are you sure you*want to delete*this game note?*
+No*
+Yes*
+Game Notes*
+Delete Game Notes:*
+Note*
+Pages*
+Press the B Button to exit.*
+Empty*
+--*
+Pages Free: *
+Pages Free: %d*
+Pages Used: *
+Pages Used: %d*
+Perfect Dark note already exists*on this Controller Pak.*
+There is enough space for*Perfect Dark note.*
+Controller Pak is too full to save note- 1 note*and 28 pages required to save to Controller Pak.*
+Enter Agent Name*
+New...*
+New Agent...*
+New Recruit
+Mission Time:
+Challenge 1
+Challenge 2
+Challenge 3
+Challenge 4
+Challenge 5
+Challenge 6
+Challenge 7
+Challenge 8
+Challenge 9
+Challenge 10
+Challenge 11
+Challenge 12
+Challenge 13
+Challenge 14
+Challenge 15
+Challenge 16
+Challenge 17
+Challenge 18
+Challenge 19
+Challenge 20
+Challenge 21
+Challenge 22
+Challenge 23
+Challenge 24
+Challenge 25
+Challenge 26
+Challenge 27
+Challenge 28
+Challenge 29
+Challenge 30
+Special*
+Intro*
+Mission 1 - dataDyne Central*
+Mission 2 - Carrington Villa*
+Mission 3 - G5 Building*
+Mission 4 - Area 51*
+Mission 5 - Air Force One*
+Mission 6 - Pelagic II*
+Mission 7 - Carrington Institute*
+Mission 8 - Skedar Attack Ship*
+Mission 9 - Skedar Ruins*
+Finale*
+Play All*
+Intro*
+1:1 Intro - Enter The Dark*
+1:1 Outro - Quick Descent*
+1:2 Intro - Going Down*
+1:2 Outro - Meet The Doctor*
+1:3 Intro - Lights Out*
+1:3 Outro - Going Somewhere?*
+2:1 Intro - Negotiate This!*
+2:1 Intro 2 - Life On The Line*
+2:1 Outro - Carrington Rescued*
+3:1 Intro - Dark Alley*
+3:1 Outro - G5 Penetrated*
+3:2 Intro - Guns 'n' Poses*
+3:2 Special - Conspiracy*
+3:2 Outro - Fire Escape*
+4:1 Intro - Video Nasty*
+4:1 Outro - Loose Ends*
+4:2 Intro - Pearls Of Wisdom*
+4:2 Outro - Under The Knife*
+4:3 Intro - Gas!*
+4:3 Special - Elvis Wakes Up*
+4:3 Outro - Escape*
+5:1 Intro - High Altitude*
+5:1 Outro - Takeoff*
+5:2 Intro - Last Chance*
+5:2 Special - Docking*
+5:2 Outro - Out Of Options*
+5:3 Intro - Red Horizons*
+5:3 Outro - Blonde Freak*
+6:1 Intro - Sneak On Board*
+6:1 Outro - Descent Into The Depths*
+6:2 Intro - Deeper Inside*
+6:2 Special - Virus!*
+6:2 Outro - Pulling Out*
+7:1 Intro - Victory Salute*
+7:1 Outro - Dash For Freedom*
+8:1 Intro - Snatched!*
+8:1 Outro - Heading For Trouble*
+9:1 Intro - Air Of Calm*
+9:1 Outro - Gotcha!*
+End Sequence*
+Cinema*
+cloak %d*
+Pick Target*
+Kills Score*

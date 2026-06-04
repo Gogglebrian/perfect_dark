@@ -83,7 +83,7 @@ MenuItemHandlerResult amPickTargetMenuList(s32 operation, struct menuitem *item,
 		0xff00ff00,
 		0x00ffff00,
 		0xff885500,
-		0x8800ff00,
+		0x44884400, // Green, was Pink (0x8800ff00)
 		0x88445500,
 	};
 

@@ -4537,8 +4537,8 @@ struct menuitem g_MpTeamNamesMenuItems[] = {
 	{
 		MENUITEMTYPE_SELECTABLE,
 		0,
-		MENUITEMFLAG_LOCKABLEMINOR,
-		L_OPTIONS_014, // "Pink"
+		MENUITEMFLAG_LITERAL_TEXT | MENUITEMFLAG_LOCKABLEMINOR,
+		(uintptr_t)"Green\n", // "Green"
 		(uintptr_t)&mpMenuTextTeamName,
 		menuhandlerMpTeamNameSlot,
 	},

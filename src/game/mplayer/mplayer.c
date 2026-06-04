@@ -3936,7 +3936,7 @@ void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* 
 		thissimulant = &config->config.simulants[i];
 
 		// Set team
-		thissimulant->team = MPTEAM_7;
+		thissimulant->team = MPTEAM_6; // Green team
 
 		// Set type and difficulty
 		thissimulant->type = BOTTYPE_FIST;
@@ -3966,7 +3966,7 @@ void mpSetUpConfigZombies(struct mpconfigfull* config) {
 	u8 i;
 
 	// Set options
-	setup->options |= MPOPTION_TEAMSENABLED | MPOPTION_NOAUTOAIM | MPOPTION_DISPLAYTEAM | MPOPTION_BOTVARIETY | MPOPTION_FRIENDLYFIRE | MPOPTION_AUTORANDOMWEAPON_END;
+	setup->options |= MPOPTION_TEAMSENABLED | MPOPTION_NOAUTOAIM | MPOPTION_BOTVARIETY | MPOPTION_FRIENDLYFIRE | MPOPTION_AUTORANDOMWEAPON_END;
 	setup->stagenum = STAGE_MP_RANDOM;
 	setup->timelimit = 11;
 	setup->scorelimit = 100;
