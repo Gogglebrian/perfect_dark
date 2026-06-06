@@ -1,5 +1,5 @@
-#ifndef IN_GAME_CUSTOMAMMO_H
-#define IN_GAME_CUSTOMAMMO_H
+#ifndef IN_GAME_MOD_CUSTOMAMMO_H
+#define IN_GAME_MOD_CUSTOMAMMO_H
 #include <ultra64.h>
 #include "data.h"
 #include "types.h"

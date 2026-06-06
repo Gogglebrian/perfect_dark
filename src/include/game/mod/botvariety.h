@@ -1,5 +1,5 @@
-#ifndef _IN_GAME_BOTVARIETY_H
-#define _IN_GAME_BOTVARIETY_H
+#ifndef _IN_GAME_MOD_BOTVARIETY_H
+#define _IN_GAME_MOD_BOTVARIETY_H
 #include <ultra64.h>
 #include "data.h"
 #include "types.h"
