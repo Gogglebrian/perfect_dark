@@ -24,6 +24,7 @@
 #include "game/mplayer/mplayer.h"
 #include "game/pad.h"
 #include "game/propobj.h"
+#include "game/mod/customammo.h"
 #include "bss.h"
 #include "lib/args.h"
 #include "lib/memp.h"

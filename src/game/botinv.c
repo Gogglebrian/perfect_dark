@@ -13,6 +13,7 @@
 #include "game/botinv.h"
 #include "game/mplayer/mplayer.h"
 #include "game/propobj.h"
+#include "game/mod/customammo.h"
 #include "bss.h"
 #include "lib/rng.h"
 #include "data.h"

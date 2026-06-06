@@ -16,6 +16,7 @@
 #include "game/radar.h"
 #include "game/bot.h"
 #include "game/mod/botvariety.h"
+#include "game/mod/customammo.h"
 #include "game/botcmd.h"
 #include "game/botact.h"
 #include "game/botinv.h"
