@@ -54,7 +54,7 @@
 #include "game/propobj.h"
 #include "game/splat.h"
 #include "game/mpstats.h"
-#include "game/bot.h"
+#include "game/mod/botvariety.h"
 #include "bss.h"
 #include "lib/ailist.h"
 #include "lib/collision.h"
@@ -1149,6 +1149,9 @@ void playerSpawn(void)
 				playerTickChrBody();
 			}
 #endif
+			if (botvarietyIsActive()) {
+				botvarietyApplyOnSpawn(g_Vars.currentplayer->prop->chr, true);
+			}
 		}
 	}
 
@@ -5811,7 +5814,7 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 		}
 	}
 
-	speed = botvarietyTryApplySpeedMultiplier(chr, speed);
+	speed = botvarietyTryAdjustAnimSpeed(chr, speed);
 
 	if (animcfg != NULL && animnum == 0) {
 		animnum = animcfg->animnum;

@@ -2312,11 +2312,6 @@ struct hand {
 	/*0x0dd8*/ Mtxf *unk0dd8;
 };
 
-struct customweaponvarianttint {
-	u32 colour;
-	u8 minweight;
-};
-
 struct texpool {
 	u8 *start;
 	union {
@@ -6188,5 +6183,26 @@ struct mpsetupfile {
 };
 
 #endif
+
+//=== More n better weapons types =================================================================
+struct customweaponvarianttint {
+	u32 colour;
+	u8 minweight;
+};
+
+struct botvarietyvariant {
+	u32 flag;
+	f32 chance;            // 0f-1.0f spawn chance
+	f32 bodyscale;         // whole body, multiplier
+	f32 headscale;         // multiplier
+	f32 shoulderscale;     // multiplier
+	f32 movespeedmult;
+	f32 animspeedmult;
+	f32 damagetakenmult;   // incoming damage multiplier, only applies when unshielded; negative to disable
+	f32 bluntdamagemult;   // applies to punches and pistol whips
+	f32 disarmdamage;      // flat damage value (disarm normally does 0 in combat simulator)
+	f32 meleerangemult;    // negative to disable
+	f32 camheightmult;     // camera height for player easter egg
+};
 
 #endif

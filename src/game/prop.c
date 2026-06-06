@@ -22,6 +22,7 @@
 #include "game/sparks.h"
 #include "game/bg.h"
 #include "game/bot.h"
+#include "game/mod/botvariety.h"
 #include "game/training.h"
 #include "game/pad.h"
 #include "game/propobj.h"
@@ -668,6 +669,7 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 		if ((func->type & 0xff) == INVENTORYFUNCTYPE_MELEE) {
 			struct weaponfunc_melee *meleefunc = (struct weaponfunc_melee *) func;
 			range = meleefunc->range;
+			range = botvarietyTryAdjustCurrentPlayerMeleeRange(range);
 		}
 
 		hitpos.x = shotdata.gunpos3d.x + shotdata.gundir3d.x * range;
@@ -913,7 +915,6 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 		bool hitaprop = false;
 
 		hitindex = 0;
-
 		for (i = 0; i < ARRAYCOUNT(shotdata.hits); i++) {
 			if (shotdata.hits[i].prop && shotdata.hits[i].distance < range) {
 				hitaprop = true;
@@ -1320,6 +1321,8 @@ void handInflictMeleeDamage(s32 handnum, struct gset *gset, bool arg2)
 #endif
 					struct weaponfunc_melee *meleefunc = (struct weaponfunc_melee *)func;
 					rangelimit = meleefunc->range;
+					rangelimit = botvarietyTryAdjustCurrentPlayerMeleeRange(rangelimit);
+
 				}
 
 				bgunGetCrossPos(&x, &y);

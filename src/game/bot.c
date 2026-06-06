@@ -15,6 +15,7 @@
 #include "game/mplayer/scenarios.h"
 #include "game/radar.h"
 #include "game/bot.h"
+#include "game/mod/botvariety.h"
 #include "game/botcmd.h"
 #include "game/botact.h"
 #include "game/botinv.h"
@@ -228,175 +229,6 @@ void botReset(struct chrdata *chr, u8 respawning)
 	}
 }
 
-//=== Botvariety funcs ======================================================================================
-// Bespoke system for variations that can be applied randomly as bots spawn and respawn, altering their
-// appearance and properties.
-// - Size variants: Mini, Wumbo
-
-#define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
-
-bool botvarietyIsActive() {
-	return g_Vars.normmplayerisrunning && g_MpSetup.options & MPOPTION_BOTVARIETY;
-}
-
-#define ATTACKER_BOTVARIETY_FLAGS achr->convtalk
-#define VICTIM_BOTVARIETY_FLAGS   vchr->convtalk
-f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage) {
-
-	if (!botvarietyIsActive()) {
-		return damage;
-	}
-
-	// Mini blunt damage bebuff (disarm still does 0)
-	if (ATTACKER_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
-		if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
-			if (!gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)) { // don't bother multiplying disarm's 0
-				damage *= BOTVARIETY_MINI_BLUNTDAMAGEMULT;
-			}
-		}
-	}
-	// Wumbo blunt damage buff
-	else if (ATTACKER_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
-		if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
-			if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)) {
-				damage = BOTVARIETY_WUMBO_DISARMDAMAGE;
-			}
-			else {
-				damage *= BOTVARIETY_WUMBO_BLUNTDAMAGEMULT;
-			}
-		}
-	}
-
-	// Apply incoming damage multiplier for Wumbo (effectively doubling health)
-	if (VICTIM_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO
-			&& !(vchr->cshield > 0)) { // only if unshielded
-		damage *= BOTVARIETY_WUMBO_DAMAGETAKENMULT;
-	}
-
-	return damage;
-}
-#undef ATTACKER_BOTVARIETY_FLAGS
-#undef VICTIM_BOTVARIETY_FLAGS 
-
-#define lshoulderjoint 2
-#define rshoulderjoint 3
-#define waistjoint     1
-#define neckjoint      0
-f32 botvarietyTryApplyJointScaling(struct chrdata* chr, s32 joint, f32 scale) {
-	if (!botvarietyIsActive()) {
-		return scale;
-	}
-
-	// Mini scaling
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
-		if (joint == neckjoint) {
-			scale = BOTVARIETY_MINI_HEADSCALE;
-		}
-		else if (joint == lshoulderjoint || joint == rshoulderjoint) {
-			scale = BOTVARIETY_MINI_SHOULDERSCALE;
-		}
-	}
-	// Wumbo scaling
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
-		if (joint == neckjoint) {
-			scale = BOTVARIETY_WUMBO_HEADSCALE;
-		}
-		else if (joint == lshoulderjoint || joint == rshoulderjoint) {
-			scale = BOTVARIETY_WUMBO_SHOULDERSCALE;
-		}
-	}
-
-	return scale;
-}
-#undef lshoulderjoint
-#undef rshoulderjoint
-#undef waistjoint
-#undef neckjoint
-
-f32 botvarietyTryApplySpeedMultiplier(struct chrdata *chr, f32 speed) {
-	if (!botvarietyIsActive()) {
-		return speed;
-	}
-
-	// Mini bot speed bonus
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
-		speed *= BOTVARIETY_MINI_SPEEDMULT;
-	}
-	// Wumbo bot speed debuff
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
-		speed *= BOTVARIETY_WUMBO_SPEEDMULT;
-	}
-
-	// Apply random speed variance to all bots
-	if (chr->aibot) {
-		speed *= RANDOMFRAC() * 0.1f + 0.95f; // between 95% and 105%
-	}
-
-	return speed;
-}
-
-bool botvarietyGuessCrochpos(struct chrdata* chr, s32* crouchpos) {
-	if (!botvarietyIsActive()) {
-		return false;
-	}
-
-	// Mini bots never have to crouch
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
-		*crouchpos = CROUCHPOS_STAND;
-		return true;
-	}
-
-	// Wumbo bots skip middle-crouch
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
-		if (chr->height <= 135) {
-			*crouchpos = CROUCHPOS_SQUAT;
-			return true;
-		}
-		else {
-			*crouchpos = CROUCHPOS_STAND;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void botvarietyHandleSize(struct chrdata* chr, s32 bodynum) {
-	f32 scale = g_HeadsAndBodies[bodynum].scale * 0.10000001f;
-	f32 animscale = g_HeadsAndBodies[bodynum].animscale;
-	f32 randfrac_size = RANDOMFRAC();
-
-	// Mini
-	if (randfrac_size < BOTVARIETY_CHANCE_MINI) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI; // for joint scaling, crouch, speed, punch/disarm damage
-		scale *= BOTVARIETY_MINI_BODYSCALE; // Body scale
-		scale *= RANDOMFRAC() * 0.05f + 0.975f; // Apply random height variance between 97.5% and 102.5%
-	}
-	// Wumbo
-	else if (RANDOMFRAC() > (1 - BOTVARIETY_CHANCE_WUMBO)) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO; // for joint scaling, crouch, speed, punch/disarm damage
-		scale *= BOTVARIETY_WUMBO_BODYSCALE;
-		scale *= RANDOMFRAC() * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
-	}
-	// Normal
-	else {
-		scale *= RANDOMFRAC() * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
-	}
-
-	modelSetScale(chr->model, scale);
-	modelSetAnimScale(chr->model, animscale);
-}
-
-void botvarietyApplyOnSpawn(struct chrdata *chr) {
-	s32 bodynum = chr->bodynum;
-	s32 headnum;
-
-	CHR_BOTVARIETY_FLAGS = 0;
-
-	botvarietyHandleSize(chr, bodynum); // roll for a size variation
-}
-#undef CHR_BOTVARIETY_FLAGS
-//=== End of botvariety funcs ===============================================================================
 
 void botSpawn(struct chrdata *chr, u8 respawning)
 {
@@ -424,7 +256,7 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 	if (aibot) {
 		botReset(chr, respawning);
 		if (g_MpSetup.options & MPOPTION_BOTVARIETY) {
-			botvarietyApplyOnSpawn(chr);
+			botvarietyApplyOnSpawn(chr, false);
 		}
 		splatResetChr(chr);
 		thing = scenarioChooseSpawnLocation(chr->radius, &pos, rooms, chr->prop);
@@ -918,7 +750,7 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
-	if (botvarietyGuessCrochpos(chr, &crouchpos)) {
+	if (botvarietyGuessCrouchpos(chr, &crouchpos)) {
 		return crouchpos;
 	}
 
@@ -1304,7 +1136,7 @@ f32 botCalculateMaxSpeed(struct chrdata *chr)
 		speed *= 0.5f;
 	}
 
-	speed = botvarietyTryApplySpeedMultiplier(chr, speed);
+	speed = botvarietyTryAdjustMoveSpeed(chr, speed);
 
 	return speed;
 }

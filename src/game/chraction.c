@@ -6,6 +6,7 @@
 #include "game/body.h"
 #include "game/bondgun.h"
 #include "game/bot.h"
+#include "game/mod/botvariety.h"
 #include "game/botact.h"
 #include "game/botcmd.h"
 #include "game/botinv.h"

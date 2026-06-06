@@ -30,6 +30,7 @@
 #include "game/file.h"
 #include "game/mplayer/setup.h"
 #include "game/bot.h"
+#include "game/mod/botvariety.h"
 #include "game/botact.h"
 #include "game/mplayer/mplayer.h"
 #include "game/pad.h"
@@ -1692,7 +1693,7 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			}
 		}
 
-		scale = botvarietyTryApplyJointScaling(g_CurModelChr, joint, scale);
+		scale = botvarietyTryAdjustJointScale(g_CurModelChr, joint, scale);
 
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
 			xrot = 0.0f;

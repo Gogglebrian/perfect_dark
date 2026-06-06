@@ -397,27 +397,6 @@
 #define BOTTYPE_TURTLE  11 // Moves slower and has double shield
 #define BOTTYPE_VENGE   12 // Targets the last player who killed it
 
-// Bot variety constants
-#define BOTVARIETY_CHANCE_MINI           0.3333f
-#define BOTVARIETY_MINI_BODYSCALE        0.605f
-#define BOTVARIETY_MINI_HEADSCALE        1.65f
-#define BOTVARIETY_MINI_SHOULDERSCALE    1.3f
-#define BOTVARIETY_MINI_SPEEDMULT        1.15f
-#define BOTVARIETY_MINI_BLUNTDAMAGEMULT  0.9f // Applies to punch and pistol whip
-
-#define BOTVARIETY_CHANCE_WUMBO          0.3333f
-#define BOTVARIETY_WUMBO_BODYSCALE       1.5f
-#define BOTVARIETY_WUMBO_HEADSCALE       0.8f
-#define BOTVARIETY_WUMBO_SHOULDERSCALE   1.4f
-#define BOTVARIETY_WUMBO_BLUNTDAMAGEMULT 2.0f // Applies to punch and pistol whip
-#define BOTVARIETY_WUMBO_DISARMDAMAGE    1.0f // flat damage value (disarm normally does 0 in combat sim)
-#define BOTVARIETY_WUMBO_DAMAGETAKENMULT 0.5f // only applies when unshielded
-#define BOTVARIETY_WUMBO_SPEEDMULT       0.95f
-
-// Bot variety flags
-#define BOTVARIETY_FLAG_MINI  0x00000001
-#define BOTVARIETY_FLAG_WUMBO 0x00000002
-
 #define BRIEFINGTYPE_LOCATION 0
 #define BRIEFINGTYPE_TEXT_PA  1
 #define BRIEFINGTYPE_TEXT_SA  2

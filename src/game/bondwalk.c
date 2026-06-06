@@ -17,6 +17,7 @@
 #include "game/bondhead.h"
 #include "game/playermgr.h"
 #include "game/propobj.h"
+#include "game/mod/botvariety.h"
 #include "bss.h"
 #include "lib/model.h"
 #include "lib/snd.h"
@@ -1419,6 +1420,8 @@ void bwalkApplyMoveData(struct movedata *data)
 		if (g_Vars.currentplayer->speedsideways < -1) {
 			g_Vars.currentplayer->speedsideways = -1;
 		}
+
+		g_Vars.currentplayer->speedforwards = botvarietyTryAdjustMoveSpeed(g_Vars.currentplayer->prop->chr, g_Vars.currentplayer->speedforwards);
 
 		g_Vars.currentplayer->speedforwards *= 1.08f;
 		g_Vars.currentplayer->speedforwards *= g_Vars.currentplayer->speedboost;

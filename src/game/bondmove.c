@@ -27,6 +27,7 @@
 #include "game/mplayer/mplayer.h"
 #include "game/options.h"
 #include "game/propobj.h"
+#include "game/mod/botvariety.h"
 #include "bss.h"
 #include "lib/lib_17ce0.h"
 #include "lib/vi.h"
@@ -2527,6 +2528,8 @@ void bmove0f0cc19c(struct coord *arg)
 
 		g_Vars.currentplayer->bond2.unk10.y += g_Vars.currentplayer->vv_manground;
 	}
+
+	botvarietyTryAdjustCurrentPlayerCameraHeight();
 
 #if VERSION >= VERSION_NTSC_1_0
 	min = g_Vars.currentplayer->vv_ground + 10;
