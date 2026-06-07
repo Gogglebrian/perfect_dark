@@ -255,10 +255,10 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 	}
 
 	if (aibot) {
-		botReset(chr, respawning);
 		if (g_MpSetup.options & MPOPTION_BOTVARIETY) {
-			botvarietyApplyOnSpawn(chr, false);
+			botvarietyApplyOnSpawn(chr, false, respawning);
 		}
+		botReset(chr, respawning);
 		splatResetChr(chr);
 		thing = scenarioChooseSpawnLocation(chr->radius, &pos, rooms, chr->prop);
 		chr->hidden |= CHRHFLAG_WARPONSCREEN;

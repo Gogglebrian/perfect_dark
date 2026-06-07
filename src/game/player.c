@@ -1150,7 +1150,7 @@ void playerSpawn(void)
 			}
 #endif
 			if (botvarietyIsActive()) {
-				botvarietyApplyOnSpawn(g_Vars.currentplayer->prop->chr, true);
+				botvarietyApplyOnSpawn(g_Vars.currentplayer->prop->chr, true, true); // assume respawning, but we'll check internally to make sure initial scale is remembered
 			}
 		}
 	}

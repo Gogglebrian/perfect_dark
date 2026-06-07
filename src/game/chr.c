@@ -1879,6 +1879,13 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				mtx00015be0(camGetWorldToScreenMtxf(), mtx);
 			}
 		}
+		else if (scale != 1.0f
+		&& g_CurModelChr->model->definition->skel == &g_SkelChr
+		&& joint > 3 // rshoulder
+		&& joint <= 14) // lfoot
+		{
+			mtx00015f04(scale, mtx);
+		}
 	}
 }
 

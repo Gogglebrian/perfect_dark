@@ -1,12 +1,14 @@
 #include <ultra64.h>
 #include "constants.h"
 #include "game/bot.h"
+#include "game/chr.h"
 #include "game/game_0b0fd0.h"
 #include "game/mod/botvariety.h"
 #include "game/mplayer/mplayer.h"
 #include "bss.h"
 #include "lib/rng.h"
 #include "lib/model.h"
+#include "lib/ailist.h"
 
 //=== Botvariety funcs ======================================================================================
 // Bespoke system for variations that can be applied randomly as bots spawn and respawn, altering their
@@ -20,7 +22,7 @@
 
 struct botvarietyvariant botvarietyVariants[] = {
 	{   BOTVARIETY_FLAG_MINI,
-				0.3333f,  // chance 
+				0.002,    // chance (1 in 500) 0.3333f,
 				0.605f,   // bodyscale
 				1.65f,    // headscale
 				1.3f,     // shoulderscale
@@ -32,7 +34,7 @@ struct botvarietyvariant botvarietyVariants[] = {
 			 -1.0f,     // meleerangemult - disabled
 				0.63375f, // camheightmult (player easter egg)
 	}, {BOTVARIETY_FLAG_WUMBO,
-				0.3333f,  // chance 
+				0.001,    // chance (1 in 1000) 0.3333f,
 				1.5f,     // bodyscale
 				0.8f,     // headscale
 				1.4f,     // shoulderscale
@@ -48,8 +50,10 @@ struct botvarietyvariant botvarietyVariants[] = {
 
 #define MINI  botvarietyVariants[0]
 #define WUMBO botvarietyVariants[1]
-
 u8 botvarietyCount = ARRAYCOUNT(botvarietyVariants);
+
+#define BOTVARIETY_SUNGLASSES_CHANCE_ONEOUTOF 125 
+#define BOTVARIETY_SUNGLASSES_CHANCE_PLAYER   20
 
 #define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
 
@@ -156,10 +160,21 @@ f32 botvarietyTryAdjustCurrentPlayerMeleeRange(f32 range) {
 #undef ATTACKER_BOTVARIETY_FLAGS
 #undef VICTIM_BOTVARIETY_FLAGS 
 
-#define lshoulderjoint 2
-#define rshoulderjoint 3
-#define waistjoint     1
-#define neckjoint      0
+#define neck            0
+#define waist           1
+#define lshoulder       2
+#define rshoulder       3
+// what's 4?
+#define rwrist          5
+#define rhand           6
+#define lwrist          7
+#define lhand           8
+#define rknee           9
+#define rankle         10
+#define rfoot          11
+#define lknee          12
+#define lankle         13
+#define lfoot          14
 
 f32 botvarietyTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	struct botvarietyvariant* variant = NULL;
@@ -173,11 +188,12 @@ f32 botvarietyTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 		variant = &botvarietyVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			if (joint == neckjoint) {
-				scale = variant->headscale;
-			}
-			else if (joint == lshoulderjoint || joint == rshoulderjoint) {
-				scale = variant->shoulderscale;
+			switch (joint) {
+			case neck:
+				scale = variant->headscale;     break;
+			case lshoulder:
+			case rshoulder:
+				scale = variant->shoulderscale; break;
 			}
 		}
 	}
@@ -185,10 +201,21 @@ f32 botvarietyTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	return scale;
 }
 
-#undef lshoulderjoint
-#undef rshoulderjoint
-#undef waistjoint
-#undef neckjoint
+#undef neck
+#undef waist
+#undef lshoulder
+#undef rshoulder
+// what's 4?
+#undef rwrist
+#undef rhand
+#undef lwrist
+#undef lhand
+#undef rknee
+#undef rankle
+#undef rfoot
+#undef lknee
+#undef lankle
+#undef lfoot
 
 f32 botvarietyTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	struct botvarietyvariant* variant = NULL;
@@ -259,50 +286,104 @@ bool botvarietyGuessCrouchpos(struct chrdata* chr, s32* crouchpos) {
 	return false;
 }
 
-void botvarietyHandleSize(struct chrdata* chr, s32 bodynum, bool iscurrentplayer) {
-	f32 initscale = g_HeadsAndBodies[bodynum].scale * 0.10000001f;
-	f32 scalemult = 1.0f;
-	f32 animscale = g_HeadsAndBodies[bodynum].animscale;
+f32 botvarietyInitBodyScalesPlayer[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
+f32 botvarietyInitBodyScalesBot[8] = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f };
+
+f32 botvarietyHandleScaleInit(struct chrdata* chr, bool iscurrentplayer, bool respawning) {
+	// Set or get initial scale value
+	if (iscurrentplayer) {
+		if (!respawning || botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex] < 0) {
+			botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex] = g_Vars.currentplayer->model00d4->scale;
+			return g_Vars.currentplayer->model00d4->scale;
+		}
+		else {
+			return g_Vars.currentplayer->model00d4->scale;
+		}
+	}
+	else { // bot
+		if (!respawning || botvarietyInitBodyScalesBot[chr->aibot->aibotnum] < 0) {
+			botvarietyInitBodyScalesBot[chr->aibot->aibotnum] = chr->model->scale;
+			return chr->model->scale;
+		}
+		else {
+			return botvarietyInitBodyScalesBot[chr->aibot->aibotnum];
+		}
+	}
+}
+
+void botvarietyHandleSize(struct chrdata* chr, s32 bodynum, bool iscurrentplayer, bool respawning) {
+	f32 scale = botvarietyHandleScaleInit(chr, iscurrentplayer, respawning);
 	f32 randfrac_size_variant = RANDOMFRAC();  // mini or wumbo
 	f32 randfrac_size_variance = RANDOMFRAC(); // minor height variance e.g. 95%-105%
 
 	// Mini
 	if (randfrac_size_variant < MINI.chance) {
 		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI;
-		scalemult *= MINI.bodyscale;
-		scalemult *= randfrac_size_variance * 0.05f + 0.975f; // Apply minor height variance between 97.5% and 102.5%
+		scale *= MINI.bodyscale;
+		scale *= randfrac_size_variance * 0.05f + 0.975f; // Apply minor height variance between 97.5% and 102.5%
 	}
 	// Wumbo
 	else if (randfrac_size_variant > (1 - WUMBO.chance)) {
 		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO;
-		scalemult *= WUMBO.bodyscale;
-		scalemult *= randfrac_size_variance * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
+		scale *= WUMBO.bodyscale;
+		scale *= randfrac_size_variance * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
 	}
 	// Normal
 	else if (g_HeadsAndBodies[bodynum].canvaryheight) {
-		scalemult *= randfrac_size_variance * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
+		scale *= randfrac_size_variance * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
 	}
 
 	// Apply body scale (player)
 	if (iscurrentplayer && g_Vars.currentplayer->model00d4) {
-		modelSetScale(g_Vars.currentplayer->model00d4, scalemult * initscale);
-		modelSetAnimScale(g_Vars.currentplayer->model00d4, animscale);
+		modelSetScale(g_Vars.currentplayer->model00d4, scale);
 	} // Apply body scale (bot)
 	else if (chr->model) {
-		modelSetScale(chr->model, scalemult * initscale);
-		modelSetAnimScale(chr->model, animscale);
+		modelSetScale(chr->model, scale);
 	}
 }
 
-void botvarietyApplyOnSpawn(struct chrdata* chr, bool iscurrentplayer) {
-	s32 bodynum = chr->bodynum;
-	s32 headnum;
+void botvarietyApplySunglasses(struct model *model, s32 headnum, bool applysunglasses) {
+	struct modeldef *headmodeldef = g_HeadsAndBodies[headnum].modeldef;
+	struct modelnode* node;
+
+	if (headmodeldef && model) {
+		node = modelGetPart(headmodeldef, MODELPART_HEAD_SUNGLASSES);
+
+		if (node) {
+			union modelrwdata* rwdata = modelGetNodeRwData(model, node);
+
+			if (rwdata) {
+				rwdata->toggle.visible = applysunglasses;
+			}
+		}
+	}
+}
+
+void botvarietyHandleSunglasses(struct chrdata* chr, s32 headnum, bool iscurrentplayer) {
+	struct model *model;
+	u8 chanceoutof = 1;
+
+	if (iscurrentplayer) {
+		chanceoutof = BOTVARIETY_SUNGLASSES_CHANCE_PLAYER;
+		model = g_Vars.currentplayer->model00d4;
+	}
+	else {
+		chanceoutof = BOTVARIETY_SUNGLASSES_CHANCE_ONEOUTOF;
+		model = chr->model;
+	}
+
+	botvarietyApplySunglasses(model, headnum, rngRandom() % chanceoutof == 0);
+}
+
+void botvarietyApplyOnSpawn(struct chrdata* chr, bool iscurrentplayer, bool respawning) {
+	s8 bodynum = chr->bodynum;
+	s8 headnum = chr->headnum;
 
 	CHR_BOTVARIETY_FLAGS = 0;
 
-	botvarietyHandleSize(chr, bodynum, iscurrentplayer); // roll for a size variation
+	botvarietyHandleSize(chr, bodynum, iscurrentplayer, respawning); // roll for a size variation
+	botvarietyHandleSunglasses(chr, headnum, iscurrentplayer);
 }
 #undef CHR_BOTVARIETY_FLAGS
 #undef MINI
 #undef WUMBO
-//=== End of botvariety funcs ===============================================================================
