@@ -42,7 +42,8 @@ struct botvarietyvariant botvarietyVariants[] = {
 				0.9f,    // bluntdamagemult
 				0,       // disarmdamage (default=0)
 				-1.0f,   // meleerangemult - disabled
-			}
+			},
+			1.15f,      // voice pitch
 	}, {BOTVARIETY_FLAG_WUMBO,
 			{ // spawn chances
 				0.0333f, // bot
@@ -63,6 +64,7 @@ struct botvarietyvariant botvarietyVariants[] = {
 				1.0f,    // disarmdamage (default=0)
 				2.0f,    // meleerangemult
 			},
+			0.8f,      // voice pitch
 	}
 };
 
@@ -84,6 +86,33 @@ bool botvarietyIsActive() {
 
 bool botvarietyChrHasVarietyFlags(struct chrdata* chr) {
 	return CHR_BOTVARIETY_FLAGS != 0;
+}
+
+/// <summary>
+/// Returns a voice pitch multiplier based on this character's bot variety flags, if applicable
+/// Returns -1 if no changes
+/// </summary>
+f32 botvarietyGetVoicePitch(struct chrdata* chr) {
+	struct botvarietyvariant* variant = NULL;
+	u8 i;
+	f32 pitch = -1;
+
+	if (!botvarietyIsActive() || !botvarietyChrHasVarietyFlags(chr)) {
+		return -1;
+	}
+
+	for (i = 0; i < botvarietyVariantCount; i++) {
+		variant = &botvarietyVariants[i];
+
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->voicepitch > 0) {
+			if (pitch < 0) {
+				pitch = 1.0f;
+			}
+			pitch *= variant->voicepitch;
+		}
+	}
+
+	return pitch;
 }
 
 void botvarietyTryAdjustCurrentPlayerCameraHeight() {

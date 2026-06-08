@@ -3802,6 +3802,8 @@ bool chrIsAnimPreventingArgh(struct chrdata *chr, f32 *dst)
 	return result;
 }
 
+#include "game/hudmsg.h"
+
 void chrChoke(struct chrdata *chr, s32 choketype)
 {
 	bool male = false;
@@ -4036,17 +4038,19 @@ void chrChoke(struct chrdata *chr, s32 choketype)
 		}
 	}
 
+	f32 pitch = botvarietyGetVoicePitch(chr); // -1 if no change, otherwise returns a multiplier
+
 	if (soundnum >= 0) {
 		if (chr->prop->type == PROPTYPE_PLAYER) {
 			if (g_Vars.players[playernum]->chokehandle == NULL) {
-				sndStart(var80095200, soundnum, &g_Vars.players[playernum]->chokehandle, -1, -1, -1, -1, -1);
+				sndStart(var80095200, soundnum, &g_Vars.players[playernum]->chokehandle, -1, -1, pitch, -1, -1);
 			}
 		} else {
 			psStopSound(chr->prop, PSTYPE_CHRTALK, 0);
 
 			if (!psPropHasSoundWithContext(chr->prop, PSTYPE_CHRCHOKE)) {
 				psCreate(NULL, chr->prop, soundnum, -1,
-						-1, 0, 0, PSTYPE_CHRCHOKE, NULL, -1, NULL, -1, -1, -1, -1);
+						-1, 0, 0, PSTYPE_CHRCHOKE, NULL, pitch, NULL, -1, -1, -1, -1);
 			}
 		}
 	}

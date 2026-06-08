@@ -14,5 +14,6 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 void botvarietyTryAdjustCurrentPlayerCameraHeight();
 bool botvarietyGuessCrouchpos(struct chrdata* chr, s32* crouchpos);
 f32 botvarietyTryAdjustCurrentPlayerMeleeRange(f32 range);
+f32 botvarietyGetVoicePitch(struct chrdata* chr);
 
 #endif

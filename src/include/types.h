@@ -6217,6 +6217,7 @@ struct botvarietyvariant {
 	struct botvarietychance  chance;
 	struct botvarietyscales  scale;
 	struct botvarietystats   stat;
+	f32 voicepitch;
 };
 
 #endif

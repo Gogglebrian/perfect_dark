@@ -384,10 +384,15 @@ void psTickChannel(s32 channelnum)
 			newfx = -1;
 		}
 
+		// @bug: if targetpitch and currentpitch are equal and pitchchangespeed == -1
+		// (as will all be the case in the first tick after psCreate if it was passed
+		// a valid pitch) then that pitch will be discarded entirely here.
 		if (newpitch > 0.0f && ABS(newpitch - channel->currentpitch) > 0.01f) {
 			channel->currentpitch = newpitch;
 		} else {
-			newpitch = -1.0f;
+			// Likely this was meant to set channel->currentpitch = -1.0f
+			// indicating to the NEXT tick to just use the targetpitch.
+			channel->currentpitch = -1.0f; // newpitch = -1.0f;
 		}
 
 		/**
