@@ -16,41 +16,62 @@
 // As an easter egg, players can also spawn mini or wumbo.
 // - Size variants: Mini, Wumbo
 
+bool botvarietyDebug = true;
+
 // Bot variety flags
 #define BOTVARIETY_FLAG_MINI  0x00000001
 #define BOTVARIETY_FLAG_WUMBO 0x00000002
 
 struct botvarietyvariant botvarietyVariants[] = {
 	{   BOTVARIETY_FLAG_MINI,
-				0.002,    // chance (1 in 500) 0.3333f,
-				0.605f,   // bodyscale
-				1.65f,    // headscale
-				1.3f,     // shoulderscale
-				1.1f,     // movespeedmult
-				1.5f,     // animspeedmult
-			 -1.0f,     // damagetakenmult - disabled
-				0.9f,     // bluntdamagemult
-				0,        // disarmdamage (default=0)
-			 -1.0f,     // meleerangemult - disabled
-				0.63375f, // camheightmult (player easter egg)
+			{ // spawn chances
+				0.05f,   // bot
+				0.0333f, // player
+				0.333f,  // debug
+			},
+			{ // scale mults (neg to disable)
+				0.605f,  // body
+				1.65f,   // head
+				1.3f,    // shoulder
+				0.63375f,// camera height (player)
+			},
+			{ // stats (neg to disable)
+				1.1f,    // movespeedmult
+				1.5f,    // animspeedmult
+				-1.0f,   // damagetakenmult - disabled
+				0.9f,    // bluntdamagemult
+				0,       // disarmdamage (default=0)
+				-1.0f,   // meleerangemult - disabled
+			}
 	}, {BOTVARIETY_FLAG_WUMBO,
-				0.001,    // chance (1 in 1000) 0.3333f,
-				1.5f,     // bodyscale
-				0.8f,     // headscale
-				1.4f,     // shoulderscale
-				0.95f,    // movespeedmult
-				0.9f,     // animspeedmult
-				0.5f,     // damagetakenmult
-				2.0f,     // bluntdamagemult
-				1.0f,     // disarmdamage (default=0)
-				2.0f,     // meleerangemult
-				1.4517f,  // camheightmult (player easter egg)
+			{ // spawn chances
+				0.0333f, // bot
+				0.0333f, // player
+				0.333f,  // debug
+			},
+			{ // scale mults
+				1.5f,    // body
+				0.8f,    // head
+				1.4f,    // shoulder
+				1.4517f, // camera height (player)
+			},
+			{ // stats (neg to disable)
+				0.95f,   // movespeedmult
+				0.9f,    // animspeedmult
+				0.2857f, // damagetakenmult (= 3.5* health)
+				2.0f,    // bluntdamagemult
+				1.0f,    // disarmdamage (default=0)
+				2.0f,    // meleerangemult
+			},
 	}
 };
 
-#define MINI  botvarietyVariants[0]
-#define WUMBO botvarietyVariants[1]
-u8 botvarietyCount = ARRAYCOUNT(botvarietyVariants);
+#define INDEX_MINI 0
+#define INDEX_WUMBO 1
+#define VARIANT_MINI  botvarietyVariants[INDEX_MINI]
+#define VARIANT_WUMBO botvarietyVariants[INDEX_WUMBO]
+
+u8 botvarietyVariantCount = ARRAYCOUNT(botvarietyVariants);
 
 #define BOTVARIETY_SUNGLASSES_CHANCE_ONEOUTOF 125 
 #define BOTVARIETY_SUNGLASSES_CHANCE_PLAYER   20
@@ -74,12 +95,12 @@ void botvarietyTryAdjustCurrentPlayerCameraHeight() {
 		return;
 	}
 
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
-		mult = MINI.camheightmult;
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI && VARIANT_MINI.scale.camheight > 0) {
+		mult = VARIANT_MINI.scale.camheight;
 		changed = true;
 	}
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
-		mult = WUMBO.camheightmult;
+	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO && VARIANT_WUMBO.scale.camheight > 0) {
+		mult = VARIANT_WUMBO.scale.camheight;
 		changed = true;
 	}
 
@@ -107,7 +128,7 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 		return damage;
 	}
 
-	for (i = 0; i < botvarietyCount; i++) {
+	for (i = 0; i < botvarietyVariantCount; i++) {
 		variant = &botvarietyVariants[i];
 
 		// Handle attacker damage factors
@@ -115,12 +136,12 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 			// Handle blunt damage
 			if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
 				// Handle disarm - set to flat value if 0, but else apply general bluntdamagemult
-				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM) && damage <= 0) {
-					damage = variant->disarmdamage;
+				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM) && damage <= 0 && variant->stat.disarmdamage > 0) {
+					damage = variant->stat.disarmdamage;
 				}
 				// Handle non-disarm blunt damage multiplier
-				else {
-					damage *= variant->bluntdamagemult;
+				else if (variant->stat.bluntdamagemult >= 0) {
+					damage *= variant->stat.bluntdamagemult;
 				}
 			}
 		}
@@ -128,8 +149,8 @@ f32 botvarietyTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct
 		// Handle victim damage factors
 		if (VICTIM_BOTVARIETY_FLAGS & variant->flag) {
 			// Handle unshielded damage taken mult
-			if (vchr->cshield <= 0 && variant->damagetakenmult > 0) {
-				damage *= variant->damagetakenmult;
+			if (vchr->cshield <= 0 && variant->stat.damagetakenmult >= 0) {
+				damage *= variant->stat.damagetakenmult;
 			}
 		}
 	}
@@ -146,11 +167,11 @@ f32 botvarietyTryAdjustCurrentPlayerMeleeRange(f32 range) {
 		return range;
 	}
 
-	for (i = 0; i < botvarietyCount; i++) {
+	for (i = 0; i < botvarietyVariantCount; i++) {
 		variant = &botvarietyVariants[i];
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->meleerangemult > 0) {
-			range *= variant->meleerangemult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.meleerangemult > 0) {
+			range *= variant->stat.meleerangemult;
 		}
 	}
 
@@ -177,6 +198,7 @@ f32 botvarietyTryAdjustCurrentPlayerMeleeRange(f32 range) {
 #define lfoot          14
 
 f32 botvarietyTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
+	f32 mult = 1.0f;
 	struct botvarietyvariant* variant = NULL;
 	u8 i;
 
@@ -184,21 +206,26 @@ f32 botvarietyTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 		return scale;
 	}
 
-	for (i = 0; i < botvarietyCount; i++) {
+	for (i = 0; i < botvarietyVariantCount; i++) {
 		variant = &botvarietyVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
 			switch (joint) {
 			case neck:
-				scale = variant->headscale;     break;
+				mult = variant->scale.head;     break;
 			case lshoulder:
 			case rshoulder:
-				scale = variant->shoulderscale; break;
+				mult = variant->scale.shoulder; break;
 			}
 		}
 	}
 
-	return scale;
+	if (mult > 0) {
+		return scale * mult;
+	}
+	else {
+		return scale;
+	}
 }
 
 #undef neck
@@ -225,11 +252,11 @@ f32 botvarietyTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 		return speed;
 	}
 
-	for (i = 0; i < botvarietyCount; i++) {
+	for (i = 0; i < botvarietyVariantCount; i++) {
 		variant = &botvarietyVariants[i];
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			speed *= variant->movespeedmult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.movespeedmult > 0) {
+			speed *= variant->stat.movespeedmult;
 		}
 	}
 
@@ -249,11 +276,11 @@ f32 botvarietyTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 		return animspeed;
 	}
 
-	for (i = 0; i < botvarietyCount; i++) {
+	for (i = 0; i < botvarietyVariantCount; i++) {
 		variant = &botvarietyVariants[i];
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			animspeed *= variant->animspeedmult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.animspeedmult >= 0) {
+			animspeed *= variant->stat.animspeedmult;
 		}
 	}
 
@@ -286,22 +313,23 @@ bool botvarietyGuessCrouchpos(struct chrdata* chr, s32* crouchpos) {
 	return false;
 }
 
+// use these to remember each player/bot's scale when first handled
 f32 botvarietyInitBodyScalesPlayer[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
 f32 botvarietyInitBodyScalesBot[8] = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f };
 
-f32 botvarietyHandleScaleInit(struct chrdata* chr, bool iscurrentplayer, bool respawning) {
+f32 botvarietyBasemodelScaleInit(struct chrdata* chr, bool iscurrentplayer) {
 	// Set or get initial scale value
 	if (iscurrentplayer) {
-		if (!respawning || botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex] < 0) {
+		if (botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex] < 0) {
 			botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex] = g_Vars.currentplayer->model00d4->scale;
 			return g_Vars.currentplayer->model00d4->scale;
 		}
 		else {
-			return g_Vars.currentplayer->model00d4->scale;
+			return botvarietyInitBodyScalesPlayer[g_Vars.currentplayerindex];
 		}
 	}
 	else { // bot
-		if (!respawning || botvarietyInitBodyScalesBot[chr->aibot->aibotnum] < 0) {
+		if (botvarietyInitBodyScalesBot[chr->aibot->aibotnum] < 0) {
 			botvarietyInitBodyScalesBot[chr->aibot->aibotnum] = chr->model->scale;
 			return chr->model->scale;
 		}
@@ -311,26 +339,23 @@ f32 botvarietyHandleScaleInit(struct chrdata* chr, bool iscurrentplayer, bool re
 	}
 }
 
-void botvarietyHandleSize(struct chrdata* chr, s32 bodynum, bool iscurrentplayer, bool respawning) {
-	f32 scale = botvarietyHandleScaleInit(chr, iscurrentplayer, respawning);
-	f32 randfrac_size_variant = RANDOMFRAC();  // mini or wumbo
-	f32 randfrac_size_variance = RANDOMFRAC(); // minor height variance e.g. 95%-105%
+void botvarietyHandleBodyScale(struct chrdata* chr, s32 bodynum, bool iscurrentplayer) {
+	f32 scale = botvarietyBasemodelScaleInit(chr, iscurrentplayer);
+	f32 randfracsizevariance = RANDOMFRAC(); // minor height variance e.g. 95%-105%
 
 	// Mini
-	if (randfrac_size_variant < MINI.chance) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI;
-		scale *= MINI.bodyscale;
-		scale *= randfrac_size_variance * 0.05f + 0.975f; // Apply minor height variance between 97.5% and 102.5%
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
+		scale *= VARIANT_MINI.scale.body;
+		scale *= randfracsizevariance * 0.05f + 0.975f; // Apply minor height variance between 97.5% and 102.5%
 	}
 	// Wumbo
-	else if (randfrac_size_variant > (1 - WUMBO.chance)) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO;
-		scale *= WUMBO.bodyscale;
-		scale *= randfrac_size_variance * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
+	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
+		scale *= VARIANT_WUMBO.scale.body;
+		scale *= randfracsizevariance * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
 	}
 	// Normal
 	else if (g_HeadsAndBodies[bodynum].canvaryheight) {
-		scale *= randfrac_size_variance * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
+		scale *= randfracsizevariance * 0.1f + 0.95f; // Apply random height variance between 95% and 105%
 	}
 
 	// Apply body scale (player)
@@ -375,15 +400,43 @@ void botvarietyHandleSunglasses(struct chrdata* chr, s32 headnum, bool iscurrent
 	botvarietyApplySunglasses(model, headnum, rngRandom() % chanceoutof == 0);
 }
 
-void botvarietyApplyOnSpawn(struct chrdata* chr, bool iscurrentplayer, bool respawning) {
+f32 botvarietyGetVariantChance(u8 variantIndex, bool iscurrentplayer) {
+	if (variantIndex > botvarietyVariantCount || variantIndex < 0) {
+		return 0;
+	}
+
+	if (botvarietyDebug) {
+		return botvarietyVariants[variantIndex].chance.debug;
+	}
+	else if (iscurrentplayer) {
+		return botvarietyVariants[variantIndex].chance.player;
+	}
+	else {
+		return botvarietyVariants[variantIndex].chance.bot;
+	}
+}
+
+void botvarietyRollForVariants(struct chrdata* chr, bool iscurrentplayer) {
+	f32 randfracsizevariant = RANDOMFRAC();  // mini or wumbo
+
+	// Mini
+	if (randfracsizevariant < botvarietyGetVariantChance(INDEX_MINI, iscurrentplayer)) {
+		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI;
+	}
+	// Wumbo
+	else if (randfracsizevariant > (1 - botvarietyGetVariantChance(INDEX_WUMBO, iscurrentplayer))) {
+		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO;
+	}
+}
+
+void botvarietyApplyOnSpawn(struct chrdata* chr, bool iscurrentplayer) {
 	s8 bodynum = chr->bodynum;
 	s8 headnum = chr->headnum;
 
-	CHR_BOTVARIETY_FLAGS = 0;
+	CHR_BOTVARIETY_FLAGS = 0; // reset variant flags
+	botvarietyRollForVariants(chr, iscurrentplayer);
 
-	botvarietyHandleSize(chr, bodynum, iscurrentplayer, respawning); // roll for a size variation
+	botvarietyHandleBodyScale(chr, bodynum, iscurrentplayer);
 	botvarietyHandleSunglasses(chr, headnum, iscurrentplayer);
 }
 #undef CHR_BOTVARIETY_FLAGS
-#undef MINI
-#undef WUMBO

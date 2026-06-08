@@ -256,7 +256,7 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 
 	if (aibot) {
 		if (g_MpSetup.options & MPOPTION_BOTVARIETY) {
-			botvarietyApplyOnSpawn(chr, false, respawning);
+			botvarietyApplyOnSpawn(chr, false);
 		}
 		botReset(chr, respawning);
 		splatResetChr(chr);

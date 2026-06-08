@@ -6190,19 +6190,33 @@ struct customweaponvarianttint {
 	u8 minweight;
 };
 
+struct botvarietychance {
+	f32 bot;
+	f32 player;
+	f32 debug;
+};
+
+struct botvarietyscales {
+	f32 body;          // whole model, multiplier
+	f32 head;          // multiplier
+	f32 shoulder;      // multiplier
+	f32 camheight;     // camera height mult for player easter egg
+};
+
+struct botvarietystats {
+	f32 movespeedmult;   // move speed mult
+	f32 animspeedmult;   // anim speed mult
+	f32 damagetakenmult; // incoming damage multiplier, only applies when unshielded; negative to disable
+	f32 bluntdamagemult; // applies to punches and pistol whips
+	f32 disarmdamage;    // flat damage value (disarm normally does 0 in combat simulator)
+	f32 meleerangemult;  // negative to disable
+};
+
 struct botvarietyvariant {
 	u32 flag;
-	f32 chance;            // 0f-1.0f spawn chance
-	f32 bodyscale;         // whole body, multiplier
-	f32 headscale;         // multiplier
-	f32 shoulderscale;     // multiplier
-	f32 movespeedmult;
-	f32 animspeedmult;
-	f32 damagetakenmult;   // incoming damage multiplier, only applies when unshielded; negative to disable
-	f32 bluntdamagemult;   // applies to punches and pistol whips
-	f32 disarmdamage;      // flat damage value (disarm normally does 0 in combat simulator)
-	f32 meleerangemult;    // negative to disable
-	f32 camheightmult;     // camera height for player easter egg
+	struct botvarietychance  chance;
+	struct botvarietyscales  scale;
+	struct botvarietystats   stat;
 };
 
 #endif

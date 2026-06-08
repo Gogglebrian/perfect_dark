@@ -1,5 +1,6 @@
 #include <ultra64.h>
 #include "constants.h"
+#include "game/mplayer/mplayer.h"
 #include "bss.h"
 #include "lib/str.h"
 
@@ -55,9 +56,14 @@ void mpSetUpConfigZombies(struct mpconfigfull* config) {
 
 	// Set player team
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		g_PlayerConfigsArray[i].base.team = MPTEAM_4;
+		g_PlayerConfigsArray[i].base.team = MPTEAM_4; // Cyan team
 	}
 
 	// Set setup name (only used when saving a customized copy of this setup)
 	strcpy(setup->name, zombiesname);
+
+	// Random weapon filters
+	for (i = 0; i < ARRAYCOUNT(g_MpWeapons); i++) {
+		mpApplyDefaultRandomFilter(i);
+	}
 }
