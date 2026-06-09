@@ -387,6 +387,15 @@ void ps_tick_channel(s32 channelnum)
 		if (newpitch > 0.0f && ABS(newpitch - channel->currentpitch) > 0.01f) {
 			channel->currentpitch = newpitch;
 		} else {
+			// @bug Likely this was meant to be: channel->currentpitch = -1.0f;
+			// which in the next frame would be taken to mean that the currentpitch
+			// has caught up to the targetpitch.
+			// Instead, this discards/disables the pitch multiplier altogether,
+			// as the negative pitch value passed to snd_adjust or snd_start_extra
+			// will have them default to 1.0f.
+			// Consequently, pitch args will only take effect as long as the pitch
+			// is actively transitioning from one pitch to another.
+			// Valid pitch args to ps_create, for example, are wholly disregarded.
 			newpitch = -1.0f;
 		}
 
