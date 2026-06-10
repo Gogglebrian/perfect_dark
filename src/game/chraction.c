@@ -4772,7 +4772,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 				f32 boostscale;
 
 				// Handle player losing gun
-				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)) {
+				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM) && !g_Vars.currentplayer->invincible) {
 					bgunDisarm(aprop);
 				}
 
