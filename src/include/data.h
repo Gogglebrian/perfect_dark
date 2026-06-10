@@ -562,6 +562,7 @@ extern s32 g_FileAutoSelect;
 extern s32 g_SkipToCombatSimulator;
 extern s32 g_SkipJoOnPc;
 extern s32 g_FixBotPlayer2Bias;
+extern s32 g_RelaxedBotTargeting;
 
 extern u8 g_MpWeaponSetRandomFilters[NUM_MPWEAPONS];
 extern s32 g_MpWeaponRandomFilterNum;

@@ -27,6 +27,7 @@
 #include "game/padhalllv.h"
 #include "game/propobj.h"
 #include "game/splat.h"
+#include "game/title.h"
 #include "bss.h"
 #include "lib/collision.h"
 #include "lib/model.h"
@@ -46,6 +47,7 @@ u8 g_BotCount = 0;
 
 #ifndef PLATFORM_N64
 s32 g_FixBotPlayer2Bias = true;
+s32 g_RelaxedBotTargeting = true;
 #endif
 
 struct botdifficulty g_BotDifficulties[] = {
@@ -1574,6 +1576,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	RoomNum room = -1;
 	struct chrdata *trychr;
 	s32 playernum;
+	bool justspawned = aibot->queryplayernum < 0; // queryplayernum -1 means freshly spawned bot
 
  /* Original bug: Spawning bots default to targeting Player2
   *
@@ -1594,7 +1597,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
   * and choose their first target accordingly, as intended.
 	*/
 #ifndef PLATFORM_N64
-	if (g_FixBotPlayer2Bias && aibot->queryplayernum < 0) { // queryplayernum -1 means freshly spawned bot
+	if (g_FixBotPlayer2Bias && justspawned) {
 		for (i = 1; i < g_MpNumChrs; i++) { // pre-calculate dist, insight, and rooms to players 2+ (vanilla tick behavior will calc p1 first frame)
 			trychr = mpGetChrFromPlayerIndex(i);
 			if (trychr != botchr) {
@@ -1699,14 +1702,46 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		}
 	}
 
-	// If there's no existing target, try all chrs in distance order
+	// If there's no existing target, try to pick one
 	if (botchr->target == -1) {
-		s32 closestavailablechrnum = -1;
+		s32 preferredavailablechrnum = -1;
 		s32 tmp;
 		s32 stack;
+		s32 i;
+		bool pickrandomly;
+		u8 randomorder[g_MpNumChrs];
+
+		// RelaxedBotTargeting: Most times, pick randomly between unseen options. Chances assuming all bots are against all human players:
+		// 2 human players: 1/3 chance of picking by distance, nets out to 2/3 chance of picking the closest player, 1/3 chance of other player
+		// 3 human players: 1/4 chance of picking by distance, nets out to 1/2 chance of picking the closest player, 1/4 chance of each other player
+		// 4 human players: 1/5 chance of picking by distance, nets out to 2/5 chance of picking the closest player, 1/5 chance of each other player
+		pickrandomly = g_RelaxedBotTargeting && ((rngRandom() % (getNumPlayers() + 1)) > 0);
+
+		// Get random order if necessary
+		if (pickrandomly) {
+			// Fill with sequential indices
+			for (i = 0; i < g_MpNumChrs; i++) {
+				randomorder[i] = i;
+			}
+			// shuffle
+			for (i = g_MpNumChrs - 1; i > 0; i--) {
+				u32 j = rngRandom() % (i + 1); // get random index from 0 to i
+
+				//swap
+				tmp = randomorder[i];
+				randomorder[i] = randomorder[j];
+				randomorder[j] = tmp;
+			}
+		}
 
 		for (tmp = 0; tmp < g_MpNumChrs; tmp++) {
-			s32 i = aibot->chrnumsbydistanceasc[tmp];
+			if (pickrandomly) {
+				i = randomorder[tmp];
+			}
+			else { // vanilla intended behavior: prioritize the closest player, trying all chrs in distance order
+				i = aibot->chrnumsbydistanceasc[tmp];
+			}
+
 			trychr = mpGetChrFromPlayerIndex(i);
 
 			if (trychr != botchr
@@ -1730,15 +1765,15 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 
 				// Other sim types will prioritise chrs in sight, which means
 				// the closest out of sight chrnum must be stored for later
-				if (!botIsTargetInvisible(botchr, trychr) && closestavailablechrnum < 0) {
-					closestavailablechrnum = i;
+				if (!botIsTargetInvisible(botchr, trychr) && preferredavailablechrnum < 0) {
+					preferredavailablechrnum = i;
 				}
 			}
 		}
 
-		// Use closest out of sight chr
-		if (closestavailablechrnum >= 0) {
-			trychr = mpGetChrFromPlayerIndex(closestavailablechrnum);
+		// Use preferred out of sight chr (closest, or randomly selected depending on pickrandomly above)
+		if (preferredavailablechrnum >= 0) {
+			trychr = mpGetChrFromPlayerIndex(preferredavailablechrnum);
 			botSetTarget(botchr, trychr->prop - g_Vars.props);
 			return;
 		}
