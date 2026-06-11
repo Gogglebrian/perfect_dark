@@ -215,7 +215,7 @@ struct model *body0f02ce8c(s32 bodynum, s32 headnum, struct modeldef *bodymodeld
 
 					bodymodeldef->rwdatalen += headmodeldef->rwdatalen;
 
-					if (!botvarietyIsActive() && g_HeadsAndBodies[bodynum].canvaryheight && varyheight) { // if bot variety is on, we'll handle this elsewhere on each spawn, so don't bother doing it here
+					if (!bvIsBotVarietyActive() && g_HeadsAndBodies[bodynum].canvaryheight && varyheight) { // if bot variety is on, we'll handle this elsewhere on each spawn, so don't bother doing it here
 						// Set height to between 95% and 105%
 						f32 frac = RANDOMFRAC() * 0.05f;
 						scale *= 2.0f * frac - 0.05f + 1.0f;

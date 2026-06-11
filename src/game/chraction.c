@@ -4038,7 +4038,7 @@ void chrChoke(struct chrdata *chr, s32 choketype)
 		}
 	}
 
-	f32 pitch = botvarietyGetVoicePitch(chr); // -1 if no change, otherwise returns a multiplier
+	f32 pitch = bvGetVoicePitch(chr); // -1 if no change, otherwise returns a multiplier
 
 	if (soundnum >= 0) {
 		if (chr->prop->type == PROPTYPE_PLAYER) {
@@ -4391,7 +4391,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		damage = 0;
 	}
 
-	damage = botvarietyTryAdjustDamage(aprop->chr, chr, gset, damage);
+	damage = bvTryAdjustDamage(aprop->chr, chr, gset, damage);
 
 	// Apply damage scaling based on difficulty settings
 	if (g_Vars.mplayerisrunning == false) {

@@ -1693,7 +1693,7 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			}
 		}
 
-		scale = botvarietyTryAdjustJointScale(g_CurModelChr, joint, scale);
+		scale = bvTryAdjustJointScale(g_CurModelChr, joint, scale);
 
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
 			xrot = 0.0f;

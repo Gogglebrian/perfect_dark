@@ -1149,8 +1149,8 @@ void playerSpawn(void)
 				playerTickChrBody();
 			}
 #endif
-			if (botvarietyIsActive()) {
-				botvarietyApplyOnSpawn(g_Vars.currentplayer->prop->chr, true);
+			if (bvIsBotVarietyActive()) {
+				bvspawnPrepVariety(g_Vars.currentplayer->prop->chr, true);
 			}
 		}
 	}
@@ -5814,7 +5814,7 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 		}
 	}
 
-	speed = botvarietyTryAdjustAnimSpeed(chr, speed);
+	speed = bvTryAdjustAnimSpeed(chr, speed);
 
 	if (animcfg != NULL && animnum == 0) {
 		animnum = animcfg->animnum;

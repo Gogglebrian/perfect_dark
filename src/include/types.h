@@ -6190,20 +6190,30 @@ struct customweaponvarianttint {
 	u8 minweight;
 };
 
-struct botvarietychance {
+/// <summary>
+/// Collection of chance values in float format, useful for more fine-tuned chance calculations
+/// </summary>
+struct bvvariantchance {
 	f32 bot;
 	f32 player;
 	f32 debug;
 };
 
-struct botvarietyscales {
-	f32 body;          // whole model, multiplier
-	f32 head;          // multiplier
-	f32 shoulder;      // multiplier
+/// <summary>
+/// Scale, height, and voice values for a major bot variant
+/// </summary>
+struct bvvariantbody {
+	f32 scalebody;          // whole model, multiplier
+	f32 scalehead;          // multiplier
+	f32 scaleshoulder;      // multiplier
 	f32 camheight;     // camera height mult for player easter egg
+	f32 voicepitch;
 };
 
-struct botvarietystats {
+/// <summary>
+/// Gameplay stats and multipliers for a major bot variant
+/// </summary>
+struct bvvariantstats {
 	f32 movespeedmult;   // move speed mult
 	f32 animspeedmult;   // anim speed mult
 	f32 damagetakenmult; // incoming damage multiplier, only applies when unshielded; negative to disable
@@ -6212,12 +6222,30 @@ struct botvarietystats {
 	f32 meleerangemult;  // negative to disable
 };
 
-struct botvarietyvariant {
+/// <summary>
+/// Major bot variants such as Mini and Wumbo, with either major scaling OR gameplay stat changes
+/// </summary>
+struct bvvariant {
 	u32 flag;
-	struct botvarietychance  chance;
-	struct botvarietyscales  scale;
-	struct botvarietystats   stat;
-	f32 voicepitch;
+	struct bvvariantchance chance;
+	struct bvvariantbody body;
+	struct bvvariantstats stat;
+};
+
+/// <summary>
+/// Botvariety in-match data for a single player/bot
+/// </summary>
+struct bvchrdata {
+	f32 initscale;
+	struct model* initmodel;
+};
+
+/// <summary>
+/// In-match botvariety data
+/// </summary>
+struct bvmatchdata {
+	struct bvchrdata players[MAX_PLAYERS];
+	struct bvchrdata bots[MAX_BOTS];
 };
 
 #endif

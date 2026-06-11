@@ -19,6 +19,7 @@
 #include "game/lang.h"
 #include "game/mplayer/mplayer.h"
 #include "game/mod/presets/zombies.h"
+#include "game/mod/botvariety.h"
 #include "game/pak.h"
 #include "bss.h"
 #include "lib/args.h"
@@ -237,6 +238,8 @@ void mpStartMatch(void)
 	titleSetNextMode(TITLEMODE_SKIP);
 
 	g_Vars.perfectbuddynum = 1;
+
+	bvInitMatch();
 }
 
 void mpReset(void)
@@ -2578,6 +2581,8 @@ void mpEndMatch(void)
 #endif
 
 	func0f0f820c(NULL, -6);
+
+	bvEndMatch();
 }
 
 s32 mpGetNumHeads2(void)

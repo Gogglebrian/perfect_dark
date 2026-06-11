@@ -1421,7 +1421,7 @@ void bwalkApplyMoveData(struct movedata *data)
 			g_Vars.currentplayer->speedsideways = -1;
 		}
 
-		g_Vars.currentplayer->speedforwards = botvarietyTryAdjustMoveSpeed(g_Vars.currentplayer->prop->chr, g_Vars.currentplayer->speedforwards);
+		g_Vars.currentplayer->speedforwards = bvTryAdjustMoveSpeed(g_Vars.currentplayer->prop->chr, g_Vars.currentplayer->speedforwards);
 
 		g_Vars.currentplayer->speedforwards *= 1.08f;
 		g_Vars.currentplayer->speedforwards *= g_Vars.currentplayer->speedboost;

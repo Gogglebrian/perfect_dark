@@ -258,7 +258,7 @@ void botSpawn(struct chrdata *chr, u8 respawning)
 
 	if (aibot) {
 		if (g_MpSetup.options & MPOPTION_BOTVARIETY) {
-			botvarietyApplyOnSpawn(chr, false);
+			bvspawnPrepVariety(chr, false);
 		}
 		botReset(chr, respawning);
 		splatResetChr(chr);
@@ -753,7 +753,7 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
-	if (botvarietyGuessCrouchpos(chr, &crouchpos)) {
+	if (bvGuessBotCrouchPos(chr, &crouchpos)) {
 		return crouchpos;
 	}
 
@@ -1139,7 +1139,7 @@ f32 botCalculateMaxSpeed(struct chrdata *chr)
 		speed *= 0.5f;
 	}
 
-	speed = botvarietyTryAdjustMoveSpeed(chr, speed);
+	speed = bvTryAdjustMoveSpeed(chr, speed);
 
 	return speed;
 }

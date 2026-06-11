@@ -584,4 +584,12 @@ extern s16 g_MpCurrentSetup;
 
 #endif // PLATFORM_N64
 
+// Botvariety vars
+extern struct bvmatchdata g_BvMatch;
+extern bool g_BvDebug;
+
+// Botvariety data
+extern const struct bvvariant g_BvVariants[4];
+#define BOTVARIETY_VARIANT_COUNT ARRAYCOUNT(g_BvVariants)
+
 #endif
