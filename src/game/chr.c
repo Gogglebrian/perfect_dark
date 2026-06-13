@@ -2449,6 +2449,9 @@ s32 chrTick(struct prop *prop)
 				}
 			} else {
 				chraTick(chr);
+				if (chr->model != model && bvIsBotVarietyActive()) {
+					model = chr->model; // band-aid for Impostors and other botvariety model changes
+				}
 
 				if (chr->model == NULL) {
 					return TICKOP_FREE;

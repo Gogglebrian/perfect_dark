@@ -7,6 +7,15 @@
 #include "bss.h"
 
 /// <summary>
+/// Clears botvariety chr data to default values
+/// </summary>
+void bvResetChrData(struct bvchrdata * bvchr) {
+	bvchr->initscale = -1.0f;
+	bvchr->initmodel = NULL;
+	bvchr->impostorof = -1;
+}
+
+/// <summary>
 /// Call in StartMatch to init match data before chrs are loaded.
 /// </summary>
 void bvInitMatch() {
@@ -14,13 +23,12 @@ void bvInitMatch() {
 
 	// Clear player data
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		g_BvMatch.players[i].initscale = -1.0f;
+		bvResetChrData(&g_BvMatch.players[i]);
 	}
 
 	// Clear bot data
 	for (i = 0; i < MAX_BOTS; i++) {
-		g_BvMatch.bots[i].initscale = -1.0f;
-		g_BvMatch.bots[i].initmodel = NULL;
+		bvResetChrData(&g_BvMatch.bots[i]);
 	}
 }
 
@@ -37,23 +45,9 @@ void bvTryInitChr(struct chrdata* chr, bool iscurrentplayer) {
 	}
 }
 
-
 /// <summary>
-/// Clears out any remaining data set aside for variants
+/// Stub, don't actually need this yet, maybe someday
 /// </summary>
 void bvEndMatch() {
-	u8 i;
-	struct model* initmodel;
-
-	/*
-	// Clear out any remaining models left over from impostors
-	for (i = 0; i < MAX_BOTS; i++) {
-		initmodel = g_BvMatch.bots[i].initmodel;
-		if (initmodel) {
-			modelmgrFreeModel(initmodel);
-			initmodel = NULL;
-		}
-	}
-	*/
+	;
 }
-

@@ -11,7 +11,7 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // spawn chances
 				0.05f,   // bot    - 1 in 20
 				0.0333f, // player - 1 in 30
-				0.333f,  // debug  - 1 in  3
+				0.25f,  // debug   - 1 in  4
 			},
 			{ // body mults
 				0.605f,  // body
@@ -32,7 +32,7 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // spawn chances
 				0.0333f, // bot    - 1 in 30
 				0.0333f, // player - 1 in 30
-				0.333f,  // debug  - 1 in  3
+				0.25f,  // debug   - 1 in  4
 			},
 			{ // scale mults
 				1.5f,    // body
@@ -44,16 +44,16 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // stats (neg to disable)
 				0.95f,   // movespeedmult
 				0.9f,    // animspeedmult
-				0.2857f, // damagetakenmult (= 3.5* health)
+				0.3077f, // damagetakenmult (=3.25x health)
 				2.0f,    // bluntdamagemult
 				1.0f,    // disarmdamage (default=0)
 				2.0f,    // meleerangemult
 			},
 	}, {BOTVARIETY_FLAG_IMPOSTOR,
 			{ // spawn chances
-				0.0333f, // bot    - 1 in 30
-				0.0333f, // player - 1 in 30
-				0.333f,  // debug  - 1 in  3
+				0.001f,  // bot    - 1 in 1000
+				0,       // player - N/A
+				0.25f,    // debug - 1 in 4
 			},
 			{ // body mults
 				-1.0f, // body scale
@@ -65,7 +65,7 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // gameplay stats
 				-1.0f, // movespeedmult
 				-1.0f, // animspeedmult
-				-1.0f, // damagetakenmult
+				 0.667f, // damagetakenmult (=1.5x health)
 				-1.0f, // bluntdamagemult
 				-1.0f, // disarmdamage (default=0)
 				-1.0f, // meleerangemult
@@ -75,7 +75,7 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // spawn chances
 				0.01f, // bot   - 1 in 100
 				0.1f, // player - 1 in  10
-				0.333f, // debug- 1 in   3
+				0.25f, // debug - 1 in   4
 			},
 			{ // body mults
 				-1.0f, // body scale
@@ -87,7 +87,7 @@ const struct bvvariant g_BvVariants[4] = {
 			{ // gameplay stats
 				-1.0f, // movespeedmult
 				-1.0f, // animspeedmult
-				-1.0f, // damagetakenmult
+				 0.8f, // damagetakenmult -- =1.25x health 
 				-1.0f, // bluntdamagemult
 				-1.0f, // disarmdamage (default=0)
 				-1.0f, // meleerangemult

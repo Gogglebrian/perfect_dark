@@ -6238,6 +6238,7 @@ struct bvvariant {
 struct bvchrdata {
 	f32 initscale;
 	struct model* initmodel;
+	u8 impostorof; // bot: if impersonating, index of impersonated player
 };
 
 /// <summary>
