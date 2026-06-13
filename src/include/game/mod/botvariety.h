@@ -21,7 +21,7 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer);
 
 // botvarietyinit.c
 void bvInitMatch();
-void bvTryInitChr(struct chrdata* chr, bool iscurrentplayer);
+bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer);
 void bvEndMatch();
 
 // botvarietycommon.c

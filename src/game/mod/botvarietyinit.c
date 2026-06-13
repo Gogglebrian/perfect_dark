@@ -30,19 +30,29 @@ void bvInitMatch() {
 	for (i = 0; i < MAX_BOTS; i++) {
 		bvResetChrData(&g_BvMatch.bots[i]);
 	}
+
+	// Clear spree data
+	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		g_BvMatch.variantspreespawnsleft[i] = 0;
+	}
 }
 
 /// <summary>
 /// Call to initialize a chr's initial scale/model data if it hasn't already been.
+/// Returns true if values were initialized, false if they already had been.
 /// </summary>
-void bvTryInitChr(struct chrdata* chr, bool iscurrentplayer) {
+bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer) {
 	if (iscurrentplayer && g_BvMatch.players[g_Vars.currentplayernum].initscale <= 0) {
 		g_BvMatch.players[g_Vars.currentplayernum].initscale = g_Vars.currentplayer->model00d4->scale;
+		return true;
 	}
 	else if (chr->aibot && g_BvMatch.bots[chr->aibot->aibotnum].initscale <= 0) {
 		g_BvMatch.bots[chr->aibot->aibotnum].initscale = chr->model->scale;
 		g_BvMatch.bots[chr->aibot->aibotnum].initmodel = chr->model;
+		return true;
 	}
+	
+	return false;
 }
 
 /// <summary>

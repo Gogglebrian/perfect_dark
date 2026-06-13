@@ -21,18 +21,70 @@ f32 bvGetInitBodyScale(struct chrdata* chr) {
 }
 
 /// <summary>
-/// Select which of the variant's f32 chance values to use depending on whether player or bot, and whether debug is enabled.
+/// True if there's a spree going on of any variant
 /// </summary>
-f32 bvGetChance(struct chrdata* chr, const struct bvvariantchance* chance) {
-	if (g_BvDebug) {
-		return chance->debug;
+bool bvIsAnyoneSpreeing() {
+	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		if (g_BvMatch.variantspreespawnsleft[i] > 0) {
+			return true;
+		}
 	}
-	else if (bvIsChrCurrentPlayer(chr)) {
-		return chance->player;
+
+	return false;
+}
+
+/// <summary>
+/// True if the variant at the passed index has a spree ongoing
+/// </summary>
+bool bvIsSpreeing(u8 variantIndex) {
+	return (g_BvMatch.variantspreespawnsleft[variantIndex] > 0);
+}
+
+/// <summary>
+/// Get the number of times this variant has to spawn before the spree ends
+/// </summary>
+u16 bvGetSpreeCountRemaining(u8 variantIndex) {
+	return g_BvMatch.variantspreespawnsleft[variantIndex];
+}
+
+/// <summary>
+/// Get the f32 spree chance for this variant depending on whether debug is enabled
+/// </summary>
+f32 bvGetSpreeChance(const struct bvvariant* variant) {
+	if (g_BvDebugSprees) {
+		return variant->spree.triggerchancedebug;
 	}
 	else {
-		return chance->bot;
+		return variant->spree.triggerchance;
 	}
+}
+
+/// <summary>
+/// Select which of the variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
+/// </summary>
+f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool iscurrentplayer) {
+	if (!iscurrentplayer && bvIsSpreeing(variant->index)) {
+		return variant->spawnchance.spree;
+	}
+	else if (g_BvDebug) {
+		return variant->spawnchance.debug;
+	}
+	else if (iscurrentplayer) {
+		return variant->spawnchance.player;
+	}
+	else {
+		return variant->spawnchance.bot;
+	}
+}
+
+/// <summary>
+/// Returns true if a bot has a major size variant: Mini, Wumbo
+/// </summary>
+bool bvHasSizeVariant(struct chrdata* chr) {
+	if (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_MINI | BOTVARIETY_FLAG_WUMBO)) {
+		return true;
+	}
+	return false;
 }
 
 /// <summary>
@@ -76,7 +128,7 @@ bool bvCanChrWearSunglasses(struct chrdata* chr) {
 }
 
 /// <summary>
-/// Rolls for and applies Sunglasses variant - sunglasses + minor gameplay bonuses.
+/// Rolls for and applies Sunglasses variant (including minor gameplay bonuses).
 /// Returns true if sunglasses are enabled.
 /// </summary>
 bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
@@ -216,24 +268,96 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 	bvspawnApplyBodyScale(chr);
 }
 
+void debugSpree(){
+	u16 spree_impsotor = g_BvMatch.variantspreespawnsleft[INDEX_IMPOSTOR];
+	u16 spree_mini = g_BvMatch.variantspreespawnsleft[INDEX_MINI];
+	u16 spree_wumbo = g_BvMatch.variantspreespawnsleft[INDEX_WUMBO];
+	u16 spree_sunglasses = g_BvMatch.variantspreespawnsleft[INDEX_SUNGLASSES];
+}
+
+/// <summary>
+/// Tick down the spree spawns remaining for any sprees that this chr is a part of.
+/// </summary>
+void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
+	bool changed = false;
+	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		if (bvIsSpreeing(i) && CHR_BOTVARIETY_FLAGS & g_BvVariants[i].flag) {
+			g_BvMatch.variantspreespawnsleft[i]--;
+			changed = true;
+		}
+	}
+	if (g_BvDebugSprees && changed) {
+		debugSpree();
+	}
+}
+
+/// <summary>
+/// Starts a spree by determining and setting the number of times the variant will spawn before the spree ends.
+/// </summary>
+void bvspawnStartSpree(u8 variantIndex) {
+	const struct bvvariant * variant = &g_BvVariants[variantIndex];
+	u16 min = variant->spree.minspawncount;
+	u16 max = variant->spree.maxspawncount;
+	u16 count = min + (rngRandom() % (max + 1 - min));
+	g_BvMatch.variantspreespawnsleft[variantIndex] = count;
+
+}
+
+/// <summary>
+/// Rolls for and starts variant spawning sprees as appropriate.
+/// </summary>
+void bvspawnHandleStartingSprees() {
+	bool impostorspree = false;
+
+	// Rather than loop through, I'm gonna handle each separately in turn,
+	// because some sprees might affect the chances of other sprees
+	// and so on and so forth.
+
+	// Impostor spree
+	if (!bvIsSpreeing(INDEX_IMPOSTOR) && RANDOMFRAC() < bvGetSpreeChance(&VARIANT_IMPOSTOR)) {
+		bvspawnStartSpree(INDEX_IMPOSTOR);
+	}
+
+	// Mini/wumbo sprees -- only start either if neither is already spreeing
+	if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
+		f32 randfracsizespree = RANDOMFRAC();
+		if (randfracsizespree < bvGetSpreeChance(&VARIANT_MINI)) {
+			bvspawnStartSpree(INDEX_MINI);
+		}
+		else if (randfracsizespree > (1.0f - bvGetSpreeChance(&VARIANT_WUMBO))) {
+			bvspawnStartSpree(INDEX_WUMBO);
+		}
+	}
+
+	// Sunglasses
+	if (!bvIsSpreeing(INDEX_SUNGLASSES) && RANDOMFRAC() < bvGetSpreeChance(&VARIANT_IMPOSTOR)) {
+		bvspawnStartSpree(INDEX_SUNGLASSES);
+	}
+}
+
 /// <summary>
 /// Call when a bot or player spawns/respawns to roll for variants, set flags, and apply
 /// initial changes such as model changes, body scaling, and sunglasses.
 /// </summary>
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	f32 impostorchance, minichance, wumbochance, sunglasseschance;
+	bool isimpostor = false;
 	
-	// Initialize bvchrdata on the first spawn of the match
-	bvTryInitChr(chr, iscurrentplayer);
+	CHR_BOTVARIETY_FLAGS = 0; // Reset chr's variant flags
 
-	// Reset variant flags
-	CHR_BOTVARIETY_FLAGS = 0;
+	// Initialize bvchrdata on this chr's first spawn of the match
+	bool firstspawn = bvTryInitChr(chr, iscurrentplayer);
+	
+	// On subsequent spawns for each bot we'll roll for sprees
+	if (!firstspawn && !iscurrentplayer) {
+		bvspawnHandleStartingSprees();
+	}
 
 	// Get base chances for each variant (depending on player/bot/debug)
-	impostorchance = bvGetChance(chr, &VARIANT_IMPOSTOR.chance);
-	minichance = bvGetChance(chr, &VARIANT_MINI.chance);
-	wumbochance = bvGetChance(chr, &VARIANT_WUMBO.chance);
-	sunglasseschance = bvGetChance(chr, &VARIANT_SUNGLASSES.chance);
+	impostorchance   = bvGetSpawnChance(chr, &VARIANT_IMPOSTOR,   iscurrentplayer);
+	minichance       = bvGetSpawnChance(chr, &VARIANT_MINI,       iscurrentplayer);
+	wumbochance      = bvGetSpawnChance(chr, &VARIANT_WUMBO,      iscurrentplayer);
+	sunglasseschance = bvGetSpawnChance(chr, &VARIANT_SUNGLASSES, iscurrentplayer);
 
 	// Handle model changes first -- bots only
 	if (!iscurrentplayer) {
@@ -241,18 +365,30 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 
 		// Impostors - copy one of the player's models
 		if (bvspawnHandleImpostor(chr, impostorchance)) {
-			// Impostors are more likely to have other variants
-			minichance *= 2.0f;
-			wumbochance *= 2.0f;
-			sunglasseschance *= 2.0f;
+			// Impostors are more likely to have other variants, but only if there's no ongoing spree
+			if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
+				minichance = 0.333f;
+				wumbochance = 0.333f;
+			}
+			isimpostor = true;
 		}
 	}
 
 	// Size variants (mini/wumbo) and height variance
 	bvspawnHandleSize(chr, minichance, wumbochance);
 
+	// an impstor that doesn't have a size variant should wear sunglasses if possible
+	if (isimpostor && !bvHasSizeVariant(chr)) {
+		sunglasseschance = 1.0f;
+	}
+	
 	// Sunglasses - this is done after model changes so we can check for sunglassability
 	bvspawnHandleSunglasses(chr, sunglasseschance);
+
+	// If bot spawned as part of a spree,
+	if (!iscurrentplayer) {
+		bvspawnCountAgainstSpreeSpawns(chr);
+	}
 }
 
 #undef CHR_BOTVARIETY_FLAGS

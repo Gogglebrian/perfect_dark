@@ -6197,12 +6197,23 @@ struct bvvariantchance {
 	f32 bot;
 	f32 player;
 	f32 debug;
+	f32 spree; // during a spree
+};
+
+/// <summary>
+/// Values for a spawning spree of a particular variant -- chance to trigger, number of bots to kill to end the spree
+/// </summary>
+struct bvvariantspreedata {
+	f32 triggerchance;
+	f32 triggerchancedebug;
+	u16 minspawncount;
+	u16 maxspawncount;
 };
 
 /// <summary>
 /// Scale, height, and voice values for a major bot variant
 /// </summary>
-struct bvvariantbody {
+struct bvvariantbodydata {
 	f32 scalebody;          // whole model, multiplier
 	f32 scalehead;          // multiplier
 	f32 scaleshoulder;      // multiplier
@@ -6227,8 +6238,10 @@ struct bvvariantstats {
 /// </summary>
 struct bvvariant {
 	u32 flag;
-	struct bvvariantchance chance;
-	struct bvvariantbody body;
+	u8 index;
+	struct bvvariantchance spawnchance;
+	struct bvvariantspreedata spree;
+	struct bvvariantbodydata body;
 	struct bvvariantstats stat;
 };
 
@@ -6247,6 +6260,7 @@ struct bvchrdata {
 struct bvmatchdata {
 	struct bvchrdata players[MAX_PLAYERS];
 	struct bvchrdata bots[MAX_BOTS];
+	u16 variantspreespawnsleft[BOTVARIETY_VARIANT_COUNT];
 };
 
 #endif
