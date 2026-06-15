@@ -16,7 +16,7 @@
 /// <summary>
 /// Gets the initial body scale of the original model of this chr.
 /// </summary>
-f32 bvGetInitBodyScale(struct chrdata* chr) {
+f32 bvGetInit3DBodyScale(struct chrdata* chr) {
 	return bvGetChrMatchData(chr)->initscale;
 }
 
@@ -81,10 +81,14 @@ f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool 
 /// Returns true if a bot has a major size variant: Mini, Wumbo
 /// </summary>
 bool bvHasSizeVariant(struct chrdata* chr) {
-	if (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_MINI | BOTVARIETY_FLAG_WUMBO)) {
-		return true;
-	}
-	return false;
+	return (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_MINI | BOTVARIETY_FLAG_WUMBO));
+}
+
+/// <summary>
+/// Returns true if a bot has an Abomination variant: Superbattledroid, more to come
+/// </summary>
+bool bvIsAbomination(struct chrdata* chr) {
+	return (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_SUPERBATTLEDROID));
 }
 
 /// <summary>
@@ -226,8 +230,8 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 /// <summary>
 /// Scales the chr's body with regard to its applicable botvariety flags and applies minor random height variance.
 /// </summary>
-void bvspawnApplyBodyScale(struct chrdata* chr) {
-	f32 scale = bvGetInitBodyScale(chr);
+void bvspawnApply3DBodyScale(struct chrdata* chr) {
+	f32 scale = bvGetInit3DBodyScale(chr);
 	f32 randfracsizevariance = RANDOMFRAC(); // minor height variance e.g. 95%-105%
 
 	// Mini
@@ -265,7 +269,7 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 	}
 
 	// Apply major variants' body scale multipliers and minor height variance
-	bvspawnApplyBodyScale(chr);
+	bvspawnApply3DBodyScale(chr);
 }
 
 void debugSpree(){
@@ -336,11 +340,34 @@ void bvspawnHandleStartingSprees() {
 }
 
 /// <summary>
+/// Rolls for and applies the flag for, at most, one Abomination variant.
+/// </summary>
+void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult) {
+	u8 variantchoiceoffset = rngRandom() % ABOMINATION_COUNT;
+	u8 variantchoice;
+	u8 i;
+	f32 chance;
+
+	for (i = 0; i < ABOMINATION_COUNT; i++) {
+		variantchoice = variantchoiceoffset + INDEX_ABOMINATION_FIRST;
+		chance = bvGetSpawnChance(chr, &g_BvVariants[variantchoice], false);
+		chance *= chancemult;
+		if (RANDOMFRAC() < chance) {
+			CHR_BOTVARIETY_FLAGS |= g_BvVariants[variantchoice].flag;
+			break;	
+		}
+
+		variantchoiceoffset = (variantchoiceoffset + 1) % ABOMINATION_COUNT;
+	} 
+}
+
+/// <summary>
 /// Call when a bot or player spawns/respawns to roll for variants, set flags, and apply
 /// initial changes such as model changes, body scaling, and sunglasses.
 /// </summary>
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	f32 impostorchance, minichance, wumbochance, sunglasseschance;
+	f32 abominationchancemult = 1.0f;
 	bool isimpostor = false;
 	
 	CHR_BOTVARIETY_FLAGS = 0; // Reset chr's variant flags
@@ -369,6 +396,7 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 			if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
 				minichance = 0.333f;
 				wumbochance = 0.333f;
+				abominationchancemult = 2.0f;
 			}
 			isimpostor = true;
 		}
@@ -377,11 +405,16 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	// Size variants (mini/wumbo) and height variance
 	bvspawnHandleSize(chr, minichance, wumbochance);
 
+	// Abominations - rare, freaky body changes (bots only)
+	if (!iscurrentplayer) {
+		bvspawnHandleAbominations(chr, abominationchancemult);
+	}
+
 	// an impstor that doesn't have a size variant should wear sunglasses if possible
 	if (isimpostor && !bvHasSizeVariant(chr)) {
 		sunglasseschance = 1.0f;
 	}
-	
+
 	// Sunglasses - this is done after model changes so we can check for sunglassability
 	bvspawnHandleSunglasses(chr, sunglasseschance);
 

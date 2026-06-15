@@ -7,7 +7,8 @@
 // botvariety.c
 bool bvIsBotVarietyActive();
 bool bvChrHasVarietyFlags(struct chrdata* chr);
-f32 bvTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale);
+f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale);
+void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool afterpositioned);
 f32 bvGetVoicePitch(struct chrdata* chr);
 f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed);
 f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed);
@@ -30,18 +31,29 @@ struct bvchrdata* bvGetChrMatchData(struct chrdata* chr);
 bool bvIsChrCurrentPlayer(struct chrdata* chr);
 
 // Flags
-#define BOTVARIETY_FLAG_MINI       0x00000001
-#define BOTVARIETY_FLAG_WUMBO      0x00000002
-#define BOTVARIETY_FLAG_SUNGLASSES 0x40000000
-#define BOTVARIETY_FLAG_IMPOSTOR   0x80000000
+#define BOTVARIETY_FLAG_MINI             0x00000001
+#define BOTVARIETY_FLAG_WUMBO            0x00000002
+#define BOTVARIETY_FLAG_IMPOSTOR         0x00000004
+#define BOTVARIETY_FLAG_SUNGLASSES       0x00000008
+#define BOTVARIETY_FLAG_SUPERBATTLEDROID 0x00000010
+#define BOTVARIETY_FLAG_PAPERFLAT        0x00000020
 
-#define INDEX_MINI       0
-#define INDEX_WUMBO      1
-#define INDEX_IMPOSTOR   2
-#define INDEX_SUNGLASSES 3
-#define VARIANT_MINI       g_BvVariants[INDEX_MINI]
-#define VARIANT_WUMBO      g_BvVariants[INDEX_WUMBO]
-#define VARIANT_IMPOSTOR   g_BvVariants[INDEX_IMPOSTOR]
-#define VARIANT_SUNGLASSES g_BvVariants[INDEX_SUNGLASSES]
+#define INDEX_MINI             0
+#define INDEX_WUMBO            1
+#define INDEX_IMPOSTOR         2
+#define INDEX_SUNGLASSES       3
+#define INDEX_SUPERBATTLEDROID 4
+#define INDEX_PAPERFLAT        5
+
+#define VARIANT_MINI             g_BvVariants[INDEX_MINI]
+#define VARIANT_WUMBO            g_BvVariants[INDEX_WUMBO]
+#define VARIANT_IMPOSTOR         g_BvVariants[INDEX_IMPOSTOR]
+#define VARIANT_SUNGLASSES       g_BvVariants[INDEX_SUNGLASSES]
+#define VARIANT_SUPERBATTLEDROID g_BvVariants[INDEX_SUPERBATTLEDROID]
+#define VARIANT_PAPERFLAT        g_BvVariants[INDEX_PAPERFLAT]
+
+#define INDEX_ABOMINATION_FIRST INDEX_SUPERBATTLEDROID
+#define INDEX_ABOMINATION_LAST  INDEX_SUPERBATTLEDROID // paperflat not enabled
+#define ABOMINATION_COUNT 1
 
 #endif

@@ -6210,6 +6210,18 @@ struct bvvariantspreedata {
 	u16 maxspawncount;
 };
 
+struct bvvariantxyzscales{
+	f32 body_x;
+	f32 body_y;
+	f32 body_z;
+	bool usejoints_x;
+	f32 joints_x[15]; // for joints 1-15
+	bool usejoints_y;
+	f32 joints_y[15];
+	bool usejoints_z;
+	f32 joints_z[15];
+};
+
 /// <summary>
 /// Scale, height, and voice values for a major bot variant
 /// </summary>
@@ -6219,6 +6231,8 @@ struct bvvariantbodydata {
 	f32 scaleshoulder;      // multiplier
 	f32 camheight;     // camera height mult for player easter egg
 	f32 voicepitch;
+	struct bvvariantxyzscales* xyzscales;
+	struct bvvariantxyzscales* xyzscales_postpositioned;
 };
 
 /// <summary>

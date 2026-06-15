@@ -8,6 +8,7 @@
 #include "game/propobj.h"
 #include "bss.h"
 #include "lib/ailist.h"
+#include "lib/mtx.h"
 #include "lib/rng.h"
 
 //=== Botvariety system explained ===============================================================================
@@ -190,7 +191,7 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 /// <summary>
 /// Adjusts the passed scale value for the joint with regard to the chr's applicable botvariety flags, if the botvariety system is active.
 /// </summary>
-f32 bvTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
+f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	f32 mult = 1.0f;
 	const struct bvvariant* variant = NULL;
 	u8 i;
@@ -224,6 +225,60 @@ f32 bvTryAdjustJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	}
 	else {
 		return scale;
+	}
+}
+
+/// <summary>
+/// Applies variants' separate 1D joint scales to the chr's joint, per the chr's applicable botvariety flags, if the botvariety system is active.
+/// </summary>
+void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool afterpositioned) {
+	const struct bvvariant* variant = NULL;
+	struct bvvariantxyzscales* scales = NULL;
+	f32 mult_x = 1.0f;
+	f32 mult_y = 1.0f;
+	f32 mult_z = 1.0f;
+	u8 i;
+
+	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+		return;
+	}
+
+	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		variant = &g_BvVariants[i];
+
+		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
+			// Determine which set of scales to use, if any
+			if (afterpositioned && variant->body.xyzscales_postpositioned) {
+				scales = variant->body.xyzscales_postpositioned;
+			}
+			else if (!afterpositioned && variant->body.xyzscales) {
+				scales = variant->body.xyzscales;
+			}
+			
+			// Multiply into the running multiplier
+			if (scales) {
+				if (scales->usejoints_x && scales->joints_x && scales->joints_x[joint] >= 0) {
+					mult_x *= scales->joints_x[joint];
+				}
+				if (scales->usejoints_y && scales->joints_y && scales->joints_y[joint] >= 0) {
+					mult_y *= scales->joints_y[joint];
+				}
+				if (scales->usejoints_z && scales->joints_z && scales->joints_z[joint] >= 0) {
+					mult_z *= scales->joints_z[joint];
+				}
+			}
+		}	
+	}
+
+	// Actually apply the net multiplier(s) to the joint
+	if (mult_x >= 0 && mult_x != 1.0f) {
+		mtx00015df0(mult_x, mtx);
+	}
+	if (mult_y >= 0 && mult_y != 1.0f) {
+		mtx00015e4c(mult_y, mtx);
+	}
+	if (mult_z >= 0 && mult_z != 1.0f) {
+		mtx00015ea8(mult_z, mtx);
 	}
 }
 

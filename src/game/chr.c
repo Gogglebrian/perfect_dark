@@ -1693,8 +1693,9 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			}
 		}
 
-		scale = bvTryAdjustJointScale(g_CurModelChr, joint, scale);
+		scale = bvTryAdjust3DJointScale(g_CurModelChr, joint, scale);
 
+		// 3D scaling and aim positioning for neck, waist, shoulder joints
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
 			xrot = 0.0f;
 			yrot = 0.0f;
@@ -1871,6 +1872,8 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				if (scale != 1.0f) {
 					mtx00015f04(scale, mtx);
 				}
+			
+				bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx, true); // Botvariety - 1D scaling(s)
 
 				mtx->m[3][0] = sp70.x;
 				mtx->m[3][1] = sp70.y;
@@ -1879,12 +1882,17 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				mtx00015be0(camGetWorldToScreenMtxf(), mtx);
 			}
 		}
-		else if (scale != 1.0f
-		&& g_CurModelChr->model->definition->skel == &g_SkelChr
+		// Any other chr skeleton joint
+		else if (g_CurModelChr->model->definition->skel == &g_SkelChr
 		&& joint > 3 // rshoulder
 		&& joint <= 14) // lfoot
 		{
-			mtx00015f04(scale, mtx);
+			if (scale != 1.0f) { // 3D scale
+				mtx00015f04(scale, mtx);
+			}
+			bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx, true); // 1D scaling(s) for any joint
+
+			//mtx00015be0(camGetWorldToScreenMtxf(), mtx);
 		}
 	}
 }
