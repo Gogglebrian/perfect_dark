@@ -1,5 +1,6 @@
 #include <ultra64.h>
 #include "constants.h"
+#include "game/cheats.h"
 #include "game/filelist.h"
 #include "game/tex.h"
 #include "game/savebuffer.h"
@@ -2737,6 +2738,12 @@ MenuItemHandlerResult filemgrChooseAgentListMenuHandler(s32 operation, struct me
 				// load the setup file when loading the agent
 				mpsetupCopyAllFromPak();
 				mpsetupLoadCurrentFile();
+
+				// auto-enable invincibility if command set
+				if (g_AutoEnableInvincibility) {
+					cheatEnableInvincibility();
+					g_AutoEnableInvincibility = false;
+				}
 			}
 		}
 		break;

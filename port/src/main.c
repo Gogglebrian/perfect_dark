@@ -41,6 +41,7 @@ s32 g_TickExtraSleep = true;
 s32 g_SkipIntro = false;
 s32 g_SkipToCombatSimulator = false;
 s32 g_SkipJoOnPc = false;
+s32 g_AutoEnableInvincibility = false;
 
 s32 g_FileAutoSelect = -1;
 
@@ -138,6 +139,7 @@ int main(int argc, const char **argv)
 
 	g_SkipToCombatSimulator = sysArgCheck("--combat-simulator");
 	g_SkipJoOnPc = g_SkipToCombatSimulator || sysArgCheck("--skip-jo-on-pc");
+	g_AutoEnableInvincibility = sysArgCheck("--invincibility");
 
 	g_StageNum = sysArgGetInt("--boot-stage", STAGE_TITLE);
 

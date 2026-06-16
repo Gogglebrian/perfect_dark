@@ -320,6 +320,13 @@ void cheatsReset(void)
 	}
 }
 
+/// <summary>
+/// Enables the invincibility cheat in the cheatsenabledbank, same as if it'd been selected in the cheats menu.
+/// </summary>
+void cheatEnableInvincibility() {
+	g_CheatsEnabledBank0 = g_CheatsEnabledBank0 | 1 << CHEAT_INVINCIBLE;
+}
+
 MenuItemHandlerResult cheatCheckboxMenuHandler(s32 operation, struct menuitem *item, union handlerdata *data)
 {
 	switch (operation) {

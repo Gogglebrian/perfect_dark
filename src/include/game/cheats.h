@@ -28,5 +28,6 @@ MenuDialogHandlerResult cheatMenuHandleDialog(s32 operation, struct menudialogde
 MenuItemHandlerResult cheatCheckboxMenuHandler(s32 operation, struct menuitem *item, union handlerdata *data);
 MenuItemHandlerResult cheatMenuHandleBuddyCheckbox(s32 operation, struct menuitem *item, union handlerdata *data);
 MenuItemHandlerResult cheatMenuHandleTurnOffAllCheats(s32 operation, struct menuitem *item, union handlerdata *data);
+void cheatEnableInvincibility();
 
 #endif
