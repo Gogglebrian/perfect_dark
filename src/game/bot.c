@@ -50,6 +50,8 @@ s32 g_FixBotPlayer2Bias = true;
 s32 g_RelaxedBotTargeting = true;
 #endif
 
+s32 g_BotDebug_DisableLoSTargetChange = false;
+
 struct botdifficulty g_BotDifficulties[] = {
 	//           shootdelay
 	//           |            unk04
@@ -1825,7 +1827,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 
 	// Target is no longer in sight
 	// Check for other chrs who are in sight, by distance
-	for (i = 0; i < g_MpNumChrs; i++) {
+	if (!g_BotDebug_DisableLoSTargetChange) { for (i = 0; i < g_MpNumChrs; i++) {
 		if (aibot->chrsinsight[aibot->chrnumsbydistanceasc[i]]) {
 			trychr = mpGetChrFromPlayerIndex(aibot->chrnumsbydistanceasc[i]);
 
@@ -1837,7 +1839,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 				return;
 			}
 		}
-	}
+	}}
 
 	// No one else in sight - maintain original target
 	botSetTarget(botchr, botchr->target);
