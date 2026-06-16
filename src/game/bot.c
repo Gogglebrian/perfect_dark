@@ -1560,6 +1560,32 @@ bool botPassesCowardCheck(struct chrdata *botchr, struct chrdata *otherchr)
 }
 
 /**
+ * Recalculates the bot's distance to its target.
+ * Precondition: bot HAS a target
+ */
+void botUpdateDistanceToTarget(struct chrdata* botchr) {
+	struct prop *targetprop = chrGetTargetProp(botchr);
+	if (targetprop->chr != mpGetChrFromPlayerIndex(botchr->aibot->queryplayernum)) { // if we didn't just calculate this distance above
+		s32 targetplayerindex = mpPlayerGetIndex(targetprop->chr);
+		botchr->aibot->chrdistances[targetplayerindex] = chrGetDistanceToCoord(botchr, &targetprop->pos);
+	}
+}
+
+/**
+ * Returns the bot's distance to its general target chr. -1.0f if has no target chr
+ */
+f32 botGetDistanceToTarget(struct chrdata* botchr) {
+	if (botchr->target != -1) {
+		struct prop *targetprop = chrGetTargetProp(botchr);
+		if (targetprop->chr) {
+			s32 targetplayerindex = mpPlayerGetIndex(targetprop->chr);
+			return botchr->aibot->chrdistances[targetplayerindex];
+		}
+	}
+	return -1.0f;
+}
+
+/**
  * Choose and assign a general target to chase and attack.
  *
  * The function considers the distances and visibility of other chrs.
@@ -1700,6 +1726,11 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		if (!botchr->aibot->targetinsight && !botPassesCowardCheck(botchr, targetprop->chr)) {
 			botchr->target = -1;
 		}
+	}
+
+	// Botvariety: Explosive bots update the distance to the target continuously
+	if (bvIsBotVarietyActive() && bvIsChrExplosive(botchr) && botchr->target != -1) {
+		botUpdateDistanceToTarget(botchr);
 	}
 
 	// If there's no existing target, try to pick one
@@ -2496,6 +2527,11 @@ void botTickUnpaused(struct chrdata *chr)
 	if (!chrIsDead(chr)) {
 		struct aibot *aibot = chr->aibot;
 		s32 i;
+
+		// Botvariety: tick explosive bot's flashing and beeping
+		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
+			bvTickExplosiveBot(chr);
+		}
 
 		// Consider updating random values
 		aibot->random2ttl60 -= g_Vars.lvupdate60;

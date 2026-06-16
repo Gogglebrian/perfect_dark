@@ -912,7 +912,9 @@
 #define EXPLOSIONTYPE_DRAGONBOMBSPY 23 // Used by both Dragon and bombspy
 #define EXPLOSIONTYPE_24            24
 #define EXPLOSIONTYPE_HUGE25        25
-#define EXPLOSIONTYPE_SNIPERRIFLE	26
+#define EXPLOSIONTYPE_SNIPERRIFLE   26
+#define EXPLOSIONTYPE_BVMINI        27
+#define EXPLOSIONTYPE_BVWUMBO       28
 
 #define EYESPYHIT_NONE   0
 #define EYESPYHIT_BG     1
@@ -4791,6 +4793,6 @@ enum weaponnum {
 
 #endif
 
-#define BOTVARIETY_VARIANT_COUNT 6
+#define BOTVARIETY_VARIANT_COUNT 7
 
 #endif

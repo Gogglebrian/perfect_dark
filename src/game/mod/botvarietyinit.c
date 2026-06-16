@@ -13,6 +13,9 @@ void bvResetChrData(struct bvchrdata * bvchr) {
 	bvchr->initscale = -1.0f;
 	bvchr->initmodel = NULL;
 	bvchr->impostorof = -1;
+	bvchr->explosiveglowweight = 0;
+	bvchr->explosivetimer = 0;
+	bvchr->explosivebeepdone = 0;
 }
 
 /// <summary>

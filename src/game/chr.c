@@ -3527,6 +3527,11 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 		renderdata.envcolour = var80062a48[0] << 24 | var80062a48[1] << 16 | var80062a48[2] << 8;
 		renderdata.fogcolour = colour[0] << 24 | colour[1] << 16 | colour[2] << 8 | colour[3];
 
+		// Botvariety: Apply flashing glow to explosive bots
+		if (bvIsBotVarietyActive() && bvIsChrExplosive(prop->chr)) {
+			bvApplyExplosiveBotGlow(prop->chr, &renderdata);
+		}
+
 		if (alpha < 0xff) {
 			renderdata.unk30 = 8;
 			renderdata.envcolour |= (u8)alpha;

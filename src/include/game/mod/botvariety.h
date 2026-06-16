@@ -30,30 +30,40 @@ struct model* bvGetModel(struct chrdata* chr);
 struct bvchrdata* bvGetChrMatchData(struct chrdata* chr);
 bool bvIsChrCurrentPlayer(struct chrdata* chr);
 
+// botvarietyexplosive.c
+bool bvIsChrExplosive(struct chrdata* chr);
+void bvTickExplosiveBot(struct chrdata* botchr);
+void bvResetExplosiveBot(struct chrdata* botchr);
+void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata);
+void bvExplodeBot(struct chrdata* chr, s32 killerplayernum);
+
 // Flags
 #define BOTVARIETY_FLAG_MINI             0x00000001
 #define BOTVARIETY_FLAG_WUMBO            0x00000002
 #define BOTVARIETY_FLAG_IMPOSTOR         0x00000004
 #define BOTVARIETY_FLAG_SUNGLASSES       0x00000008
-#define BOTVARIETY_FLAG_SUPERBATTLEDROID 0x00000010
-#define BOTVARIETY_FLAG_PAPERFLAT        0x00000020
+#define BOTVARIETY_FLAG_EXPLOSIVE        0x00000010
+#define BOTVARIETY_FLAG_SUPERBATTLEDROID 0x00000020
+#define BOTVARIETY_FLAG_PAPERFLAT        0x00000040
 
 #define INDEX_MINI             0
 #define INDEX_WUMBO            1
 #define INDEX_IMPOSTOR         2
 #define INDEX_SUNGLASSES       3
-#define INDEX_SUPERBATTLEDROID 4
-#define INDEX_PAPERFLAT        5
+#define INDEX_EXPLOSIVE        4
+#define INDEX_SUPERBATTLEDROID 5
+#define INDEX_PAPERFLAT        6
 
-#define VARIANT_MINI             g_BvVariants[INDEX_MINI]
-#define VARIANT_WUMBO            g_BvVariants[INDEX_WUMBO]
-#define VARIANT_IMPOSTOR         g_BvVariants[INDEX_IMPOSTOR]
-#define VARIANT_SUNGLASSES       g_BvVariants[INDEX_SUNGLASSES]
-#define VARIANT_SUPERBATTLEDROID g_BvVariants[INDEX_SUPERBATTLEDROID]
-#define VARIANT_PAPERFLAT        g_BvVariants[INDEX_PAPERFLAT]
+#define VARIANT_MINI             gc_BvVariants[INDEX_MINI]
+#define VARIANT_WUMBO            gc_BvVariants[INDEX_WUMBO]
+#define VARIANT_IMPOSTOR         gc_BvVariants[INDEX_IMPOSTOR]
+#define VARIANT_SUNGLASSES       gc_BvVariants[INDEX_SUNGLASSES]
+#define VARIANT_EXPLOSIVE        gc_BvVariants[INDEX_EXPLOSIVE]
+#define VARIANT_SUPERBATTLEDROID gc_BvVariants[INDEX_SUPERBATTLEDROID]
+#define VARIANT_PAPERFLAT        gc_BvVariants[INDEX_PAPERFLAT]
 
 #define INDEX_ABOMINATION_FIRST INDEX_SUPERBATTLEDROID
 #define INDEX_ABOMINATION_LAST  INDEX_SUPERBATTLEDROID // paperflat not enabled
-#define ABOMINATION_COUNT 1
+#define ABOMINATION_COUNT 1 // paperflat not enabled
 
 #endif

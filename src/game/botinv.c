@@ -14,6 +14,7 @@
 #include "game/mplayer/mplayer.h"
 #include "game/propobj.h"
 #include "game/mod/customammo.h"
+#include "game/mod/botvariety.h"
 #include "bss.h"
 #include "lib/rng.h"
 #include "data.h"
@@ -874,6 +875,13 @@ s32 botinvGetDistConfig(s32 weaponnum, s32 funcnum)
 bool botinvAllowsWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 {
 	bool allow = true;
+
+	// Botvariety: explosive bots can't use weapons
+	if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
+		if (weaponnum != WEAPON_UNARMED) {
+			return false;
+		}
+	}
 
 	if (chr->aibot->config->type == BOTTYPE_FIST) {
 		if (funcnum != FUNC_PRIMARY) {

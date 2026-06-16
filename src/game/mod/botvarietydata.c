@@ -26,7 +26,7 @@ struct bvvariantxyzscales jointspost_paperflat = {
 // 1D joint scales template
 // false, {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f}, // x
 
-const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
+const struct bvvariant gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 	{   BOTVARIETY_FLAG_MINI, INDEX_MINI,
 			{ // spawn chances
 				0.05f,   // bot    - 1 in 20
@@ -36,7 +36,7 @@ const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 			},
 			{ // spree data
 				0.0025f, // trigger chance - 1 in 400
-				0.1f,    // debug chance
+				0.01f,    // debug chance
 				16,      // min spawn count
 				36,      // max spawn count
 			},
@@ -66,7 +66,7 @@ const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 			},
 			{ // spree data
 				0.002f, // trigger chance - 1 in 500
-				0.1f,   // debug chance
+				0.01f,   // debug chance
 				12,     // min spawn count
 				32,     // max spawn count
 			},
@@ -96,7 +96,7 @@ const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 			},
 			{ // spree data
 				0.000625f, // trigger chance - 1 in 1600 
-				0.0f,      // debug chance 1/x
+				0.01f,      // debug chance 1/x
 				14,        // min spawn count
 				24,        // max spawn count
 			},
@@ -126,7 +126,7 @@ const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 			},
 			{ // spree data
 				0.002f, // trigger chance - 1 in 500
-				0.1f,   // debug chance
+				0.01f,   // debug chance
 				16,     // min spawn count
 				36,     // max spawn count
 			},
@@ -147,15 +147,45 @@ const struct bvvariant g_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 				-1.0f, // disarmdamage (default=0)
 				-1.0f, // meleerangemult
 			},
-	}, {BOTVARIETY_FLAG_SUPERBATTLEDROID, INDEX_SUPERBATTLEDROID,
+	}, {BOTVARIETY_FLAG_EXPLOSIVE, INDEX_EXPLOSIVE,
+			{ // spawn chances
+				0.005f, // bot   - 1 in 200
+				0,  // player - N/A
+				0.1f, // debug - 1 in 10
+				0.75f,  // spree - all
+			},
+			{ // spree data
+				0.00143f, // trigger chance - 1 in 700
+				0.1f,   // debug chance
+				20,     // min spawn count
+				45,     // max spawn count
+			},
+			{ // body mults
+				-1.0f, // body scale
+				-1.0f, // head scale
+				-1.0f, // shoulder scale
+				-1.0f, // camera height (player)
+				-1.0f, // voice pitch
+				NULL, // address of xyz scales
+				NULL, // address of xyz scales (global transform applied after joint is positioned)
+			},
+			{ // gameplay stats
+				 1.05f, // movespeedmult
+				 1.05f, // animspeedmult
+				-1.0f, // damagetakenmult -- =1.25x health 
+				-1.0f, // bluntdamagemult
+				-1.0f, // disarmdamage (default=0)
+				-1.0f, // meleerangemult
+			},
+	},{BOTVARIETY_FLAG_SUPERBATTLEDROID, INDEX_SUPERBATTLEDROID,
 			{ // spawn chances
 				0.0005f,  // bot    - 1 in 2000
 				0,      // player - N/A
-				0.2f, // debug  - 1 in   5
+				0.01f, // debug  - 1 in   100
 			},
 			{ // spree data
 				0.0004f, // trigger chance - 1 in 2500
-				0.1f,   // debug chance
+				0.01f,   // debug chance
 				16,     // min spawn count
 				36,     // max spawn count
 			},

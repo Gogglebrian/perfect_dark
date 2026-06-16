@@ -4876,6 +4876,13 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		// At this point we know we're dealing with a NPC being shot, and the
 		// NPC was alive prior to being shot.
 
+		// Botvariety: explosions explode explosive bots
+		if (explosion && bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
+			if (damage > 0.1f) {
+				bvExplodeBot(chr, aplayernum);
+			}
+		}
+
 		// Handle aibot/chr losing gun
 		if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM)
 				&& ((chr->flags & CHRFLAG0_CANLOSEGUN) || chr->aibot)) {
@@ -5137,6 +5144,11 @@ void chrDie(struct chrdata *chr, s32 aplayernum)
 		chr->aibot->unk04c_03 = false;
 		chr->aibot->hasuplink = false;
 #endif
+	
+		// Botvariety: explosive bots explode on death
+		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
+			bvExplodeBot(chr, aplayernum);
+		}
 	}
 }
 
@@ -7745,6 +7757,12 @@ void chrPunchInflictDamage(struct chrdata *chr, s32 damage, s32 range, u8 revers
 		guNormalize(&vector.x, &vector.y, &vector.z);
 
 		bgunPlayPropHitSound(&gset, targetprop, -1);
+
+		// Botvariety: explosive bots explode on successful punch
+		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
+			bvExplodeBot(chr, -1);
+			return;
+		}
 
 		if (targetprop->type == PROPTYPE_PLAYER || targetprop->type == PROPTYPE_CHR) {
 			chrDamageByImpact(targetprop->chr, gsetGetDamage(&gset) * damage, &vector, &gset, chr->prop, 200);

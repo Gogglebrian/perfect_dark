@@ -3,6 +3,7 @@
 #include "game/bot.h"
 #include "game/chr.h"
 #include "game/game_0b0fd0.h"
+#include "game/game_006900.h"
 #include "game/mod/botvariety.h"
 #include "game/mplayer/mplayer.h"
 #include "game/propobj.h"
@@ -55,7 +56,7 @@ f32 bvGetVoicePitch(struct chrdata* chr) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body.voicepitch > 0) {
 			if (pitch < 0) {
@@ -117,7 +118,7 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		// Handle attacker damage factors
 		if (ATTACKER_BOTVARIETY_FLAGS & variant->flag) {
@@ -161,7 +162,7 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.meleerangemult > 0) {
 			range *= variant->stat.meleerangemult;
@@ -202,7 +203,7 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 		jointscale = -1.0f;
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
@@ -244,7 +245,7 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool af
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
 			// Determine which set of scales to use, if any
@@ -294,7 +295,7 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.movespeedmult > 0) {
 			speed *= variant->stat.movespeedmult;
@@ -321,7 +322,7 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &g_BvVariants[i];
+		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.animspeedmult > 0) {
 			animspeed *= variant->stat.animspeedmult;

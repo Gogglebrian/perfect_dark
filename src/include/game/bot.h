@@ -59,5 +59,6 @@ s32 botIsChrsCtcTokenHeld(struct chrdata *chr);
 bool botShouldReturnCtcToken(struct chrdata *chr);
 s32 botGetNumTeammatesDefendingHill(struct chrdata *bot);
 void botCheckFetch(struct chrdata *chr);
+f32 botGetDistanceToTarget(struct chrdata *botchr);
 
 #endif

@@ -6266,6 +6266,9 @@ struct bvchrdata {
 	f32 initscale;
 	struct model* initmodel;
 	u8 impostorof; // bot: if impersonating, index of impersonated player
+	f32 explosiveglowweight; // explosive bot only
+	f32 explosivetimer; // explosive bot only
+	bool explosivebeepdone; // explosive bot only
 };
 
 /// <summary>
