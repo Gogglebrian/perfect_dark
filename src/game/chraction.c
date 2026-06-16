@@ -4876,11 +4876,9 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		// At this point we know we're dealing with a NPC being shot, and the
 		// NPC was alive prior to being shot.
 
-		// Botvariety: explosions explode explosive bots
+		// Botvariety: explosions do bonus damage against Explosive bots
 		if (explosion && bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-			if (damage > 0.1f) {
-				bvExplodeBot(chr, aplayernum);
-			}
+			damage = bvApplyExplosiveBotExplosionDamageMult(damage);
 		}
 
 		// Handle aibot/chr losing gun

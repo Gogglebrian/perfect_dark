@@ -36,6 +36,7 @@ void bvTickExplosiveBot(struct chrdata* botchr);
 void bvResetExplosiveBot(struct chrdata* botchr);
 void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata);
 void bvExplodeBot(struct chrdata* chr, s32 killerplayernum);
+f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage);
 
 // Flags
 #define BOTVARIETY_FLAG_MINI             0x00000001

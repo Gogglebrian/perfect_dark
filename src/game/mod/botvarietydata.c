@@ -151,7 +151,7 @@ const struct bvvariant gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 			{ // spawn chances
 				0.005f, // bot   - 1 in 200
 				0,  // player - N/A
-				0.1f, // debug - 1 in 10
+				0.33f, // debug - 1 in 10
 				0.75f,  // spree - all
 			},
 			{ // spree data

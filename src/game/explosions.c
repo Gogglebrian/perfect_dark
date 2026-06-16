@@ -86,8 +86,9 @@ struct explosiontype g_ExplosionTypes[] = {
 	/*24*/ { 80,  60,  4,   1.4,  500,  200,  400,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 4     }, // EXPLOSIONTYPE_24
 	/*25*/ { 640, 480, 32,  11.2, 1600, 1000, 1000, 180, 2, 5, SMOKETYPE_NONE,         0x80a4, 4     }, // EXPLOSIONTYPE_HUGE25
 	/*26*/ { 20,  20,  0,   0,    30,   100,  200,  25,  1, 2, SMOKETYPE_MINI,         0x8099, 1     }, // EXPLOSIONTYPE_SNIPER
-	/*27*/ { 48,  36,  4,   1.4,  120,  120,  240,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 4     }, // EXPLOSIONTYPE_BVMINI
-	/*28*/ { 120, 90,  4,   1.4,  300,  300,  600,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 4     }, // EXPLOSIONTYPE_BVWUMBO
+	/*27*/ { 80,  60,  4,   1.4,  200,  200,  400,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 5     }, // EXPLOSIONTYPE_BVSTANDARD
+	/*28*/ { 48,  36,  4,   1.4,  120,  120,  240,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 5     }, // EXPLOSIONTYPE_BVMINI
+	/*29*/ { 120, 90,  4,   1.4,  300,  300,  600,  90,  2, 5, SMOKETYPE_LARGE,        0x809f, 5     }, // EXPLOSIONTYPE_BVWUMBO
 };
 
 bool explosionCreateSimple(struct prop *prop, struct coord *pos, RoomNum *rooms, s16 type, s32 playernum)

@@ -10,19 +10,40 @@
 #include "bss.h"
 #include "lib/model.h"
 
+// Explosive bots take bonus damage from other explosions
+const f32 explosivedamagetakenmult = 3.0f;
+
+/// <summary>
+/// Applies a constant multiplier to boost the explosion damage taken by Explosive Bots
+/// </summary>
+f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage) {
+	damage *= explosivedamagetakenmult;
+	return damage;
+}
+
+// Explosive bots beep and flash, signalling their explosive nature and proximity to their target.
+// At flashbeepdistance_max or greater from their target: longest interval, dimmest flash, and deepest-pitch beep.
+// At flashbeepdistance_min or lesser from their target: shortest interval, brightest flash, and highest-pitch beep.
+const f32 flashbeepdistance_max = 8000.0f;
+const f32 flashbeepdistance_min = 100.0f;
+
+// The flash colour will be somewhere between these two colours, depending on the glowweight.
 const u32 flashcolor_cool = 0xFFA300E1; // 255, 163, 0 (orange)
 const u32 flashcolor_hot  = 0xFFF7EAE1; // 255, 247, 234 (near-white orange)
-const f32 maxweight_near = 245.0f;
-const f32 maxweight_far  = 10.0f;
-const u32 flashbeepdistance_max = 8000.0f;
-const u32 flashbeepdistance_min = 100.0f;
-const f32 beepvolume = 2.5f;
-const f32 beeppitch_far = 0.6f;
-const f32 beeppitch_near = 1.1f;
 
+// Maximum glowweight for the flash colour to be blended with the base colour on the character model, and the hot/cool colours to be blended.
+const f32 maxglowweight_near = 245.0f; // bright white-orange, high opacity flash
+const f32 maxglowweight_far  = 10.0f;  // dim orange, low opacity flash
+
+// Beep settings
+const f32 beepvolume = 2.5f; // fixed value
+const f32 beeppitch_far = 0.6f; // deepest pitch at the max distance
+const f32 beeppitch_near = 1.1f; // highest pitch at the min distance
+
+// Flash/beep interval
 const f32 cycletime_min = 1.0f / 10.0f; // in seconds
 const f32 cycletime_max = 2.5f; // in seconds
-const f32 flashheatuptime_min = cycletime_min / 3.0f; // in seconds
+const f32 flashheatuptime_min = cycletime_min / 3.0f; // the minimum rampup time of the flash colour/opacity, in seconds
 
 #define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
 
@@ -53,15 +74,15 @@ void bvexplosiveDoBeep(struct chrdata* botchr, f32 beeppitch) {
 /// <summary>
 /// Ticks the explosive glow weight up, starting with a beep
 /// </summary>
-void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbot, f32 maxweight, f32 heatuptime, f32 beeppitch){
+void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime, f32 beeppitch){
 	if (!bvbot->explosivebeepdone) {
 		bvexplosiveDoBeep(botchr, beeppitch);
 		bvbot->explosivebeepdone = true;
 	}
-	if (bvbot->explosiveglowweight < maxweight) {
-		bvbot->explosiveglowweight += (maxweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
-		if (bvbot->explosiveglowweight > maxweight) {
-			bvbot->explosiveglowweight = maxweight;
+	if (bvbot->explosiveglowweight < maxglowweight) {
+		bvbot->explosiveglowweight += (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
+		if (bvbot->explosiveglowweight > maxglowweight) {
+			bvbot->explosiveglowweight = maxglowweight;
 		}
 	}
 }
@@ -69,9 +90,9 @@ void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbo
 /// <summary>
 /// Ticks the explosive glow weight down to zero if necessary
 /// </summary>
-void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxweight, f32 heatuptime) {
+void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime) {
 	if (bvbot->explosiveglowweight > 0) {
-		bvbot->explosiveglowweight -= (maxweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
+		bvbot->explosiveglowweight -= (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
 
 		if (bvbot->explosiveglowweight < 0) {
 			bvbot->explosiveglowweight = 0;
@@ -86,11 +107,11 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
 	f32 dist = botGetDistanceToTarget(botchr);
 	bool hastarget = botchr->target != -1;
-	f32 maxweight, cycletime, beeppitch;
+	f32 maxglowweight, cycletime, beeppitch;
 
 	// No target: Quickly cool off glow
 	if (!hastarget) {
-		bvexplosiveTickCooldownAndWait(bvbot,maxweight_near,0.0f);
+		bvexplosiveTickCooldownAndWait(bvbot,maxglowweight_near,0.0f);
 	}
 	// Has target: Flash and beep periodically, brighter and faster as we get closer to the target
 	else {
@@ -107,7 +128,7 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 
 		// use that fraction to lerp between the max and min cycle times, max weights, and pitches
 		cycletime = ((cycletime_max * distfrac) + (cycletime_min  * (1.0f - distfrac)));
-		maxweight = ((maxweight_far * distfrac) + (maxweight_near * (1.0f - distfrac)));
+		maxglowweight = ((maxglowweight_far * distfrac) + (maxglowweight_near * (1.0f - distfrac)));
 		beeppitch = ((beeppitch_far * distfrac) + (beeppitch_near * (1.0f - distfrac)));
 
 		// Calculate and clamp the heatuptime (the brief portion of the cycletime during which the flash-glow increases)
@@ -118,11 +139,11 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 
 		// first little bit of a cycle, beep and heat up
 		if (bvbot->explosivetimer <= flashheatuptime) {
-			bvexplosiveTickBeepAndHeatup(botchr, bvbot, maxweight, flashheatuptime, beeppitch);
+			bvexplosiveTickBeepAndHeatup(botchr, bvbot, maxglowweight, flashheatuptime, beeppitch);
 		}
 		// then cool off and wait for the next cycle
 		else if (bvbot->explosivetimer > flashheatuptime) {
-			bvexplosiveTickCooldownAndWait(bvbot, maxweight, flashheatuptime);
+			bvexplosiveTickCooldownAndWait(bvbot, maxglowweight, flashheatuptime);
 		}
 
 		// increment timer
@@ -161,7 +182,7 @@ void bvExplodeBot(struct chrdata* chr, s32 killerplayernum) {
 		explosiontype = EXPLOSIONTYPE_BVWUMBO;
 	}
 	else {
-		explosiontype = EXPLOSIONTYPE_ROCKET;
+		explosiontype = EXPLOSIONTYPE_BVSTANDARD;
 	}
 
 	// by default, the bot gets credit for the explosion and any kills it achieves
