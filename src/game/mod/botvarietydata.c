@@ -2,11 +2,12 @@
 #include "constants.h"
 #include "game/mod/botvariety.h"
 
-bool g_BvDebug = true;
-bool g_BvDebugSprees = false;
-bool g_BvDebugAllowPlayerAbominations = false;
+const bool g_BvDebug = false;
+const bool g_BvDebugSprees = true;
+const bool g_BvDebugAllowPlayerAbominations = false;
 
 struct bvmatchdata g_BvMatch;
+u8 g_BvSpreeCooldowns[BOTVARIETY_VARIANT_COUNT]; // persists across rounds
 
 struct bvvariantxyzscales scales_superbattledroid = {
 	-1.0f, -1.0f, // body scale x, z

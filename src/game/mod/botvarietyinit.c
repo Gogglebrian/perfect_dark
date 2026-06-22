@@ -7,6 +7,15 @@
 #include "bss.h"
 
 /// <summary>
+/// Call on game init to initialize global vars that persist across rounds.
+/// </summary>
+void bvInit() {
+	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		g_BvSpreeCooldowns[i] = 0;
+	}
+}
+
+/// <summary>
 /// Clears botvariety chr data to default values
 /// </summary>
 void bvResetChrData(struct bvchrdata * bvchr) {

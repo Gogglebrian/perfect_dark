@@ -41,6 +41,20 @@ bool bvIsSpreeing(u8 variantIndex) {
 }
 
 /// <summary>
+/// True if the variant at the passed index is on cooldown from a prior spree.
+/// </summary>
+bool bvIsOnSpreeCooldown(u8 variantIndex) {
+	return (g_BvSpreeCooldowns[variantIndex] > 0);
+}
+
+/// <summary>
+/// True if the variant is free to start a new spree: not currently spreeing, and not on cooldown.
+/// </summary>
+bool bvCanStartSpree(u8 variantIndex) {
+	return (!bvIsSpreeing(variantIndex) && !bvIsOnSpreeCooldown(variantIndex));
+}
+
+/// <summary>
 /// Get the number of times this variant has to spawn before the spree ends
 /// </summary>
 u16 bvGetSpreeCountRemaining(u8 variantIndex) {
@@ -311,21 +325,39 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 	}
 }
 
+/// <summary>
+/// workaround for my debugger not showing global variables
+/// </summary>
 void debugSpree(){
-	u16 spree_impsotor = g_BvMatch.variantspreespawnsleft[INDEX_IMPOSTOR];
+	u16 spree_impostor = g_BvMatch.variantspreespawnsleft[INDEX_IMPOSTOR];
 	u16 spree_mini = g_BvMatch.variantspreespawnsleft[INDEX_MINI];
 	u16 spree_wumbo = g_BvMatch.variantspreespawnsleft[INDEX_WUMBO];
 	u16 spree_sunglasses = g_BvMatch.variantspreespawnsleft[INDEX_SUNGLASSES];
+	u16 spree_explosive = g_BvMatch.variantspreespawnsleft[INDEX_EXPLOSIVE];
+
+	u16 cooldown_impostor = g_BvSpreeCooldowns[INDEX_IMPOSTOR];
+	u16 cooldown_mini = g_BvSpreeCooldowns[INDEX_MINI];
+	u16 cooldown_wumbo = g_BvSpreeCooldowns[INDEX_WUMBO];
+	u16 cooldown_sunglasses = g_BvSpreeCooldowns[INDEX_SUNGLASSES];
+	u16 cooldown_explosive = g_BvSpreeCooldowns[INDEX_EXPLOSIVE];
+	;
 }
 
 /// <summary>
 /// Tick down the spree spawns remaining for any sprees that this chr is a part of.
+/// Also tick down the cooldown counters of any variants on cooldown from a prior spree.
 /// </summary>
 void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 	bool changed = false;
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		if (bvIsSpreeing(i) && CHR_BOTVARIETY_FLAGS & gc_BvVariants[i].flag) {
-			g_BvMatch.variantspreespawnsleft[i]--;
+		if (bvIsSpreeing(i)) {
+			if (CHR_BOTVARIETY_FLAGS & gc_BvVariants[i].flag) {
+				g_BvMatch.variantspreespawnsleft[i]--;
+				changed = true;
+			}
+		}
+		else if (bvIsOnSpreeCooldown(i)) { // not spreeing and on cooldown
+			g_BvSpreeCooldowns[i]--; // decrement cooldown counter for every bot spawn regardless of flags
 			changed = true;
 		}
 	}
@@ -336,6 +368,7 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 
 /// <summary>
 /// Starts a spree by determining and setting the number of times the variant will spawn before the spree ends.
+/// Also initializes the spree cooldown to the same number, but it won't begin counting down until the spree is over.
 /// </summary>
 void bvspawnStartSpree(u8 variantIndex) {
 	const struct bvvariant * variant = &gc_BvVariants[variantIndex];
@@ -343,7 +376,16 @@ void bvspawnStartSpree(u8 variantIndex) {
 	u16 max = variant->spree.maxspawncount;
 	u16 count = min + (rngRandom() % (max + 1 - min));
 	g_BvMatch.variantspreespawnsleft[variantIndex] = count;
+	g_BvSpreeCooldowns[variantIndex] = count;
+}
 
+/// <summary>
+/// Rolls for and starts a spree for the given variant, independently from any other active sprees or cooldowns.
+/// </summary>
+void bvspawnTryStartStandardSpree(u8 variantIndex) {
+	if (bvCanStartSpree(variantIndex) && RANDOMFRAC() < bvGetSpreeChance(&gc_BvVariants[variantIndex])) {
+		bvspawnStartSpree(variantIndex);
+	}
 }
 
 /// <summary>
@@ -356,31 +398,23 @@ void bvspawnHandleStartingSprees() {
 	// because some sprees might affect the chances of other sprees
 	// and so on and so forth.
 
-	// Impostor spree
-	if (!bvIsSpreeing(INDEX_IMPOSTOR) && RANDOMFRAC() < bvGetSpreeChance(&VARIANT_IMPOSTOR)) {
-		bvspawnStartSpree(INDEX_IMPOSTOR);
-	}
+	// Model-change sprees
+	bvspawnTryStartStandardSpree(INDEX_IMPOSTOR);
 
 	// Mini/wumbo sprees -- only start either if neither is already spreeing
 	if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
 		f32 randfracsizespree = RANDOMFRAC();
-		if (randfracsizespree < bvGetSpreeChance(&VARIANT_MINI)) {
+		if (!bvIsOnSpreeCooldown(INDEX_MINI) && randfracsizespree < bvGetSpreeChance(&VARIANT_MINI)) {
 			bvspawnStartSpree(INDEX_MINI);
 		}
-		else if (randfracsizespree > (1.0f - bvGetSpreeChance(&VARIANT_WUMBO))) {
+		else if (!bvIsOnSpreeCooldown(INDEX_WUMBO) && randfracsizespree > (1.0f - bvGetSpreeChance(&VARIANT_WUMBO))) {
 			bvspawnStartSpree(INDEX_WUMBO);
 		}
 	}
 
-	// Sunglasses
-	if (!bvIsSpreeing(INDEX_SUNGLASSES) && RANDOMFRAC() < bvGetSpreeChance(&VARIANT_SUNGLASSES)) {
-		bvspawnStartSpree(INDEX_SUNGLASSES);
-	}
-
-	// Explosive
-	if (!bvIsSpreeing(INDEX_EXPLOSIVE) && RANDOMFRAC() < bvGetSpreeChance(&VARIANT_EXPLOSIVE)) {
-		bvspawnStartSpree(INDEX_EXPLOSIVE);
-	}
+	// Other independent sprees
+	bvspawnTryStartStandardSpree(INDEX_SUNGLASSES);
+	bvspawnTryStartStandardSpree(INDEX_EXPLOSIVE);
 }
 
 /// <summary>
@@ -406,7 +440,7 @@ void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, bool iscurre
 }
 
 /// <summary>
-/// Rolls for and applies the flag for the explosive variant
+/// Rolls for and applies the flag for the explosive variant, and resets the bot's explosive vars
 /// returns true if explosive flag applied
 /// </summary>
 bool bvspawnHandleExplosive(struct chrdata* chr, f32 explosivechance) {

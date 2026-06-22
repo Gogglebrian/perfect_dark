@@ -23,6 +23,7 @@ bool bvIsChrSlenderman(struct chrdata* chr);
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer);
 
 // botvarietyinit.c
+void bvInit();
 void bvInitMatch();
 bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer);
 void bvEndMatch();
