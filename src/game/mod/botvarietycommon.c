@@ -4,6 +4,13 @@
 #include "bss.h"
 
 /// <summary>
+/// Gets the address of the botvariety variant at the given index.
+/// </summary>
+const struct bvvariant* bvGetVariant(u8 index) {
+	return gc_BvVariants[index];
+}
+
+/// <summary>
 /// Checks if the chr is the current player's chr
 /// </summary>
 bool bvIsChrCurrentPlayer(struct chrdata* chr) {

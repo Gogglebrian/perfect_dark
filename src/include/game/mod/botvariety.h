@@ -29,6 +29,7 @@ bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer);
 void bvEndMatch();
 
 // botvarietycommon.c
+const struct bvvariant* bvGetVariant(u8 index);
 struct model* bvGetModel(struct chrdata* chr);
 struct bvchrdata* bvGetChrMatchData(struct chrdata* chr);
 bool bvIsChrCurrentPlayer(struct chrdata* chr);
@@ -51,14 +52,17 @@ f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage);
 #define BOTVARIETY_FLAG_EXPLOSIVE        0x00000020
 #define BOTVARIETY_FLAG_SUPERBATTLEDROID 0x00000040
 
-#define INDEX_MINI             0
-#define INDEX_WUMBO            1
-#define INDEX_IMPOSTOR         2
-#define INDEX_SLENDERMAN       3
-#define INDEX_SUNGLASSES       4
-#define INDEX_EXPLOSIVE        5
-#define INDEX_SUPERBATTLEDROID 6
+// Index and count
+#define INDEX_MINI               0
+#define INDEX_WUMBO              1
+#define INDEX_IMPOSTOR           2
+#define INDEX_SLENDERMAN         3
+#define INDEX_SUNGLASSES         4
+#define INDEX_EXPLOSIVE          5
+#define INDEX_SUPERBATTLEDROID   6
+// If adding variants, remember to update BOTVARIETY_VARIANT_COUNT in constants.h
 
+// Variants
 #define VARIANT_MINI             gc_BvVariants[INDEX_MINI]
 #define VARIANT_WUMBO            gc_BvVariants[INDEX_WUMBO]
 #define VARIANT_IMPOSTOR         gc_BvVariants[INDEX_IMPOSTOR]
@@ -67,6 +71,7 @@ f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage);
 #define VARIANT_EXPLOSIVE        gc_BvVariants[INDEX_EXPLOSIVE]
 #define VARIANT_SUPERBATTLEDROID gc_BvVariants[INDEX_SUPERBATTLEDROID]
 
+// Abominations
 #define INDEX_ABOMINATION_FIRST INDEX_SUPERBATTLEDROID
 #define INDEX_ABOMINATION_LAST  INDEX_SUPERBATTLEDROID
 #define ABOMINATION_COUNT 1

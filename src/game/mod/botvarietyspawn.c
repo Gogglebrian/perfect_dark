@@ -284,10 +284,10 @@ void bvspawnApply3DBodyScale(struct chrdata* chr) {
 
 	// Apply major variant body scaling
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body.scalebody > 0) {
-			scale *= variant->body.scalebody;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body && variant->body->scalebody > 0) {
+			scale *= variant->body->scalebody;
 		}
 	}
 
@@ -351,7 +351,7 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 	bool changed = false;
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		if (bvIsSpreeing(i)) {
-			if (CHR_BOTVARIETY_FLAGS & gc_BvVariants[i].flag) {
+			if (CHR_BOTVARIETY_FLAGS & bvGetVariant(i)->flag) {
 				g_BvMatch.variantspreespawnsleft[i]--;
 				changed = true;
 			}
@@ -371,7 +371,7 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 /// Also initializes the spree cooldown to the same number, but it won't begin counting down until the spree is over.
 /// </summary>
 void bvspawnStartSpree(u8 variantIndex) {
-	const struct bvvariant * variant = &gc_BvVariants[variantIndex];
+	const struct bvvariant * variant = bvGetVariant(variantIndex);
 	u16 min = variant->spree.minspawncount;
 	u16 max = variant->spree.maxspawncount;
 	u16 count = min + (rngRandom() % (max + 1 - min));
@@ -383,7 +383,7 @@ void bvspawnStartSpree(u8 variantIndex) {
 /// Rolls for and starts a spree for the given variant, independently from any other active sprees or cooldowns.
 /// </summary>
 void bvspawnTryStartStandardSpree(u8 variantIndex) {
-	if (bvCanStartSpree(variantIndex) && RANDOMFRAC() < bvGetSpreeChance(&gc_BvVariants[variantIndex])) {
+	if (bvCanStartSpree(variantIndex) && RANDOMFRAC() < bvGetSpreeChance(bvGetVariant(variantIndex))) {
 		bvspawnStartSpree(variantIndex);
 	}
 }
@@ -404,10 +404,10 @@ void bvspawnHandleStartingSprees() {
 	// Mini/wumbo sprees -- only start either if neither is already spreeing
 	if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
 		f32 randfracsizespree = RANDOMFRAC();
-		if (!bvIsOnSpreeCooldown(INDEX_MINI) && randfracsizespree < bvGetSpreeChance(&VARIANT_MINI)) {
+		if (!bvIsOnSpreeCooldown(INDEX_MINI) && randfracsizespree < bvGetSpreeChance(VARIANT_MINI)) {
 			bvspawnStartSpree(INDEX_MINI);
 		}
-		else if (!bvIsOnSpreeCooldown(INDEX_WUMBO) && randfracsizespree > (1.0f - bvGetSpreeChance(&VARIANT_WUMBO))) {
+		else if (!bvIsOnSpreeCooldown(INDEX_WUMBO) && randfracsizespree > (1.0f - bvGetSpreeChance(VARIANT_WUMBO))) {
 			bvspawnStartSpree(INDEX_WUMBO);
 		}
 	}
@@ -428,10 +428,11 @@ void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, bool iscurre
 
 	for (i = 0; i < ABOMINATION_COUNT; i++) {
 		variantchoice = variantchoiceoffset + INDEX_ABOMINATION_FIRST;
-		chance = bvGetSpawnChance(chr, &gc_BvVariants[variantchoice], iscurrentplayer);
+		const struct bvvariant* variant = bvGetVariant(variantchoice);
+		chance = bvGetSpawnChance(chr, variant, iscurrentplayer);
 		chance *= chancemult;
 		if (RANDOMFRAC() < chance) {
-			CHR_BOTVARIETY_FLAGS |= gc_BvVariants[variantchoice].flag;
+			CHR_BOTVARIETY_FLAGS |= variant->flag;
 			break;	
 		}
 
@@ -473,22 +474,12 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	}
 
 	// Get base chances for each variant (depending on player/bot/debug)
-	impostorchance   = bvGetSpawnChance(chr, &VARIANT_IMPOSTOR,   iscurrentplayer);
-	slendermanchance = bvGetSpawnChance(chr, &VARIANT_SLENDERMAN, iscurrentplayer);
-	minichance       = bvGetSpawnChance(chr, &VARIANT_MINI,       iscurrentplayer);
-	wumbochance      = bvGetSpawnChance(chr, &VARIANT_WUMBO,      iscurrentplayer);
-	sunglasseschance = bvGetSpawnChance(chr, &VARIANT_SUNGLASSES, iscurrentplayer);
-	explosivechance  = bvGetSpawnChance(chr, &VARIANT_EXPLOSIVE,  iscurrentplayer);
-	//slendermanchance = 0;
-
-	union modelrwdata* rwdata = NULL;
-	struct model* model = chr->model;
-	struct modeldef* headmodeldef = g_HeadsAndBodies[chr->headnum].modeldef;
-	struct modeldef* bodymodeldef = g_HeadsAndBodies[chr->bodynum].modeldef;
-	struct modelnode* node = modelGetPart(headmodeldef, MODELPART_HEAD_SUNGLASSES);
-	if (node && headmodeldef) {
-		rwdata = modelGetNodeRwData(model, node);
-	}
+	impostorchance   = bvGetSpawnChance(chr, VARIANT_IMPOSTOR,   iscurrentplayer);
+	slendermanchance = bvGetSpawnChance(chr, VARIANT_SLENDERMAN, iscurrentplayer);
+	minichance       = bvGetSpawnChance(chr, VARIANT_MINI,       iscurrentplayer);
+	wumbochance      = bvGetSpawnChance(chr, VARIANT_WUMBO,      iscurrentplayer);
+	sunglasseschance = bvGetSpawnChance(chr, VARIANT_SUNGLASSES, iscurrentplayer);
+	explosivechance  = bvGetSpawnChance(chr, VARIANT_EXPLOSIVE,  iscurrentplayer);
 
 	// Handle model changes first -- bots only
 if (!iscurrentplayer) {

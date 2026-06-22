@@ -60,13 +60,13 @@ f32 bvGetVoicePitch(struct chrdata* chr) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body.voicepitch > 0) {
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body && variant->body->voicepitch > 0) {
 			if (pitch < 0) {
 				pitch = 1.0f;
 			}
-			pitch *= variant->body.voicepitch;
+			pitch *= variant->body->voicepitch;
 		}
 	}
 
@@ -85,12 +85,12 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 		return;
 	}
 
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI && VARIANT_MINI.body.camheight > 0) {
-		mult = VARIANT_MINI.body.camheight;
+	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI && VARIANT_MINI->body->camheight > 0) {
+		mult = VARIANT_MINI->body->camheight;
 		changed = true;
 	}
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO && VARIANT_WUMBO.body.camheight > 0) {
-		mult = VARIANT_WUMBO.body.camheight;
+	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO && VARIANT_WUMBO->body->camheight > 0) {
+		mult = VARIANT_WUMBO->body->camheight;
 		changed = true;
 	}
 
@@ -122,28 +122,28 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
 		// Handle attacker damage factors
-		if (ATTACKER_BOTVARIETY_FLAGS & variant->flag) {
+		if (ATTACKER_BOTVARIETY_FLAGS & variant->flag && variant->stat) {
 			// Handle blunt damage
 			if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
 				// Handle disarm - set to flat value if it's higher than the current value (default 0), but else apply general bluntdamagemult
-				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM) && variant->stat.disarmdamage > 0 && damage < variant->stat.disarmdamage) {
-					damage = variant->stat.disarmdamage;
+				if (gsetHasFunctionFlags(gset, FUNCFLAG_DISARM) && variant->stat->disarmdamage > 0 && damage < variant->stat->disarmdamage) {
+					damage = variant->stat->disarmdamage;
 				}
 				// Handle non-disarm blunt damage multiplier
-				else if (variant->stat.bluntdamagemult >= 0) {
-					damage *= variant->stat.bluntdamagemult;
+				else if (variant->stat->bluntdamagemult >= 0) {
+					damage *= variant->stat->bluntdamagemult;
 				}
 			}
 		}
 
 		// Handle victim damage factors
-		if (VICTIM_BOTVARIETY_FLAGS & variant->flag) {
+		if (VICTIM_BOTVARIETY_FLAGS & variant->flag && variant->stat) {
 			// Handle unshielded damage taken mult
-			if (vchr->cshield <= 0 && variant->stat.damagetakenmult > 0) {
-				damage *= variant->stat.damagetakenmult;
+			if (vchr->cshield <= 0 && variant->stat->damagetakenmult > 0) {
+				damage *= variant->stat->damagetakenmult;
 			}
 		}
 	}
@@ -166,10 +166,10 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.meleerangemult > 0) {
-			range *= variant->stat.meleerangemult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->meleerangemult > 0) {
+			range *= variant->stat->meleerangemult;
 		}
 	}
 
@@ -251,16 +251,16 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 		jointscale = -1.0f;
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
 			switch (joint) {
 			case JOINT_NECK:
-				jointscale = variant->body.scalehead;     break;
+				jointscale = variant->body->scalehead;     break;
 			case JOINT_LSHOULDER:
 			case JOINT_RSHOULDER:
-				jointscale = variant->body.scaleshoulder; break;
+				jointscale = variant->body->scaleshoulder; break;
 			}
 
 			if (jointscale > 0) {
@@ -282,7 +282,7 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 /// </summary>
 void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	const struct bvvariant* variant = NULL;
-	struct bvvariantxyzscales* scales = NULL;
+	const struct bvvariantxyzscales* scales = NULL;
 	f32 mult_x = 1.0f;
 	f32 mult_y = 1.0f;
 	f32 mult_z = 1.0f;
@@ -297,10 +297,10 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			scales = variant->body.xyzscales;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
+			scales = variant->body->xyzscales;
 			
 			// Multiply into the running multiplier
 			if (scales) {
@@ -349,7 +349,7 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 /// </summary>
 void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	const struct bvvariant* variant = NULL;
-	struct bvvariantxyzscales* scales = NULL;
+	const struct bvvariantxyzscales* scales = NULL;
 	f32 mult_x = 1.0f;
 	f32 mult_z = 1.0f;
 	u8 i;
@@ -359,10 +359,10 @@ void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			scales = variant->body.xyzscales;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
+			scales = variant->body->xyzscales;
 			
 			// Multiply into the running multiplier
 			if (scales) {
@@ -397,10 +397,10 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.movespeedmult > 0) {
-			speed *= variant->stat.movespeedmult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->movespeedmult > 0) {
+			speed *= variant->stat->movespeedmult;
 		}
 	}
 
@@ -424,10 +424,10 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
-		variant = &gc_BvVariants[i];
+		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat.animspeedmult > 0) {
-			animspeed *= variant->stat.animspeedmult;
+		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->animspeedmult > 0) {
+			animspeed *= variant->stat->animspeedmult;
 		}
 	}
 

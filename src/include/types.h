@@ -6232,7 +6232,7 @@ struct bvvariantbodydata {
 	f32 scaleshoulder;      // multiplier
 	f32 camheight;     // camera height mult for player easter egg
 	f32 voicepitch;
-	struct bvvariantxyzscales* xyzscales;
+	const struct bvvariantxyzscales* xyzscales;
 };
 
 /// <summary>
@@ -6255,8 +6255,8 @@ struct bvvariant {
 	u8 index;
 	struct bvvariantchance spawnchance;
 	struct bvvariantspreedata spree;
-	struct bvvariantbodydata body;
-	struct bvvariantstats stat;
+	const struct bvvariantbodydata* body;
+	const struct bvvariantstats* stat;
 };
 
 /// <summary>

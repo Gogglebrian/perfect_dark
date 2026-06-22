@@ -593,6 +593,6 @@ extern const bool g_BvDebugSprees;
 extern const bool g_BvDebugAllowPlayerAbominations;
 
 // Botvariety data
-extern const struct bvvariant gc_BvVariants[BOTVARIETY_VARIANT_COUNT];
+extern const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT];
 
 #endif
