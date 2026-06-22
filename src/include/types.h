@@ -6211,11 +6211,12 @@ struct bvvariantspreedata {
 };
 
 struct bvvariantxyzscales{
-	f32 body_x;
-	f32 body_y;
-	f32 body_z;
+	f32 bodyscale_x; // x scale mult applied to entire model (necessary to scale pelvis)
+	f32 bodyscale_z; // z
+	f32 beyondpelvismult_x; // x scale mult applied to the waist and upper leg joints, thus affecting the entire body beyond the pelvis. (Will actually be applied to Y for the legs because they're splayed sideways in the T-pose)
+	f32 beyondpelvismult_z; // z
 	bool usejoints_x;
-	f32 joints_x[15]; // for joints 1-15
+	f32 joints_x[15]; // for joints 0-14
 	bool usejoints_y;
 	f32 joints_y[15];
 	bool usejoints_z;
@@ -6232,7 +6233,6 @@ struct bvvariantbodydata {
 	f32 camheight;     // camera height mult for player easter egg
 	f32 voicepitch;
 	struct bvvariantxyzscales* xyzscales;
-	struct bvvariantxyzscales* xyzscales_postpositioned;
 };
 
 /// <summary>

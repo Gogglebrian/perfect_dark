@@ -1572,6 +1572,17 @@ f32 chrGetFlinchAmount(struct chrdata *chr)
 }
 
 /**
+ * This is a callback function that is called by model code when the
+ * model's scale is applied.
+ * 
+ * I'll use it to scale a chr's model on the X and Z.
+ * Use model->scale to adjust Y.
+ */
+void chrOnModelScaled(Mtxf *mtx) {
+	bvTryApplyXZBodyScale(g_CurModelChr, mtx);
+}
+
+/**
  * This is a callback function that is called by model code after the model's
  * animation has done its positioning. It allows tweaks to be made to the model
  * at particular joints such as changing the angle and scale.
@@ -1872,8 +1883,6 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				if (scale != 1.0f) {
 					mtx00015f04(scale, mtx);
 				}
-			
-				bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx, true); // Botvariety - 1D scaling(s)
 
 				mtx->m[3][0] = sp70.x;
 				mtx->m[3][1] = sp70.y;
@@ -1882,18 +1891,16 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 				mtx00015be0(camGetWorldToScreenMtxf(), mtx);
 			}
 		}
-		// Any other chr skeleton joint
+		// 3D scale for any other chr skeleton joint
 		else if (g_CurModelChr->model->definition->skel == &g_SkelChr
 		&& joint > 3 // rshoulder
-		&& joint <= 14) // lfoot
-		{
-			if (scale != 1.0f) { // 3D scale
-				mtx00015f04(scale, mtx);
-			}
-			bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx, true); // 1D scaling(s) for any joint
-
-			//mtx00015be0(camGetWorldToScreenMtxf(), mtx);
+		&& joint <= 14
+		&& scale != 1.0f) { // lfoot
+			mtx00015f04(scale, mtx);
 		}
+
+		// Botvariety: 1D scaling for any joint
+		bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx); // 1D scaling(s) for any joint
 	}
 }
 
@@ -2691,6 +2698,7 @@ s32 chrTick(struct prop *prop)
 		}
 
 		g_ModelJointPositionedFunc = &chrHandleJointPositioned;
+		g_ModelScaleAppliedFunc = &chrOnModelScaled;
 		g_CurModelChr = chr;
 
 		if (CHRRACE(chr) == RACE_DRCAROLL && g_Vars.tickmode != TICKMODE_CUTSCENE) {
@@ -2811,6 +2819,7 @@ s32 chrTick(struct prop *prop)
 			}
 
 			g_ModelJointPositionedFunc = NULL;
+			g_ModelScaleAppliedFunc = NULL;
 			modelSetDistanceScale(var800629e8);
 
 			if (fulltick) {
@@ -3527,9 +3536,12 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 		renderdata.envcolour = var80062a48[0] << 24 | var80062a48[1] << 16 | var80062a48[2] << 8;
 		renderdata.fogcolour = colour[0] << 24 | colour[1] << 16 | colour[2] << 8 | colour[3];
 
-		// Botvariety: Apply flashing glow to explosive bots
-		if (bvIsBotVarietyActive() && bvIsChrExplosive(prop->chr)) {
-			bvApplyExplosiveBotGlow(prop->chr, &renderdata);
+		// Botvariety: last-minute color tweaks
+		if (bvIsBotVarietyActive()) {
+			// Explosive bots: flash white-orange
+			if (bvIsChrExplosive(prop->chr)) {
+				bvApplyExplosiveBotGlow(prop->chr, &renderdata);
+			}
 		}
 
 		if (alpha < 0xff) {

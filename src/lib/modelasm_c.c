@@ -655,6 +655,10 @@ bool modelasm00018680(struct modelrenderdata *renderdata, struct model *model)
 				t1mtx = &model->matrices[node->rodata->chrinfo.mtxindex];
 
 				modelasmMtxMultiply(t0mtx, t1mtx);
+				
+				if (g_ModelScaleAppliedFunc) {
+					g_ModelScaleAppliedFunc(&model->matrices[node->rodata->chrinfo.mtxindex]);
+				}
 			}
 			break;
 		case MODELNODETYPE_HEADSPOT:

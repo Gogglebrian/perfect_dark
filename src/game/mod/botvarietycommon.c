@@ -10,6 +10,12 @@ bool bvIsChrCurrentPlayer(struct chrdata* chr) {
 	return chr == g_Vars.currentplayer->prop->chr;
 }
 
+/// <summary>
+/// True if chr is using any of the four Bond character bodies
+/// </summary>
+s32 bvIsChrBond(struct chrdata* chr) {
+	return (chr->bodynum <= BODY_MOORE);
+}
 
 /// <summary>
 /// Gets a chr model to use depending on whether the chr is the current player's, or a bot's

@@ -7,6 +7,7 @@
 extern bool (*var8005efc4)(struct model *model, struct modelnode *node);
 extern Vtx *(*g_ModelVtxAllocatorFunc)(s32 numvertices);
 extern void (*g_ModelJointPositionedFunc)(s32 mtxindex, Mtxf *mtx);
+extern void (*g_ModelScaleAppliedFunc)(Mtxf *mtx);
 
 bool modelasm00018680(struct modelrenderdata *renderdata, struct model *model);
 void modelSetDistanceChecksDisabled(bool disabled);

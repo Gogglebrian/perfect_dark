@@ -589,6 +589,7 @@ extern s16 g_MpCurrentSetup;
 extern struct bvmatchdata g_BvMatch;
 extern bool g_BvDebug;
 extern bool g_BvDebugSprees;
+extern bool g_BvDebugAllowPlayerAbominations;
 
 // Botvariety data
 extern const struct bvvariant gc_BvVariants[BOTVARIETY_VARIANT_COUNT];

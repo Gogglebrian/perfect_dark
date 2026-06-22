@@ -97,6 +97,7 @@ bool var8005efd8_2 = false;
 
 Vtx *(*g_ModelVtxAllocatorFunc)(s32 numvertices) = NULL;
 void (*g_ModelJointPositionedFunc)(s32 mtxindex, Mtxf *mtx) = NULL;
+void (*g_ModelScaleAppliedFunc)(Mtxf *mtx) = NULL;
 
 void modelSetDistanceChecksDisabled(bool disabled)
 {

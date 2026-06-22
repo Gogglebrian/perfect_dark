@@ -42,6 +42,10 @@ bool bvChrHasVarietyFlags(struct chrdata* chr) {
 	return CHR_BOTVARIETY_FLAGS != 0;
 }
 
+bool bvIsChrSlenderman(struct chrdata* chr) {
+	return CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_SLENDERMAN;
+}
+
 /// <summary>
 /// Returns a voice pitch multiplier with regard to the character's applicable botvariety flags, if the botvariety system is active.
 /// Returns -1 if no changes
@@ -189,6 +193,46 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 #define JOINT_LANKLE         13
 #define JOINT_LFOOT         14
 
+// the four bond bodies have different joint numbers
+#define BOND_JOINT_RKNEE 5
+#define BOND_JOINT_RANKLE 6
+#define BOND_JOINT_RFOOT 7
+#define BOND_JOINT_LKNEE 8
+#define BOND_JOINT_LANKLE 9
+#define BOND_JOINT_LFOOT 10
+#define BOND_JOINT_RWRIST 11
+#define BOND_JOINT_RHAND 12
+#define BOND_JOINT_LWRIST 13
+#define BOND_JOINT_LHAND 14
+
+/// <summary>
+/// Given a jointnumber from a Bond model, returns the normal jointnumber for that joint
+/// </summary>
+s32 bvGetJointFromBondJoint(s32 joint) {
+	switch (joint) {
+		case JOINT_NECK:
+		case JOINT_WAIST:
+		case JOINT_RSHOULDER:
+		case JOINT_LSHOULDER:
+		case 4:
+			return joint;
+		case BOND_JOINT_RWRIST:
+		case BOND_JOINT_RHAND:
+		case BOND_JOINT_LWRIST:
+		case BOND_JOINT_LHAND:
+			return joint - 6;
+		case BOND_JOINT_RKNEE:
+		case BOND_JOINT_RANKLE:
+		case BOND_JOINT_RFOOT:
+		case BOND_JOINT_LKNEE:
+		case BOND_JOINT_LANKLE:
+		case BOND_JOINT_LFOOT:
+			return joint + 4;
+		default:
+			return joint;
+	}
+}
+
 /// <summary>
 /// Adjusts the passed scale value for the joint with regard to the chr's applicable botvariety flags, if the botvariety system is active.
 /// </summary>
@@ -200,6 +244,10 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 
 	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
 		return scale;
+	}
+
+	if (bvIsChrBond(chr)) {
+		joint = bvGetJointFromBondJoint(joint);
 	}
 
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
@@ -232,7 +280,7 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 /// <summary>
 /// Applies variants' separate 1D joint scales to the chr's joint, per the chr's applicable botvariety flags, if the botvariety system is active.
 /// </summary>
-void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool afterpositioned) {
+void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	const struct bvvariant* variant = NULL;
 	struct bvvariantxyzscales* scales = NULL;
 	f32 mult_x = 1.0f;
@@ -244,17 +292,15 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool af
 		return;
 	}
 
+	if (bvIsChrBond(chr)) {
+		joint = bvGetJointFromBondJoint(joint);
+	}
+
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = &gc_BvVariants[i];
 
 		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
-			// Determine which set of scales to use, if any
-			if (afterpositioned && variant->body.xyzscales_postpositioned) {
-				scales = variant->body.xyzscales_postpositioned;
-			}
-			else if (!afterpositioned && variant->body.xyzscales) {
-				scales = variant->body.xyzscales;
-			}
+			scales = variant->body.xyzscales;
 			
 			// Multiply into the running multiplier
 			if (scales) {
@@ -267,6 +313,20 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool af
 				if (scales->usejoints_z && scales->joints_z && scales->joints_z[joint] >= 0) {
 					mult_z *= scales->joints_z[joint];
 				}
+
+				if (scales->beyondpelvismult_x >= 0) {
+					if (joint == JOINT_WAIST) {
+						mult_x *= scales->beyondpelvismult_x;
+					}
+					else if (joint == JOINT_LKNEE || joint == JOINT_RKNEE) { // apply mult to Y for limbs (because arms and legs are both splayed sidewise in the Tpose)
+						mult_y *= scales->beyondpelvismult_x;
+					}
+				}
+				if (scales->beyondpelvismult_z >= 0) {
+					if (joint == JOINT_WAIST || joint == JOINT_LKNEE || joint == JOINT_RKNEE) {
+						mult_z *= scales->beyondpelvismult_z;
+					}
+				}
 			}
 		}	
 	}
@@ -277,6 +337,48 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx, bool af
 	}
 	if (mult_y >= 0 && mult_y != 1.0f) {
 		mtx00015e4c(mult_y, mtx);
+	}
+	if (mult_z >= 0 && mult_z != 1.0f) {
+		mtx00015ea8(mult_z, mtx);
+	}
+}
+
+/// <summary>
+/// Applies variants' whole-model X and Z scalings, per the chr's applicable botvariety flags, if the botvariety system is active.
+/// Mainly used for shrinking or growing the pelvis, which isn't considered a joint for scaling purposes.
+/// </summary>
+void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
+	const struct bvvariant* variant = NULL;
+	struct bvvariantxyzscales* scales = NULL;
+	f32 mult_x = 1.0f;
+	f32 mult_z = 1.0f;
+	u8 i;
+
+	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+		return;
+	}
+
+	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		variant = &gc_BvVariants[i];
+
+		if (CHR_BOTVARIETY_FLAGS & variant->flag) {
+			scales = variant->body.xyzscales;
+			
+			// Multiply into the running multiplier
+			if (scales) {
+				if (scales->bodyscale_x >= 0) {
+					mult_x *= scales->bodyscale_x;
+				}
+				if (scales->bodyscale_z >= 0) {
+					mult_z *= scales->bodyscale_z;
+				}
+			}
+		}	
+	}
+
+	// Actually apply the net multiplier(s) to the body mtx
+	if (mult_x >= 0 && mult_x != 1.0f) {
+		mtx00015df0(mult_x, mtx);
 	}
 	if (mult_z >= 0 && mult_z != 1.0f) {
 		mtx00015ea8(mult_z, mtx);
