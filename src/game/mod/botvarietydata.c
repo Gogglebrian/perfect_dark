@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "game/mod/botvariety.h"
 
-const bool g_BvDebug = true;
+const bool g_BvDebug = false;
 const bool g_BvDebugSprees = false;
 const bool g_BvDebugAllowPlayerAbominations = false;
 

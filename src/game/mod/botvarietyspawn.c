@@ -320,7 +320,7 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI;
 	}
 	// Wumbo
-	else if (randfracsizevariant > (1 - wumbochance)) {
+	else if (randfracsizevariant > (1.0f - wumbochance)) {
 		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO;
 	}
 }

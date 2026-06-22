@@ -564,6 +564,7 @@ extern s32 g_SkipJoOnPc;
 extern s32 g_AutoEnableInvincibility;
 extern s32 g_FixBotPlayer2Bias;
 extern s32 g_RelaxedBotTargeting;
+extern s32 g_BetterRng;
 
 extern u8 g_MpWeaponSetRandomFilters[NUM_MPWEAPONS];
 extern s32 g_MpWeaponRandomFilterNum;
