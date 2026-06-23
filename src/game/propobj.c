@@ -15465,7 +15465,7 @@ void objDamage(struct defaultobj *obj, f32 damage, struct coord *pos, s32 weapon
 			return;
 		}
 
-		if (obj->type == OBJTYPE_AMMOCRATE || obj->type == OBJTYPE_MULTIAMMOCRATE) {
+		if (obj->type == OBJTYPE_AMMOCRATE) { // or OBJTYPE_MULTIAMMOCRATE originally, but removed because it was bugged anyway:
 			// @bug: It's not safe to cast a multiammocrateobj to an ammocrateobj.
 			// For multiammocrateobjs, this is reading the first model/qty pair
 			// as a single word... this turns out to not have any bad effects.
