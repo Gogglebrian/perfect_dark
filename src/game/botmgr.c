@@ -271,7 +271,7 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					return;
 				}
 
-				botinvInit(chr, 10);
+				botinvInit(chr, NUM_MPWEAPONSLOTS + 4); // a slot for each weapon in the match, plus 4 for scenario items
 			}
 		}
 	}

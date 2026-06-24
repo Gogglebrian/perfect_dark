@@ -561,6 +561,14 @@ bool botTestPropForPickup(struct prop *prop, struct chrdata *chr)
 		singleonly = weapon && (weapon->flags & WEAPONFLAG_DUALWIELD) == 0;
 
 		if (weaponobj->weaponnum != WEAPON_BRIEFCASE2) {
+			if (!mpIsWeaponInMatch(weaponobj->weaponnum)) { // @mod: don't allow pickups of weapons not in the match (necessary due to Gunfetti bots)
+				return false;
+			}
+
+			if (bvIsBotVarietyActive() && !bvCanChrPickupWeapon(chr, weaponobj->weaponnum)) { // @botvariety: some variants can't pick up some weapons, eg explosive bots can't pickup any
+				return false;
+			}
+			
 			// If aibot is dual wielding, or single wielding and weapon doesn't support dual,
 			// ignore the pickup if at max ammo already
 			if (itemtype == INVITEMTYPE_DUAL || (itemtype == INVITEMTYPE_WEAP && singleonly)) {

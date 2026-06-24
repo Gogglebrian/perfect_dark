@@ -45,6 +45,30 @@ bool bvIsChrSlenderman(struct chrdata* chr) {
 }
 
 /// <summary>
+/// Checks if this chr can use this weapon/func based on their botvariety flags.
+/// </summary>
+bool bvCanChrUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum) {
+	// Explosive bots can only punch
+	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
+		return false;
+	}
+
+	return true;
+}
+
+/// <summary>
+/// Checks if this chr can pick up this weapon based on their botvariety flags.
+/// </summary>
+bool bvCanChrPickupWeapon(struct chrdata* chr, s32 weaponnum) {
+	// Explosive bots ignore weapon pickups
+	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
+		return false;
+	}
+
+	return true;
+}
+
+/// <summary>
 /// Ticks unique bot variant behaviors to be procced at the beginning of a living bot's unpaused tick.
 /// </summary>
 void bvTickBotAliveUnpausedEarly(struct chrdata* chr) {

@@ -23,6 +23,8 @@ bool bvGuessBotCrouchPos(struct chrdata* chr, s32* crouchpos);
 void bvTryAdjustCurrentPlayerCameraHeight();
 f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range);
 bool bvIsChrSlenderman(struct chrdata* chr);
+bool bvCanChrUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum);
+bool bvCanChrPickupWeapon(struct chrdata* chr, s32 weaponnum);
 
 // botvarietyspawn.c
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer);

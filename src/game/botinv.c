@@ -282,7 +282,7 @@ bool botinvGiveSingleWeapon(struct chrdata *chr, u32 weaponnum)
 		return false;
 	}
 
-	if (!mpIsWeaponInMatch(weaponnum)) { // @Botvariety shenanigans have made it possible for extraneous guns to appear in combat simulator, but bots only have six slots, so just discard any that aren't in the round
+	if (!mpIsWeaponInMatch(weaponnum)) { // @mod: bots shouldn't be able to pick up extraneous guns, but just in case they somehow do, discard them
 		return false;
 	}
 
@@ -880,16 +880,17 @@ bool botinvAllowsWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 {
 	bool allow = true;
 
-	// Botvariety: explosive bots can't use weapons
-	if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-		if (weaponnum != WEAPON_UNARMED) {
-			return false;
-		}
+	if (bvIsBotVarietyActive() && !bvCanChrUseWeapon(chr, weaponnum, funcnum)) { 	// @botvariety: check if there's any reason this bot can't use this weapon/func based on its botvariety flags
+		return false;
+	}
+
+	if (!mpIsWeaponInMatch(weaponnum)) { // @mod: only allow the 6 weapons alotted for this round (necessary cause of Gunfetti bots)
+		return false;
 	}
 
 	if (chr->aibot->config->type == BOTTYPE_FIST) {
 		if (funcnum != FUNC_PRIMARY) {
-			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE || weaponnum == WEAPON_LASER) { // made specific exception for laserbeam cause they cheesily use it from like 10+ feet away (I think a bug in this port, but I don't feel like fixing it.) -- Gogglebrian
+			if (g_AibotWeaponPreferences[weaponnum].secdistconfig != BOTDISTCFG_CLOSE || weaponnum == WEAPON_LASER) { // @mod: made specific exception for laserbeam cause they cheesily use it from like 10+ feet away (I think a bug in this port? but I don't feel like fixing it) 
 				allow = false;
 			}
 		} else {
