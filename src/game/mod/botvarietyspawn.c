@@ -11,8 +11,6 @@
 #include "lib/rng.h"
 #include "bss.h"
 
-#define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
-
 /// <summary>
 /// Gets the initial body scale of the original model of this chr.
 /// </summary>
@@ -92,17 +90,29 @@ f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool 
 }
 
 /// <summary>
-/// Returns true if a bot has a major size variant: Mini, Wumbo
+/// Given the index of a variant, selects which of that variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
 /// </summary>
-bool bvHasSizeVariant(struct chrdata* chr) {
-	return (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_MINI | BOTVARIETY_FLAG_WUMBO));
+f32 bvGetSpawnChanceByIndex(struct chrdata* chr, u8 variantindex, bool iscurrentplayer) {
+	return bvGetSpawnChance(chr, bvGetVariant(variantindex), iscurrentplayer);
+}
+
+/// <summary>
+/// Returns true if a chr has a major size variant: Mini, Wumbo
+/// </summary>
+bool bvChrHasSizeVariant(struct chrdata* chr) {
+	return (CHR_BV_FLAGS & (BVFLAG_MINI | BVFLAG_WUMBO));
 }
 
 /// <summary>
 /// Returns true if a bot has an Abomination variant: Superbattledroid, more to come
 /// </summary>
-bool bvIsAbomination(struct chrdata* chr) {
-	return (CHR_BOTVARIETY_FLAGS & (BOTVARIETY_FLAG_SUPERBATTLEDROID));
+bool bvIsChrAbomination(struct chrdata* chr) {
+	for (u8 i = BVINDEX_ABOMINATION_FIRST; i <= BVINDEX_ABOMINATION_LAST; i++) {
+		if (CHR_BV_FLAGS & bvGetVariant(i)->flag) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /// <summary>
@@ -154,9 +164,9 @@ bool bvCanChrWearSunglasses(struct chrdata* chr) {
 /// </summary>
 bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
 	if (bvCanChrWearSunglasses(chr)) {
-		if (RANDOMFRAC() < sunglasseschance) { // Roll
+		if (sunglasseschance > 0 && RANDOMFRAC() < sunglasseschance) { // Roll
 			if (bvspawnTryApplySunglasses(chr, true)) { // enable sunglasses
-				CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_SUNGLASSES; // set flag for gameplay bonuses
+				CHR_BV_FLAGS |= BVFLAG_SUNGLASSES; // set flag for gameplay bonuses
 				return true;
 			}
 		}
@@ -248,9 +258,9 @@ bool bvspawnTryApplyImpostor(struct chrdata* chr) {
 /// Rolls for and applies Impostor variant - copying one of the player's models.
 /// </summary>
 bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
-	if (RANDOMFRAC() < impostorchance) { // roll
+	if (impostorchance > 0 && RANDOMFRAC() < impostorchance) { // roll
 		if (bvspawnTryApplyImpostor(chr)) { // try to apply
-			CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_IMPOSTOR; // set flag for gameplay bonuses
+			CHR_BV_FLAGS |= BVFLAG_IMPOSTOR; // set flag for gameplay bonuses
 			return true;
 		}
 	}
@@ -263,9 +273,9 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 /// Rolls for and applies Slenderman variant - wear a Bond suit and be real tall
 /// </summary>
 bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance) {
-	if (RANDOMFRAC() < slendermanchance) { // roll
+	if (slendermanchance > 0 && RANDOMFRAC() < slendermanchance) { // roll
 		if (bvspawnTryApplyModelChange(chr, BODY_PRESIDENT, chr->headnum)) { // try to apply model change
-			CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_SLENDERMAN; // set flag for gameplay bonuses
+			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
 			return true;
 		}
 	}
@@ -286,18 +296,18 @@ void bvspawnApply3DBodyScale(struct chrdata* chr) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body && variant->body->scalebody > 0) {
+		if (CHR_BV_FLAGS & variant->flag && variant->body && variant->body->scalebody > 0) {
 			scale *= variant->body->scalebody;
 		}
 	}
 
 	// Apply minor height variance, which differs a bit for mini and wumbo
 	// Mini
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BV_FLAGS & BVFLAG_MINI) {
 		scale *= randfracsizevariance * 0.05f + 0.975f; // Apply minor height variance between 97.5% and 102.5%
 	}
 	// Wumbo
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
+	else if (CHR_BV_FLAGS & BVFLAG_WUMBO) {
 		scale *= randfracsizevariance * 0.05f + 0.95f; // Apply random height variance between 95% and 100%
 	}
 	// Normal
@@ -313,33 +323,43 @@ void bvspawnApply3DBodyScale(struct chrdata* chr) {
 /// Rolls for and sets flags for size variants: Mini and Wumbo
 /// </summary>
 void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
-	f32 randfracsizevariant= RANDOMFRAC(); // mini or wumbo;
+	f32 randfracsizevariant = RANDOMFRAC(); // mini or wumbo;
 	
 	// Mini
 	if (randfracsizevariant < minichance) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_MINI;
+		CHR_BV_FLAGS |= BVFLAG_MINI;
 	}
 	// Wumbo
 	else if (randfracsizevariant > (1.0f - wumbochance)) {
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_WUMBO;
+		CHR_BV_FLAGS |= BVFLAG_WUMBO;
 	}
 }
+
+// Index shorthand for the rest of the spawn logic, undef'd at eof
+#define MINI       BVINDEX_MINI
+#define WUMBO      BVINDEX_WUMBO
+#define IMPOSTOR   BVINDEX_IMPOSTOR
+#define SLENDERMAN BVINDEX_SLENDERMAN
+#define SUNGLASSES BVINDEX_SUNGLASSES
+#define EXPLOSIVE  BVINDEX_EXPLOSIVE
+#define GUNFETTI   BVINDEX_GUNFETTI
+#define SBD        BVINDEX_SBD
 
 /// <summary>
 /// workaround for my debugger not showing global variables
 /// </summary>
 void debugSpree(){
-	u16 spree_impostor = g_BvMatch.variantspreespawnsleft[INDEX_IMPOSTOR];
-	u16 spree_mini = g_BvMatch.variantspreespawnsleft[INDEX_MINI];
-	u16 spree_wumbo = g_BvMatch.variantspreespawnsleft[INDEX_WUMBO];
-	u16 spree_sunglasses = g_BvMatch.variantspreespawnsleft[INDEX_SUNGLASSES];
-	u16 spree_explosive = g_BvMatch.variantspreespawnsleft[INDEX_EXPLOSIVE];
+	u16 spree_impostor = g_BvMatch.variantspreespawnsleft[IMPOSTOR];
+	u16 spree_mini = g_BvMatch.variantspreespawnsleft[MINI];
+	u16 spree_wumbo = g_BvMatch.variantspreespawnsleft[WUMBO];
+	u16 spree_sunglasses = g_BvMatch.variantspreespawnsleft[SUNGLASSES];
+	u16 spree_explosive = g_BvMatch.variantspreespawnsleft[EXPLOSIVE];
 
-	u16 cooldown_impostor = g_BvSpreeCooldowns[INDEX_IMPOSTOR];
-	u16 cooldown_mini = g_BvSpreeCooldowns[INDEX_MINI];
-	u16 cooldown_wumbo = g_BvSpreeCooldowns[INDEX_WUMBO];
-	u16 cooldown_sunglasses = g_BvSpreeCooldowns[INDEX_SUNGLASSES];
-	u16 cooldown_explosive = g_BvSpreeCooldowns[INDEX_EXPLOSIVE];
+	u16 cooldown_impostor = g_BvSpreeCooldowns[IMPOSTOR];
+	u16 cooldown_mini = g_BvSpreeCooldowns[MINI];
+	u16 cooldown_wumbo = g_BvSpreeCooldowns[WUMBO];
+	u16 cooldown_sunglasses = g_BvSpreeCooldowns[SUNGLASSES];
+	u16 cooldown_explosive = g_BvSpreeCooldowns[EXPLOSIVE];
 	;
 }
 
@@ -351,7 +371,7 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 	bool changed = false;
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		if (bvIsSpreeing(i)) {
-			if (CHR_BOTVARIETY_FLAGS & bvGetVariant(i)->flag) {
+			if (CHR_BV_FLAGS & bvGetVariant(i)->flag) {
 				g_BvMatch.variantspreespawnsleft[i]--;
 				changed = true;
 			}
@@ -399,59 +419,63 @@ void bvspawnHandleStartingSprees() {
 	// and so on and so forth.
 
 	// Model-change sprees
-	bvspawnTryStartStandardSpree(INDEX_IMPOSTOR);
+	bvspawnTryStartStandardSpree(BVINDEX_IMPOSTOR);
 
 	// Mini/wumbo sprees -- only start either if neither is already spreeing
-	if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
+	if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
 		f32 randfracsizespree = RANDOMFRAC();
-		if (!bvIsOnSpreeCooldown(INDEX_MINI) && randfracsizespree < bvGetSpreeChance(VARIANT_MINI)) {
-			bvspawnStartSpree(INDEX_MINI);
+		if (!bvIsOnSpreeCooldown(MINI) && randfracsizespree < bvGetSpreeChance(BVVARIANT_MINI)) {
+			bvspawnStartSpree(MINI);
 		}
-		else if (!bvIsOnSpreeCooldown(INDEX_WUMBO) && randfracsizespree > (1.0f - bvGetSpreeChance(VARIANT_WUMBO))) {
-			bvspawnStartSpree(INDEX_WUMBO);
+		else if (!bvIsOnSpreeCooldown(WUMBO) && randfracsizespree > (1.0f - bvGetSpreeChance(BVVARIANT_WUMBO))) {
+			bvspawnStartSpree(WUMBO);
 		}
 	}
 
 	// Other independent sprees
-	bvspawnTryStartStandardSpree(INDEX_SUNGLASSES);
-	bvspawnTryStartStandardSpree(INDEX_EXPLOSIVE);
+	bvspawnTryStartStandardSpree(SUNGLASSES);
+	bvspawnTryStartStandardSpree(EXPLOSIVE);
 }
 
 /// <summary>
 /// Rolls for and applies the flag for, at most, one Abomination variant.
 /// </summary>
-void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, bool iscurrentplayer) {
-	u8 variantchoiceoffset = rngRandom() % ABOMINATION_COUNT;
+void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, f32 variantchances[], bool iscurrentplayer) {
+	u8 variantchoiceoffset; 
 	u8 variantchoice;
-	u8 i;
 	f32 chance;
+	u8 i;
 
-	for (i = 0; i < ABOMINATION_COUNT; i++) {
-		variantchoice = variantchoiceoffset + INDEX_ABOMINATION_FIRST;
+	if (chancemult <= 0) {
+		return;
+	}
+
+	variantchoiceoffset = rngRandom() % BV_ABOMINATION_COUNT; 
+
+	for (i = 0; i < BV_ABOMINATION_COUNT; i++) {
+		variantchoice = variantchoiceoffset + BVINDEX_ABOMINATION_FIRST;
 		const struct bvvariant* variant = bvGetVariant(variantchoice);
-		chance = bvGetSpawnChance(chr, variant, iscurrentplayer);
-		chance *= chancemult;
-		if (RANDOMFRAC() < chance) {
-			CHR_BOTVARIETY_FLAGS |= variant->flag;
+		chance = variantchances[variantchoice] *= chancemult;
+		if (chance > 0 && RANDOMFRAC() < chance) {
+			CHR_BV_FLAGS |= variant->flag;
 			break;	
 		}
 
-		variantchoiceoffset = (variantchoiceoffset + 1) % ABOMINATION_COUNT;
+		variantchoiceoffset = (variantchoiceoffset + 1) % BV_ABOMINATION_COUNT;
 	} 
 }
 
 /// <summary>
-/// Rolls for and applies the flag for the explosive variant, and resets the bot's explosive vars
-/// returns true if explosive flag applied
+/// Rolls against the givenchance and if successful sets the given flag.
+/// Returns true if flag set.
 /// </summary>
-bool bvspawnHandleExplosive(struct chrdata* chr, f32 explosivechance) {
-	if (RANDOMFRAC() < explosivechance) { // roll
-		CHR_BOTVARIETY_FLAGS |= BOTVARIETY_FLAG_EXPLOSIVE;
-		bvResetExplosiveBot(chr);
+bool bvspawnRollForStandardVariant(struct chrdata* chr, f32 chance, u32 flag) {
+	if (chance > 0 && RANDOMFRAC() < chance) {
+		CHR_BV_FLAGS |= flag;
 		return true;
 	}
 
-	return false; // failed roll
+	return false;
 }
 
 /// <summary>
@@ -459,11 +483,12 @@ bool bvspawnHandleExplosive(struct chrdata* chr, f32 explosivechance) {
 /// initial changes such as model changes, body scaling, and sunglasses.
 /// </summary>
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
-	f32 impostorchance, slendermanchance, minichance, wumbochance, sunglasseschance, explosivechance;
+	f32 chances[BOTVARIETY_VARIANT_COUNT];
 	f32 abominationchancemult = 1.0f;
 	bool isimpostor = false;
+	u8 i;
 	
-	CHR_BOTVARIETY_FLAGS = 0; // Reset chr's variant flags
+	CHR_BV_FLAGS = 0; // Reset chr's variant flags
 
 	// Initialize bvchrdata on this chr's first spawn of the match
 	bool firstspawn = bvTryInitChr(chr, iscurrentplayer);
@@ -474,54 +499,58 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	}
 
 	// Get base chances for each variant (depending on player/bot/debug)
-	impostorchance   = bvGetSpawnChance(chr, VARIANT_IMPOSTOR,   iscurrentplayer);
-	slendermanchance = bvGetSpawnChance(chr, VARIANT_SLENDERMAN, iscurrentplayer);
-	minichance       = bvGetSpawnChance(chr, VARIANT_MINI,       iscurrentplayer);
-	wumbochance      = bvGetSpawnChance(chr, VARIANT_WUMBO,      iscurrentplayer);
-	sunglasseschance = bvGetSpawnChance(chr, VARIANT_SUNGLASSES, iscurrentplayer);
-	explosivechance  = bvGetSpawnChance(chr, VARIANT_EXPLOSIVE,  iscurrentplayer);
+	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+		chances[i] = bvGetSpawnChanceByIndex(chr, i, iscurrentplayer);
+	}
 
 	// Handle model changes first -- bots only
-if (!iscurrentplayer) {
+	if (!iscurrentplayer) {
 		bvspawnTryRevertToInitModel(chr); // reset any prior model changes
 
 		// Impostors - copy one of the player's models
-		if (bvspawnHandleImpostor(chr, impostorchance)) {
+		if (bvspawnHandleImpostor(chr, chances[IMPOSTOR])) {
 			// Impostors are more likely to have other variants, but only if there's no ongoing spree
-			if (!bvIsSpreeing(INDEX_MINI) && !bvIsSpreeing(INDEX_WUMBO)) {
-				minichance = 0.333f;
-				wumbochance = 0.333f;
+			if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
+				chances[MINI] = 0.333f;
+				chances[WUMBO] = 0.333f;
 				abominationchancemult = 2.0f;
 			}
 			isimpostor = true;
-		} else if (bvspawnHandleSlenderman(chr, slendermanchance)) {
-			wumbochance = 0; // no slenderwumbos, that'd be too darn tall
-			minichance = 0; // temporary?
-			abominationchancemult = 0; // also no slenderbominations, that'd be too upsetting
-			explosivechance = 0;
+		} else if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN])) {
+			// Slenderman is incompatible with all following variants
+			for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
+				chances[i] = 0;
+			}
 		}
 	}
 
 	// Size variants (mini/wumbo)
-	bvspawnHandleSize(chr, minichance, wumbochance);
+	bvspawnHandleSize(chr, chances[MINI], chances[WUMBO]);
 
-	// Other bot-only variants
+	// Abominations - rare, freaky body changes (normally bots only, but optionally players too for debug purposes)
 	if (!iscurrentplayer || g_BvDebugAllowPlayerAbominations) {
-		// Abominations - rare, freaky body changes (normally bots only)
-		bvspawnHandleAbominations(chr, abominationchancemult, iscurrentplayer);
+		bvspawnHandleAbominations(chr, abominationchancemult, chances, iscurrentplayer);
 	}
+	// Other bot-only variants
 	if (!iscurrentplayer) {
-		// Exploding bots
-		bvspawnHandleExplosive(chr, explosivechance);
+		// Pick at most one of the following: gunfetti, explosive. Rolled in order from rarest to most common
+		// Gunfetti bots
+		if (bvspawnRollForStandardVariant(chr, chances[GUNFETTI], BVFLAG_GUNFETTI)) {
+			;
+		}
+		// Explosive bots
+		else if (bvspawnRollForStandardVariant(chr, chances[EXPLOSIVE], BVFLAG_EXPLOSIVE)) {
+			bvResetExplosiveBot(chr);
+		}
 	}
 
 	// an impstor that doesn't have a size variant should wear sunglasses if possible
-	if (isimpostor && !bvHasSizeVariant(chr)) {
-		sunglasseschance = 1.0f;
+	if (isimpostor && !bvChrHasSizeVariant(chr)) {
+		chances[SUNGLASSES] = 1.0f;
 	}
 
 	// Sunglasses - this is done after model changes so we can check for sunglassability
-	bvspawnHandleSunglasses(chr, sunglasseschance);
+	bvspawnHandleSunglasses(chr, chances[SUNGLASSES]);
 
 	// Apply major variants' body scale multipliers and minor height variance
 	bvspawnApply3DBodyScale(chr);
@@ -532,4 +561,11 @@ if (!iscurrentplayer) {
 	}
 }
 
-#undef CHR_BOTVARIETY_FLAGS
+#undef MINI
+#undef WUMBO
+#undef IMPOSTOR
+#undef SLENDERMAN
+#undef SUNGLASSES
+#undef EXPLOSIVE
+#undef GUNFETTI
+#undef SBD

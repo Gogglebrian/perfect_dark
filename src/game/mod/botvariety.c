@@ -26,8 +26,6 @@
 // (replacing the vanilla height variance so as not to conflict with the major variants' scale changes)
 // or speed variance.
 
-#define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
-
 /// <summary>
 /// Is Combat Simulator running with botvariety enabled?
 /// </summary>
@@ -39,11 +37,35 @@ bool bvIsBotVarietyActive() {
 /// Does this character have any botvariety flags?
 /// </summary>
 bool bvChrHasVarietyFlags(struct chrdata* chr) {
-	return CHR_BOTVARIETY_FLAGS != 0;
+	return CHR_BV_FLAGS != 0;
 }
 
 bool bvIsChrSlenderman(struct chrdata* chr) {
-	return CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_SLENDERMAN;
+	return CHR_BV_FLAGS & BVFLAG_SLENDERMAN;
+}
+
+/// <summary>
+/// Ticks unique bot variant behaviors to be procced at the beginning of a living bot's unpaused tick.
+/// </summary>
+void bvTickBotAliveUnpausedEarly(struct chrdata* chr) {
+	// Tick explosive bot's flashing and beeping
+	if (bvIsChrExplosive(chr)) {
+		bvTickExplosiveBot(chr);
+	}
+}
+
+/// <summary>
+/// Handles unique bot variant behaviors to be procced the moment a bot dies.
+/// </summary>
+void bvHandleChrDeath(struct chrdata* chr, s32 killerplayernum) {
+	// Explosive bots explode on death
+	if (bvIsChrExplosive(chr)) {
+		bvExplodeBot(chr, killerplayernum);
+	}
+	// Gunfetti bots drop a shitton of guns on death
+	if (bvIsChrGunfetti(chr)) {
+		bvPopGunfettiBot(chr);
+	}
 }
 
 /// <summary>
@@ -62,7 +84,7 @@ f32 bvGetVoicePitch(struct chrdata* chr) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body && variant->body->voicepitch > 0) {
+		if (CHR_BV_FLAGS & variant->flag && variant->body && variant->body->voicepitch > 0) {
 			if (pitch < 0) {
 				pitch = 1.0f;
 			}
@@ -85,12 +107,12 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 		return;
 	}
 
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI && VARIANT_MINI->body->camheight > 0) {
-		mult = VARIANT_MINI->body->camheight;
+	if (CHR_BV_FLAGS & BVFLAG_MINI && BVVARIANT_MINI->body->camheight > 0) {
+		mult = BVVARIANT_MINI->body->camheight;
 		changed = true;
 	}
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO && VARIANT_WUMBO->body->camheight > 0) {
-		mult = VARIANT_WUMBO->body->camheight;
+	else if (CHR_BV_FLAGS & BVFLAG_WUMBO && BVVARIANT_WUMBO->body->camheight > 0) {
+		mult = BVVARIANT_WUMBO->body->camheight;
 		changed = true;
 	}
 
@@ -168,7 +190,7 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->meleerangemult > 0) {
+		if (CHR_BV_FLAGS & variant->flag && variant->stat && variant->stat->meleerangemult > 0) {
 			range *= variant->stat->meleerangemult;
 		}
 	}
@@ -254,7 +276,7 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 		variant = bvGetVariant(i);
 		jointscale = -1.0f;
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
+		if (CHR_BV_FLAGS & variant->flag && variant->body) {
 			switch (joint) {
 			case JOINT_NECK:
 				jointscale = variant->body->scalehead;     break;
@@ -299,7 +321,7 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
+		if (CHR_BV_FLAGS & variant->flag && variant->body) {
 			scales = variant->body->xyzscales;
 			
 			// Multiply into the running multiplier
@@ -361,7 +383,7 @@ void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->body) {
+		if (CHR_BV_FLAGS & variant->flag && variant->body) {
 			scales = variant->body->xyzscales;
 			
 			// Multiply into the running multiplier
@@ -399,7 +421,7 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->movespeedmult > 0) {
+		if (CHR_BV_FLAGS & variant->flag && variant->stat && variant->stat->movespeedmult > 0) {
 			speed *= variant->stat->movespeedmult;
 		}
 	}
@@ -426,7 +448,7 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		variant = bvGetVariant(i);
 
-		if (CHR_BOTVARIETY_FLAGS & variant->flag && variant->stat && variant->stat->animspeedmult > 0) {
+		if (CHR_BV_FLAGS & variant->flag && variant->stat && variant->stat->animspeedmult > 0) {
 			animspeed *= variant->stat->animspeedmult;
 		}
 	}
@@ -444,13 +466,13 @@ bool bvGuessBotCrouchPos(struct chrdata* chr, s32* crouchpos) {
 	}
 
 	// Mini bots never have to crouch
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BV_FLAGS & BVFLAG_MINI) {
 		*crouchpos = CROUCHPOS_STAND;
 		return true;
 	}
 
-	// Wumbo bots skip middle-crouch
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
+	// Wumbo and slender bots skip middle-crouch
+	if (CHR_BV_FLAGS & (BVFLAG_WUMBO | BVFLAG_SLENDERMAN)) {
 		if (chr->height <= 135) {
 			*crouchpos = CROUCHPOS_SQUAT;
 			return true;
@@ -463,5 +485,3 @@ bool bvGuessBotCrouchPos(struct chrdata* chr, s32* crouchpos) {
 
 	return false;
 }
-
-#undef CHR_BOTVARIETY_FLAGS

@@ -1149,7 +1149,7 @@ void playerSpawn(void)
 				playerTickChrBody();
 			}
 #endif
-			if (bvIsBotVarietyActive()) {
+			if (bvIsBotVarietyActive()) { // @botvariety - roll for player variants
 				bvspawnPrepVariety(g_Vars.currentplayer->prop->chr, true);
 			}
 		}
@@ -5814,7 +5814,7 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 		}
 	}
 
-	speed = bvTryAdjustAnimSpeed(chr, speed);
+	speed = bvTryAdjustAnimSpeed(chr, speed); // @botvariety
 
 	if (animcfg != NULL && animnum == 0) {
 		animnum = animcfg->animnum;

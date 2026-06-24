@@ -45,13 +45,11 @@ const f32 cycletime_min = 1.0f / 10.0f; // in seconds
 const f32 cycletime_max = 2.5f; // in seconds
 const f32 flashheatuptime_min = cycletime_min / 3.0f; // the minimum rampup time of the flash colour/opacity, in seconds
 
-#define CHR_BOTVARIETY_FLAGS chr->convtalk // This u32 isn't used in combat simulator so we'll hackily borrow it
-
 /// <summary>
 /// Is this chr an Explosive variant? This summary is a completionist formality
 /// </summary>
 bool bvIsChrExplosive(struct chrdata* chr) {
-	return chr->aibot && CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_EXPLOSIVE;
+	return chr->aibot && CHR_BV_FLAGS & BVFLAG_EXPLOSIVE;
 }
 
 /// <summary>
@@ -104,7 +102,7 @@ void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, 
 /// Ticks an explosive bot's internal timers to manage its flashing and beeping, which gets faster as the bot gets closer to the target
 /// </summary>
 void bvTickExplosiveBot(struct chrdata* botchr) {
-	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
+	struct bvchrdata* bvbot = bvGetChrMatchData(botchr);
 	f32 dist = botGetDistanceToTarget(botchr);
 	bool hastarget = botchr->target != -1;
 	f32 maxglowweight, cycletime, beeppitch;
@@ -175,10 +173,10 @@ void bvExplodeBot(struct chrdata* chr, s32 killerplayernum) {
 		return;
 	}
 
-	if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_MINI) {
+	if (CHR_BV_FLAGS & BVFLAG_MINI) {
 		explosiontype = EXPLOSIONTYPE_BVMINI;
 	}
-	else if (CHR_BOTVARIETY_FLAGS & BOTVARIETY_FLAG_WUMBO) {
+	else if (CHR_BV_FLAGS & BVFLAG_WUMBO) {
 		explosiontype = EXPLOSIONTYPE_BVWUMBO;
 	}
 	else {
@@ -200,7 +198,5 @@ void bvExplodeBot(struct chrdata* chr, s32 killerplayernum) {
 	}
 
 	// remove the explosive bot flag so we don't explode again
-	CHR_BOTVARIETY_FLAGS &= ~BOTVARIETY_FLAG_EXPLOSIVE;
+	CHR_BV_FLAGS &= ~BVFLAG_EXPLOSIVE;
 }
-
-#undef CHR_BOTVARIETY_FLAGS

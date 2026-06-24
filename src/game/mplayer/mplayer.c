@@ -1060,6 +1060,20 @@ s32 mpGetWeaponSlot(s32 slot)
 	return count;
 }
 
+/// <summary> 
+/// Checks if the weapon at the given weaponnum is in one of the six slots of the current match.
+/// </summary>
+s32 mpIsWeaponInMatch(u8 weaponnum) {
+	s32 i;
+	for (i = 0; i < NUM_MPWEAPONSLOTS; i++) {
+		u8 mpweapon = g_MpSetup.weapons[i];
+		if (weaponnum == g_MpWeapons[mpweapon].weaponnum) {
+			return true;
+		}
+	}
+	return false;
+}
+
 struct mpweapon *mpGetMpWeaponByLocation(s32 locationindex)
 {
 	s32 v0 = locationindex + 1;

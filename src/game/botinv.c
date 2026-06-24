@@ -282,6 +282,10 @@ bool botinvGiveSingleWeapon(struct chrdata *chr, u32 weaponnum)
 		return false;
 	}
 
+	if (!mpIsWeaponInMatch(weaponnum)) { // @Botvariety shenanigans have made it possible for extraneous guns to appear in combat simulator, but bots only have six slots, so just discard any that aren't in the round
+		return false;
+	}
+
 	if (!botinvGetItemType(chr, weaponnum)) {
 		struct invitem *item = botinvGetFreeSlot(chr);
 

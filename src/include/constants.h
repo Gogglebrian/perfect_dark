@@ -4794,6 +4794,6 @@ enum weaponnum {
 
 #endif
 
-#define BOTVARIETY_VARIANT_COUNT 7
+#define BOTVARIETY_VARIANT_COUNT 8
 
 #endif

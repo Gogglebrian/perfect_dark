@@ -755,7 +755,7 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
-	if (bvGuessBotCrouchPos(chr, &crouchpos)) {
+	if (bvGuessBotCrouchPos(chr, &crouchpos)) { // @botvariety
 		return crouchpos;
 	}
 
@@ -1141,7 +1141,7 @@ f32 botCalculateMaxSpeed(struct chrdata *chr)
 		speed *= 0.5f;
 	}
 
-	speed = bvTryAdjustMoveSpeed(chr, speed);
+	speed = bvTryAdjustMoveSpeed(chr, speed); // @botvariety
 
 	return speed;
 }
@@ -1730,7 +1730,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		}
 	}
 
-	// Botvariety: Explosive bots update the distance to the target continuously
+	// @Botvariety: Explosive bots update the distance to the target continuously
 	if (bvIsBotVarietyActive() && bvIsChrExplosive(botchr) && botchr->target != -1) {
 		botUpdateDistanceToTarget(botchr);
 	}
@@ -2530,9 +2530,9 @@ void botTickUnpaused(struct chrdata *chr)
 		struct aibot *aibot = chr->aibot;
 		s32 i;
 
-		// Botvariety: tick explosive bot's flashing and beeping
-		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-			bvTickExplosiveBot(chr);
+		//@botvariety - tick unique variant behaviors
+		if (bvIsBotVarietyActive()) {
+			bvTickBotAliveUnpausedEarly(chr);
 		}
 
 		// Consider updating random values

@@ -4038,7 +4038,7 @@ void chrChoke(struct chrdata *chr, s32 choketype)
 		}
 	}
 
-	f32 pitch = bvGetVoicePitch(chr); // -1 if no change, otherwise returns a multiplier
+	f32 pitch = bvGetVoicePitch(chr); // @botvariety: -1 if botvariety not active or no change, otherwise returns a multiplier
 
 	if (soundnum >= 0) {
 		if (chr->prop->type == PROPTYPE_PLAYER) {
@@ -4391,7 +4391,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		damage = 0;
 	}
 
-	damage = bvTryAdjustDamage(aprop->chr, chr, gset, damage);
+	damage = bvTryAdjustDamage(aprop->chr, chr, gset, damage); // @botvariety
 
 	// Apply damage scaling based on difficulty settings
 	if (g_Vars.mplayerisrunning == false) {
@@ -4876,7 +4876,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		// At this point we know we're dealing with a NPC being shot, and the
 		// NPC was alive prior to being shot.
 
-		// Botvariety: explosions do bonus damage against Explosive bots
+		// @Botvariety: explosions do bonus damage against Explosive bots
 		if (explosion && bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
 			damage = bvApplyExplosiveBotExplosionDamageMult(damage);
 		}
@@ -5143,9 +5143,8 @@ void chrDie(struct chrdata *chr, s32 aplayernum)
 		chr->aibot->hasuplink = false;
 #endif
 	
-		// Botvariety: explosive bots explode on death
-		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-			bvExplodeBot(chr, aplayernum);
+		if (bvIsBotVarietyActive()) { // @botvariety - proc on-death behaviors
+			bvHandleChrDeath(chr, aplayernum);
 		}
 	}
 }
@@ -7756,7 +7755,7 @@ void chrPunchInflictDamage(struct chrdata *chr, s32 damage, s32 range, u8 revers
 
 		bgunPlayPropHitSound(&gset, targetprop, -1);
 
-		// Botvariety: explosive bots explode on successful punch
+		// @Botvariety: explosive bots explode on successful punch
 		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
 			bvExplodeBot(chr, -1);
 			return;

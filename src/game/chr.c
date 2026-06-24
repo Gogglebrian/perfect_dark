@@ -1579,7 +1579,7 @@ f32 chrGetFlinchAmount(struct chrdata *chr)
  * Use model->scale to adjust Y.
  */
 void chrOnModelScaled(Mtxf *mtx) {
-	bvTryApplyXZBodyScale(g_CurModelChr, mtx);
+	bvTryApplyXZBodyScale(g_CurModelChr, mtx); // @botvariety
 }
 
 /**
@@ -1704,7 +1704,7 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			}
 		}
 
-		scale = bvTryAdjust3DJointScale(g_CurModelChr, joint, scale);
+		scale = bvTryAdjust3DJointScale(g_CurModelChr, joint, scale); // @botvariety
 
 		// 3D scaling and aim positioning for neck, waist, shoulder joints
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
@@ -1899,8 +1899,7 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			mtx00015f04(scale, mtx);
 		}
 
-		// Botvariety: 1D scaling for any joint
-		bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx); // 1D scaling(s) for any joint
+		bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx); // @Botvariety: 1D scaling for any joint
 	}
 }
 
@@ -2464,7 +2463,7 @@ s32 chrTick(struct prop *prop)
 				}
 			} else {
 				chraTick(chr);
-				if (chr->model != model && bvIsBotVarietyActive()) {
+				if (chr->model != model && bvIsBotVarietyActive()) { // @botvariety:
 					model = chr->model; // band-aid for Impostors and other botvariety model changes
 				}
 
@@ -3536,7 +3535,7 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 		renderdata.envcolour = var80062a48[0] << 24 | var80062a48[1] << 16 | var80062a48[2] << 8;
 		renderdata.fogcolour = colour[0] << 24 | colour[1] << 16 | colour[2] << 8 | colour[3];
 
-		// Botvariety: last-minute color tweaks
+		// @Botvariety: last-minute color tweaks
 		if (bvIsBotVarietyActive()) {
 			// Explosive bots: flash white-orange
 			if (bvIsChrExplosive(prop->chr)) {

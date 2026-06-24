@@ -177,6 +177,7 @@ PD_CONSTRUCTOR static void gameConfigInit(void)
 	configRegisterInt("Game.DisableMpDeathMusic", &g_MusicDisableMpDeath, 0, 1);
 	configRegisterInt("Game.GEMuzzleFlashes", &g_BgunGeMuzzleFlashes, 0, 1);
 	configRegisterInt("Game.MaxExplosions", &g_MaxExplosions, 6, 96);
+	configRegisterInt("Game.MPMaxDroppedWeaponsOnscreen", &g_MPMaxDroppedWeaponsOnscreen, 20, 255);
 	configRegisterInt("Game.FixBotPlayer2Bias", &g_FixBotPlayer2Bias, 0, 1);
 	configRegisterInt("Game.RelaxedBotTargeting", &g_RelaxedBotTargeting, 0, 1);
 	configRegisterInt("Game.BetterRng", &g_BetterRng, 0, 1);

@@ -137,6 +137,8 @@ struct autogunobj *g_ThrownLaptops = NULL;
 struct beam *g_ThrownLaptopBeams = NULL;
 s32 g_MaxThrownLaptops = 0;
 
+s32 g_MPMaxDroppedWeaponsOnscreen = 20;
+
 /**
  * Attempt to call a lift from the given door.
  *
@@ -4719,7 +4721,7 @@ void weaponTick(struct prop *prop)
 	if ((obj->flags3 & OBJFLAG3_CANHARDFREE) && (prop->flags & PROPFLAG_ONTHISSCREENTHISTICK)) {
 		g_Vars.hardfreeabletally++;
 
-		if (g_Vars.hardfreeabletally > 20) {
+		if (g_Vars.hardfreeabletally > g_MPMaxDroppedWeaponsOnscreen) {
 			weapon->fadeouttimer60 = TICKS(60);
 			obj->flags3 &= ~OBJFLAG3_CANHARDFREE;
 			obj->flags3 |= OBJFLAG3_HARDFREEING;

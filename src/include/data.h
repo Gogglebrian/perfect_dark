@@ -562,6 +562,7 @@ extern s32 g_FileAutoSelect;
 extern s32 g_SkipToCombatSimulator;
 extern s32 g_SkipJoOnPc;
 extern s32 g_AutoEnableInvincibility;
+extern s32 g_MPMaxDroppedWeaponsOnscreen; 
 extern s32 g_FixBotPlayer2Bias;
 extern s32 g_RelaxedBotTargeting;
 extern s32 g_BetterRng;

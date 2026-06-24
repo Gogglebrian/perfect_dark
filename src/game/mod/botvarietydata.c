@@ -26,7 +26,7 @@ const struct bvvariantstats statsMini = {
 	-1.0f,   // meleerangemult
 };
 const struct bvvariant variantMini = {
-	BOTVARIETY_FLAG_MINI, INDEX_MINI,
+	BVFLAG_MINI, BVINDEX_MINI,
 	{ // spawn chances
 		0.05f,   // bot    - 1 in 20
 		0.0333f, // player - 1 in 30
@@ -60,7 +60,7 @@ const struct bvvariantstats statsWumbo = {
 	2.0f,    // meleerangemult
 };
 const struct bvvariant variantWumbo = {
-	BOTVARIETY_FLAG_WUMBO, INDEX_WUMBO,
+	BVFLAG_WUMBO, BVINDEX_WUMBO,
 	{ // spawn chances
 		0.0333f, // bot    - 1 in 30
 		0.0333f, // player - 1 in 30
@@ -86,7 +86,7 @@ const struct bvvariantstats statsImpostor = {
 	-1.0f, // meleerangemult
 };
 const struct bvvariant variantImpostor = {
-	BOTVARIETY_FLAG_IMPOSTOR, INDEX_IMPOSTOR,
+	BVFLAG_IMPOSTOR, BVINDEX_IMPOSTOR,
 	{ // spawn chances
 		0.002f,  // bot  - 1 in 500
 		0,       // player - N/A
@@ -128,11 +128,11 @@ const struct bvvariantstats statsSlenderman = {
 	-1.0f,    // meleerangemult
 };
 const struct bvvariant variantSlenderman = {
-	BOTVARIETY_FLAG_SLENDERMAN, INDEX_SLENDERMAN,
+	BVFLAG_SLENDERMAN, BVINDEX_SLENDERMAN,
 	{ // spawn chances
 		0.001f, // bot    - 1 in 1000
 		0, // player - N/A
-		0.25f,   // debug  - 1 in  4
+		0.1f,   // debug  - 1 in  4
 		0.5f,   // spree  - 1 in  2
 	},
 	{ // spree data
@@ -154,7 +154,7 @@ const struct bvvariantstats statsSunglasses = {
 	-1.0f, // meleerangemult
 };
 const struct bvvariant variantSunglasses = {
-	BOTVARIETY_FLAG_SUNGLASSES, INDEX_SUNGLASSES,
+	BVFLAG_SUNGLASSES, BVINDEX_SUNGLASSES,
 	{ // spawn chances
 		0.01f, // bot   - 1 in 100
 		0.1f,  // player - 1 in  10
@@ -180,7 +180,7 @@ const struct bvvariantstats statsExplosive = {
 	-1.0f, // meleerangemult
 };
 const struct bvvariant variantExplosive = {
-	BOTVARIETY_FLAG_EXPLOSIVE, INDEX_EXPLOSIVE,
+	BVFLAG_EXPLOSIVE, BVINDEX_EXPLOSIVE,
 	{ // spawn chances
 		0.01f, // bot   - 1 in 100
 		0,  // player - N/A
@@ -195,6 +195,32 @@ const struct bvvariant variantExplosive = {
 	},
 	NULL, // no body tweaks
 	&statsExplosive,
+};
+
+const struct bvvariantstats statsGunfetti = {
+	 0.75f, // movespeedmult
+	 0.75f, // animspeedmult
+	 0.8f, // damagetakenmult -- =1.25x health
+	-1.0f, // bluntdamagemult
+	-1.0f, // disarmdamage (default=0)
+	-1.0f, // meleerangemult
+};
+const struct bvvariant variantGunfetti = {
+	BVFLAG_GUNFETTI, BVINDEX_GUNFETTI,
+	{ // spawn chances
+		0.002f,  // bot    - 1 in 500
+		0,   // player - N/A
+		0.5f, // debug  - 1 in   2
+		0.333f, // spree  - 1 in   3
+	},
+	{ // spree data
+		0, // trigger chance - disabled
+		0,   // debug chance
+		12,     // min spawn count
+		32,     // max spawn count
+	},
+	NULL, // no body tweaks
+	&statsGunfetti,
 };
 
 const struct bvvariantxyzscales scalesSBD = {
@@ -222,7 +248,7 @@ const struct bvvariantstats statsSBD = {
 	-1.0f, // meleerangemult
 };
 const struct bvvariant variantSuperBattleDroid = {
-	BOTVARIETY_FLAG_SUPERBATTLEDROID, INDEX_SUPERBATTLEDROID,
+	BVFLAG_SBD, BVINDEX_SBD,
 	{ // spawn chances
 		0.0005f,  // bot    - 1 in 2000
 		0,      // player - N/A
@@ -246,6 +272,7 @@ const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 	&variantSlenderman,
 	&variantSunglasses,
 	&variantExplosive,
+	&variantGunfetti,
 	&variantSuperBattleDroid,
 };
 
@@ -271,7 +298,7 @@ const struct bvvariantstats statsX = {
 };
 
 const struct bvvariant variantX = {
-	BOTVARIETY_FLAG_X, INDEX_X,
+	BVFLAG_X, BVINDEX_X,
 	{ // spawn chances
 		0.01f,  // bot    - 1 in 100
 		0.1f,   // player - 1 in  10

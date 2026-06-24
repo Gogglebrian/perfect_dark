@@ -4,9 +4,14 @@
 #include "data.h"
 #include "types.h"
 
+ // This u32 isn't used in combat simulator so we'll hackily borrow it for our variant flags
+#define CHR_BV_FLAGS chr->convtalk
+
 // botvariety.c
 bool bvIsBotVarietyActive();
 bool bvChrHasVarietyFlags(struct chrdata* chr);
+void bvTickBotAliveUnpausedEarly(struct chrdata* chr);
+void bvHandleChrDeath(struct chrdata* chr, s32 killerplayernum);
 f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale);
 void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx);
 void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx);
@@ -43,37 +48,44 @@ void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* ren
 void bvExplodeBot(struct chrdata* chr, s32 killerplayernum);
 f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage);
 
+// botvarietygunfetti.c
+bool bvIsChrGunfetti(struct chrdata* chr);
+void bvPopGunfettiBot(struct chrdata* chr);
+
 // Flags
-#define BOTVARIETY_FLAG_MINI             0x00000001
-#define BOTVARIETY_FLAG_WUMBO            0x00000002
-#define BOTVARIETY_FLAG_IMPOSTOR         0x00000004
-#define BOTVARIETY_FLAG_SLENDERMAN       0x00000008
-#define BOTVARIETY_FLAG_SUNGLASSES       0x00000010
-#define BOTVARIETY_FLAG_EXPLOSIVE        0x00000020
-#define BOTVARIETY_FLAG_SUPERBATTLEDROID 0x00000040
+#define BVFLAG_MINI             0x00000001
+#define BVFLAG_WUMBO            0x00000002
+#define BVFLAG_IMPOSTOR         0x00000004
+#define BVFLAG_SLENDERMAN       0x00000008
+#define BVFLAG_SUNGLASSES       0x00000010
+#define BVFLAG_EXPLOSIVE        0x00000020
+#define BVFLAG_GUNFETTI         0x00000040
+#define BVFLAG_SBD              0x00000080
 
 // Index and count
-#define INDEX_MINI               0
-#define INDEX_WUMBO              1
-#define INDEX_IMPOSTOR           2
-#define INDEX_SLENDERMAN         3
-#define INDEX_SUNGLASSES         4
-#define INDEX_EXPLOSIVE          5
-#define INDEX_SUPERBATTLEDROID   6
+#define BVINDEX_MINI               0
+#define BVINDEX_WUMBO              1
+#define BVINDEX_IMPOSTOR           2
+#define BVINDEX_SLENDERMAN         3
+#define BVINDEX_SUNGLASSES         4
+#define BVINDEX_EXPLOSIVE          5
+#define BVINDEX_GUNFETTI           6
+#define BVINDEX_SBD                7
 // If adding variants, remember to update BOTVARIETY_VARIANT_COUNT in constants.h
 
 // Variants
-#define VARIANT_MINI             gc_BvVariants[INDEX_MINI]
-#define VARIANT_WUMBO            gc_BvVariants[INDEX_WUMBO]
-#define VARIANT_IMPOSTOR         gc_BvVariants[INDEX_IMPOSTOR]
-#define VARIANT_SLENDERMAN       gc_BvVariants[INDEX_SLENDERMAN]
-#define VARIANT_SUNGLASSES       gc_BvVariants[INDEX_SUNGLASSES]
-#define VARIANT_EXPLOSIVE        gc_BvVariants[INDEX_EXPLOSIVE]
-#define VARIANT_SUPERBATTLEDROID gc_BvVariants[INDEX_SUPERBATTLEDROID]
+#define BVVARIANT_MINI             gc_BvVariants[BVINDEX_MINI]
+#define BVVARIANT_WUMBO            gc_BvVariants[BVINDEX_WUMBO]
+#define BVVARIANT_IMPOSTOR         gc_BvVariants[BVINDEX_IMPOSTOR]
+#define BVVARIANT_SLENDERMAN       gc_BvVariants[BVINDEX_SLENDERMAN]
+#define BVVARIANT_SUNGLASSES       gc_BvVariants[BVINDEX_SUNGLASSES]
+#define BVVARIANT_EXPLOSIVE        gc_BvVariants[BVINDEX_EXPLOSIVE]
+#define BVVARIANT_GUNFETTI         gc_BvVariants[BVINDEX_GUNFETTI]
+#define BVVARIANT_SBD              gc_BvVariants[BVINDEX_SBD]
 
 // Abominations
-#define INDEX_ABOMINATION_FIRST INDEX_SUPERBATTLEDROID
-#define INDEX_ABOMINATION_LAST  INDEX_SUPERBATTLEDROID
-#define ABOMINATION_COUNT 1
+#define BVINDEX_ABOMINATION_FIRST BVINDEX_SBD
+#define BVINDEX_ABOMINATION_LAST  BVINDEX_SBD
+#define BV_ABOMINATION_COUNT 1
 
 #endif
