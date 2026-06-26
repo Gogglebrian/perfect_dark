@@ -4329,6 +4329,10 @@ struct activemenu {
 	/*0x32*/ u8 allbots; // when player holds R on the bot command screen
 	/*0x33*/ u8 prevallbots; // used when opening "Pick Target" menu for attack command
 	/*0x34*/ s8 origscreennum; // original screen number before using allbots
+	/*0x35*/ u8 numvalidweapons; // @mod: number of weapons in inventory that can be selected from the radial menu
+	/*0x36*/ u8 numweaponscreens; // @mod: number of weapon screens, determined on menu open based on the number of weapons in inventory
+	/*0x37*/ s8 funcscreenenabled; // @mod: whether to show or skip the func select screen, determined on menu open based on game mode and per-player ini setting
+	/*0x38*/ u8 orderedweapons[NUM_WEAPONS]; // @mod: inventory-indexes of items, ordered as they should appear across the weapons screens. Determined on menu open
 
 #ifndef PLATFORM_N64
 	/*    */ f32 mousex;
@@ -6169,6 +6173,7 @@ struct extplayerconfig {
 	s32 crosshairhealth;
 	s32 usereloads;
 	s32 funcbtndetonates; // if func switch button quick-detonates remote mines without having to press trigger
+	s32 radialmenuskipfunc; // default 1; if 0, removes the function select screen from the radial/activemenu's possible screens
 };
 
 struct setupblock {

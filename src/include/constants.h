@@ -300,6 +300,11 @@
 #define AMMODE_VIEW   1
 #define AMMODE_EDIT   2 // unused
 
+// @mod: Active menu screen types
+#define AMSCREEN_WEAPONS 0
+#define AMSCREEN_FUNCTION 1
+#define AMSCREEN_COMMANDS 2
+
 #define ANIMFLAG_LOOP                0x01
 #define ANIMFLAG_ABSOLUTETRANSLATION 0x02
 #define ANIMFLAG_HASREPEATFRAMES     0x04
@@ -4503,8 +4508,11 @@ enum weaponnum {
 	//0x5e*/
 };
 
-#define CUSTOMWEAPONVARIANT_FIRST	WEAPON_IMPACTGRENADE 
-#define CUSTOMWEAPONVARIANT_COUNT	2											// update me when we add a new custom weapon variant
+/// @mod: Includes all enumerated WEAPON_s including NONE, DISABLED, SHIELD, SUICIDEPILL, etc
+#define NUM_WEAPONS (WEAPON_SUICIDEPILL + 1)
+
+#define CUSTOMWEAPONVARIANT_FIRST WEAPON_IMPACTGRENADE // @mod: info for custom weapon variants, which should be clustered together in the weapons list above
+#define CUSTOMWEAPONVARIANT_COUNT 2                    // @mod: update me when we add a new custom weapon variant
 
 #define WEAPON_MPLOCATION00 240
 #define WEAPON_MPLOCATION01 241
@@ -4794,6 +4802,6 @@ enum weaponnum {
 
 #endif
 
-#define BOTVARIETY_VARIANT_COUNT 8
+#define BOTVARIETY_VARIANT_COUNT 8 // @botvariety
 
 #endif

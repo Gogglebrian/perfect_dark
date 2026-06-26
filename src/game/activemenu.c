@@ -1,5 +1,6 @@
 #include <ultra64.h>
 #include "constants.h"
+#include "game/activemenu.h"
 #include "game/chraction.h"
 #include "game/game_006900.h"
 #include "game/bondgun.h"
@@ -56,6 +57,28 @@ const u8 g_AmMapping[] = {
 	2, // unused
 };
 
+/// <summary>
+/// @mod Gets the screen type (weapons, function, buddy/bot commands) of the current activemenu screen.
+/// </summary>
+u8 amGetScreenType() {
+	if (g_AmMenus[g_AmIndex].screenindex < g_AmMenus[g_AmIndex].numweaponscreens) {
+		return AMSCREEN_WEAPONS;
+	}
+	else if (g_AmMenus[g_AmIndex].funcscreenenabled && g_AmMenus[g_AmIndex].screenindex == g_AmMenus[g_AmIndex].numweaponscreens) {
+		return AMSCREEN_FUNCTION;
+	}
+	else {
+		return AMSCREEN_COMMANDS;
+	}
+}
+
+/// <summary>
+/// @mod Gets the total number of screens between weapons and functions (in other words, all screens that AREN'T Bot/Buddy commands)
+/// </summary>
+u8 amGetWeaponAndFuncScreensCount() {
+	return g_AmMenus[g_AmIndex].numweaponscreens + g_AmMenus[g_AmIndex].funcscreenenabled;
+}
+
 struct chrdata *currentPlayerGetCommandingAibot(void)
 {
 	return g_Vars.currentplayer->commandingaibot;
@@ -107,7 +130,7 @@ MenuItemHandlerResult amPickTargetMenuList(s32 operation, struct menuitem *item,
 
 			chrindex = -1;
 			numremaining = data->list.value;
-			botchr = g_MpAllChrPtrs[g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - 2]];
+			botchr = g_MpAllChrPtrs[g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - amGetWeaponAndFuncScreensCount()]]; // @mod: was screenindex - 2 to account for 1 weapon and 1 func screen; now it's x weapon screens and 1 func screen if enabled.
 			playerchr = g_Vars.currentplayer->prop->chr;
 
 			do {
@@ -297,8 +320,12 @@ void amApply(s32 slot)
 	s32 weaponnum;
 	s32 i;
 
-	switch (g_AmMenus[g_AmIndex].screenindex) {
-	case 0: // Weapon
+	// @mod: this switch statement originally used the screenindex. 0 for weapons, 1 for function, 2+ for buddy/bot commands.
+	// In order to optionally disable the function screen and allow for multiple weapons screens, we'll determine a screentype 
+	// based on the screenindex, and use that screentype in the switch. 
+	u8 screentype = amGetScreenType();
+	switch (screentype) {
+	case AMSCREEN_WEAPONS:
 		if (slot > 4) {
 			slot--;
 		}
@@ -363,7 +390,7 @@ void amApply(s32 slot)
 			}
 		}
 		break;
-	case 1: // Function
+	case AMSCREEN_FUNCTION:
 		if (g_Vars.currentplayer->gunctrl.weaponnum >= WEAPON_UNARMED
 				&& g_Vars.currentplayer->gunctrl.weaponnum <= WEAPON_COMBATBOOST
 				&& g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].gunfuncs[(g_Vars.currentplayer->gunctrl.weaponnum - 1) >> 3] & (1 << ((g_Vars.currentplayer->gunctrl.weaponnum - 1) & 7))) {
@@ -376,7 +403,7 @@ void amApply(s32 slot)
 			}
 		}
 		break;
-	default:
+	default: // buddy/bot commands
 		if (g_MissionConfig.iscoop) {
 			if (amGetFirstBuddyIndex() > -1) {
 				if (slot == 1) {
@@ -395,7 +422,7 @@ void amApply(s32 slot)
 					botcmdApply(g_MpAllChrPtrs[g_Vars.currentplayer->aibuddynums[i]], g_AmBotCommands[slot]);
 				}
 			} else {
-				botcmdApply(g_MpAllChrPtrs[g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - 2]], g_AmBotCommands[slot]);
+				botcmdApply(g_MpAllChrPtrs[g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - amGetWeaponAndFuncScreensCount()]], g_AmBotCommands[slot]); // @mod: was screenindex - 2 to account for 1 weapon and 1 func screen; now it's x weapon screens and 1 func screen if enabled.
 			}
 		}
 	}
@@ -410,8 +437,12 @@ void amGetSlotDetails(s32 slot, u32 *flags, char *label)
 	struct weaponfunc *prifunc;
 	struct weaponfunc *secfunc;
 
-	switch (g_AmMenus[g_AmIndex].screenindex) {
-	case 0: // Weapon screen
+	// @mod: this switch statement originally used the screenindex. 0 for weapons, 1 for function, 2+ for buddy/bot commands.
+	// In order to optionally disable the function screen and allow for multiple weapons screens, we'll determine a screentype 
+	// based on the screenindex, and use that screentype in the switch. 
+	u8 screentype = amGetScreenType();
+	switch (screentype) {
+	case AMSCREEN_WEAPONS: // Weapon screen
 		if (slot == 4) {
 			strcpy(label, langGet(L_MISC_170)); // "Weapon"
 			return;
@@ -451,7 +482,7 @@ void amGetSlotDetails(s32 slot, u32 *flags, char *label)
 			*flags |= AMSLOTFLAG_NOAMMO;
 		}
 		break;
-	case 1: // Function screen
+	case AMSCREEN_FUNCTION: // Function screen
 		strcpy(label, "");
 
 		if (slot == 4) {
@@ -595,48 +626,10 @@ s16 amCalculateSlotWidth(void)
 	return max;
 }
 
-void amChangeScreen(s32 step)
-{
-	s32 maxscreenindex;
-
-	g_AmMenus[g_AmIndex].screenindex += step;
-
-	if (g_Vars.normmplayerisrunning && (g_MpSetup.options & MPOPTION_TEAMSENABLED)) {
-		if (g_AmMenus[g_AmIndex].allbots) {
-			// Weapon selection, second function, and bot command menu
-
-			// @bug: This is missing a check to see if there are any bots on
-			// your team. In most cases this isn't a problem because the player
-			// opens the screen for a single bot then uses R to switch to all
-			// bots. When they do this without buddy bots the else part below
-			// runs first, limits the max screen index to 1 and all is good.
-			// But if you hold R as you switch to the bot command menu then this
-			// part runs first and sets the screen index to an invalid value,
-			// causing a crash.
-			maxscreenindex = 2;
-		} else {
-			// Weapon selection, second function and one for each AI buddy
-			maxscreenindex = g_Vars.currentplayer->numaibuddies + 1;
-		}
-	} else {
-		// Solo missions, or MP with no teams
-		if (g_MissionConfig.iscoop && amGetFirstBuddyIndex() >= 0) {
-			// Weapon selection, second function and AI buddy commands
-			maxscreenindex = 2;
-		} else {
-			// Weapon selection and second function
-			maxscreenindex = 1;
-		}
-	}
-
-	if (g_AmMenus[g_AmIndex].screenindex > maxscreenindex) {
-		g_AmMenus[g_AmIndex].screenindex = 0;
-	}
-
-	if (g_AmMenus[g_AmIndex].screenindex < 0) {
-		g_AmMenus[g_AmIndex].screenindex = maxscreenindex;
-	}
-
+/// <summary>
+/// @mod Performs the standard screen preparation for screen at index 0, skipping any checks that would never apply to index 0 anyway, and regardless of the total number of screens.
+/// </summary>
+void amChangeScreenOnOpen() {
 	g_AmMenus[g_AmIndex].xradius = 10;
 	g_AmMenus[g_AmIndex].dstx = -123;
 	g_AmMenus[g_AmIndex].slotnum = 4;
@@ -646,7 +639,159 @@ void amChangeScreen(s32 step)
 	g_AmMenus[g_AmIndex].slotwidth = amCalculateSlotWidth();
 }
 
-void amAssignWeaponSlots(void)
+void amChangeScreen(s32 step)
+{
+	s32 maxscreenindex;
+	u8 totalscreens = g_AmMenus[g_AmIndex].numweaponscreens + g_AmMenus[g_AmIndex].funcscreenenabled; // @mod: accounting for flexible number of weapons screens and optionally disabled func screen
+
+	g_AmMenus[g_AmIndex].screenindex += step;
+
+	if (g_Vars.normmplayerisrunning && (g_MpSetup.options & MPOPTION_TEAMSENABLED)) {
+		if (g_AmMenus[g_AmIndex].allbots) {
+			// @bug: This is missing a check to see if there are any bots on
+			// your team. In most cases this isn't a problem because the player
+			// opens the screen for a single bot then uses R to switch to all
+			// bots. When they do this without buddy bots the else part below
+			// runs first, limits the max screen index to 1 and all is good.
+			// But if you hold R as you switch to the bot command menu then this
+			// part runs first and sets the screen index to an invalid value,
+			// causing a crash.
+			totalscreens += 1; // @mod: add 1 all-bots screen
+		} else {
+			totalscreens += g_Vars.currentplayer->numaibuddies; // @mod: add one for each AI buddy
+		}
+	} else {
+		// Solo missions, or MP with no teams
+		if (g_MissionConfig.iscoop && amGetFirstBuddyIndex() >= 0) {
+			// @mod: x weapon screens, func screen if enabled, and AI buddy commands
+			totalscreens += 1;
+		} else {
+			; // @mod: no additional screens
+		}
+	}
+
+	// @mod: if there's no screen to switch to, don't do anything.
+	if (totalscreens <= 1) {
+		g_AmMenus[g_AmIndex].screenindex = 0;
+		return;
+	}
+
+	maxscreenindex = totalscreens - 1; // @mod
+
+	if (g_AmMenus[g_AmIndex].screenindex > maxscreenindex) {
+		g_AmMenus[g_AmIndex].screenindex = 0;
+	}
+
+	if (g_AmMenus[g_AmIndex].screenindex < 0) {
+		g_AmMenus[g_AmIndex].screenindex = maxscreenindex;
+	}
+
+	// @mod: if on a weapon page, update the slots
+	if (g_AmMenus[g_AmIndex].screenindex < g_AmMenus[g_AmIndex].numweaponscreens) {
+		amAssignWeaponSlots(); 
+	}
+	
+	g_AmMenus[g_AmIndex].xradius = 10;
+	g_AmMenus[g_AmIndex].dstx = -123;
+	g_AmMenus[g_AmIndex].slotnum = 4;
+	g_AmMenus[g_AmIndex].returntimer = 0;
+	g_AmMenus[g_AmIndex].cornertimer = 0;
+	g_AmMenus[g_AmIndex].alphafrac = 0;
+	g_AmMenus[g_AmIndex].slotwidth = amCalculateSlotWidth();
+}
+
+/// <summary>
+/// @mod Call on menu open to determine number of weapon screens, whether to show/skip the func screen, and the order in which the weapons 
+/// will be shown across the weapons screens.
+/// To do the latter, populates the orderedweapons array, first with any favorited weapons, then any remaining weapons in inventory order.
+/// (In vanilla, the same logic is used to populate the slots directly via the invendexes array.)
+/// After calling this func on menu open, the orderedweapons array can be easily used to determine which weapons to display on a given page.
+/// </summary>
+void amInitializerWeaponsScreens() {
+	s32 numitems = invGetCount();
+	u8 weaponnum;
+	s32 i;
+	s32 j;
+
+	g_AmMenus[g_AmIndex].numitems = numitems;
+	g_AmMenus[g_AmIndex].numvalidweapons = 0;
+
+	// Empty orderedweapons array
+	for (i = 0; i < ARRAYCOUNT(g_AmMenus[g_AmIndex].orderedweapons); i++) {
+		g_AmMenus[g_AmIndex].orderedweapons[i] = 0xff;
+	}
+
+	// Loop through inv items: count valid weapons and position favourites (weapons in the multiplayer match's 6 slots) to corresponding positions in orderedweapons array
+	for (i = 0; i < numitems; i++) {
+		weaponnum = invGetWeaponNumByIndex(i);
+
+		if ((weaponnum >= WEAPON_UNARMED && weaponnum <= WEAPON_DISGUISE41)
+				|| weaponnum == WEAPON_SUICIDEPILL
+				|| weaponnum == WEAPON_BACKUPDISK
+				|| weaponnum == WEAPON_SUITCASE) {
+			// Count weapon as valid
+			g_AmMenus[g_AmIndex].numvalidweapons++;
+
+			// Check for favorite and position
+			for (j = 0; j < ARRAYCOUNT(g_AmMenus[g_AmIndex].favourites); j++) {
+				if (g_AmMenus[g_AmIndex].favourites[j] == weaponnum) {
+					if (g_AmMenus[g_AmIndex].orderedweapons[j] == 0xff) {
+						g_AmMenus[g_AmIndex].orderedweapons[j] = i;
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	// Update the weapon screens count based on the freshly-counted number of valid weapons
+	g_AmMenus[g_AmIndex].numweaponscreens = (g_AmMenus[g_AmIndex].numvalidweapons / 8) + (g_AmMenus[g_AmIndex].numvalidweapons % 8 > 0);
+
+	// Loop through inv items again: if they're not favourite (already positioned in orderedweapons array) then put them at the first available position
+	for (i = 0; i < numitems; i++) {
+		bool isfavourite = false;
+		weaponnum = invGetWeaponNumByIndex(i);
+
+		for (j = 0; j < ARRAYCOUNT(g_AmMenus[g_AmIndex].favourites); j++) {
+			if (g_AmMenus[g_AmIndex].favourites[j] == weaponnum) {
+				isfavourite = true;
+				break;
+			}
+		}
+
+		if (!isfavourite) {
+			if ((weaponnum >= WEAPON_UNARMED && weaponnum <= WEAPON_DISGUISE41)
+					|| weaponnum == WEAPON_SUICIDEPILL
+					|| weaponnum == WEAPON_SUITCASE) {
+				s32 j;
+
+				for (j = 0; j < ARRAYCOUNT(g_AmMenus[g_AmIndex].orderedweapons); j++) {
+					if (g_AmMenus[g_AmIndex].orderedweapons[j] == 0xff) {
+						g_AmMenus[g_AmIndex].orderedweapons[j] = i;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+/// <summary>
+/// @mod Assign weapons to the 8 slots based on the order in the orderedweapons array.
+/// Replaces original func of the same name.
+/// </summary>
+void amAssignWeaponSlots(void) {
+	u8 i;
+	u8 weaponorderindex = g_AmMenus[g_AmIndex].screenindex * 8;
+	
+	for (i = 0; i < ARRAYCOUNT(g_AmMenus[g_AmIndex].invindexes); i++) {
+		g_AmMenus[g_AmIndex].invindexes[i] = g_AmMenus[g_AmIndex].orderedweapons[weaponorderindex]; // will be 0xff if the position is empty, which is fine
+		weaponorderindex++;
+	}
+}
+
+/// @mod: Unused original, left here for reference
+void amAssignWeaponSlots_original(void)
 {
 	s32 numitems = invGetCount();
 	u8 weaponnum;
@@ -735,6 +880,15 @@ void amAssignWeaponSlots(void)
 	}
 }
 
+/// <summary>
+/// @mod: Determines whether to show/skip the function screen and sets the menu value accordingly.
+/// Can be disabled in Combat Simulator only using ini setting RadialMenuSkipFunctionSelect.
+/// Always on in missions for now because I'm not sure if it's ever needed for gadgets etc.
+/// </summary>
+void amDetermineFuncScreenEnabled() {
+	g_AmMenus[g_AmIndex].funcscreenenabled = (!g_Vars.normmplayerisrunning || !g_PlayerExtCfg[g_Vars.currentplayernum].radialmenuskipfunc);
+}
+
 void amOpen(void)
 {
 	if (g_Vars.currentplayer->gunctrl.passivemode == false) {
@@ -743,8 +897,10 @@ void amOpen(void)
 		g_PlayersWithControl[g_Vars.currentplayernum] = false;
 		g_AmMenus[g_AmIndex].screenindex = 0;
 		g_AmMenus[g_AmIndex].selpulse = 0;
+		amDetermineFuncScreenEnabled(); // @mod: update whether to show/skip the function screen
+		amInitializerWeaponsScreens(); // @mod: get the order by which to display the weapons across one or more weapons screens
 		amAssignWeaponSlots();
-		amChangeScreen(0);
+		amChangeScreenOnOpen(); // @mod: open to the initial screen with this bespoke func so that the original chancescreen func can test for whether there's another screen to switch to
 		g_AmMenus[g_AmIndex].xradius = g_AmMenus[g_AmIndex].slotwidth + 5;
 		g_AmMenus[g_AmIndex].alphafrac = 0.3;
 		g_AmMenus[g_AmIndex].origscreennum = 0;
@@ -783,7 +939,7 @@ bool amIsCramped(void)
 
 	return false;
 #else
-	return (g_AmMenus[g_AmIndex].screenindex == 0 && PLAYERCOUNT() >= 3)
+	return (g_AmMenus[g_AmIndex].screenindex < g_AmMenus[g_AmIndex].numweaponscreens && PLAYERCOUNT() >= 3) // @mod: vanilla checked screenindex == 0 for a single weapons screen; now applies to all weapons screens
 		|| (IS4MB() && PLAYERCOUNT() == 2)
 		|| (PLAYERCOUNT() == 2 && optionsGetScreenSplit() == SCREENSPLIT_VERTICAL);
 #endif
@@ -1259,6 +1415,7 @@ Gfx *amRender(Gfx *gdl)
 	s16 sloty;
 	s16 tmp1;
 	s16 tmp2;
+	u8 weaponandfuncscreenscount;
 
 #if PAL
 	g_ScaleX = 1;
@@ -1276,13 +1433,15 @@ Gfx *amRender(Gfx *gdl)
 	g_AmIndex = g_Vars.currentplayernum;
 	g_Vars.currentplayer->commandingaibot = NULL;
 
+	weaponandfuncscreenscount = amGetWeaponAndFuncScreensCount(); // @mod get count of weapon/func screens as the screenindex offset to the buddy/bot screens
+
 	if (g_Vars.currentplayer->activemenumode != AMMODE_CLOSED) {
 		// Draw diamond
 		gdl = text0f153628(gdl);
 
 		if (g_Vars.normmplayerisrunning
-				&& g_AmMenus[g_AmIndex].screenindex >= 2) {
-			mpchrnum = g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - 2];
+				&& g_AmMenus[g_AmIndex].screenindex >= weaponandfuncscreenscount) { // @mod replaced screenindex offset 2 with count of weapon/func screens
+			mpchrnum = g_Vars.currentplayer->aibuddynums[g_AmMenus[g_AmIndex].screenindex - weaponandfuncscreenscount];
 		}
 
 		if (g_AmMenus[g_AmIndex].dstx == -123) {
@@ -1401,7 +1560,7 @@ Gfx *amRender(Gfx *gdl)
 				}
 
 				if (g_MissionConfig.iscoop && (buddynum = amGetFirstBuddyIndex(), buddynum >= 0)) {
-					if (mode == AMSLOTMODE_DEFAULT && g_AmMenus[g_AmIndex].screenindex >= 2) {
+					if (mode == AMSLOTMODE_DEFAULT && g_AmMenus[g_AmIndex].screenindex >= weaponandfuncscreenscount) { // @mod replaced screenindex offset 2 with count of weapon/func screens
 						struct chrdata *chr = g_Vars.aibuddies[buddynum]->chr;
 
 #if VERSION >= VERSION_NTSC_1_0
@@ -1429,7 +1588,7 @@ Gfx *amRender(Gfx *gdl)
 				} else {
 					if (g_Vars.normmplayerisrunning
 							&& mode == AMSLOTMODE_DEFAULT
-							&& g_AmMenus[g_AmIndex].screenindex >= 2) {
+							&& g_AmMenus[g_AmIndex].screenindex >= weaponandfuncscreenscount) { // @mod replaced screenindex offset 2 with count of weapon/func screens
 						s32 slotcmd = g_AmBotCommands[var800719a0[row][column]];
 						s32 botcmd = g_MpAllChrPtrs[mpchrnum]->aibot->command;
 
@@ -1470,8 +1629,8 @@ Gfx *amRender(Gfx *gdl)
 #else
 			if (!(g_MissionConfig.iscoop && amGetFirstBuddyIndex() >= 0)
 					&& vars->normmplayerisrunning
-					&& g_AmMenus[g_AmIndex].screenindex >= 2) {
-				gdl = amRenderAibotInfo(gdl, g_AmMenus[g_AmIndex].screenindex - 2);
+					&& g_AmMenus[g_AmIndex].screenindex >= weaponandfuncscreenscount) { // @mod replaced screenindex offset 2 with count of weapon/func screens
+				gdl = amRenderAibotInfo(gdl, g_AmMenus[g_AmIndex].screenindex - weaponandfuncscreenscount);
 			}
 #endif
 		}

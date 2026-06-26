@@ -177,10 +177,10 @@ PD_CONSTRUCTOR static void gameConfigInit(void)
 	configRegisterInt("Game.DisableMpDeathMusic", &g_MusicDisableMpDeath, 0, 1);
 	configRegisterInt("Game.GEMuzzleFlashes", &g_BgunGeMuzzleFlashes, 0, 1);
 	configRegisterInt("Game.MaxExplosions", &g_MaxExplosions, 6, 96);
-	configRegisterInt("Game.MPMaxDroppedWeaponsOnscreen", &g_MPMaxDroppedWeaponsOnscreen, 20, 100);
-	configRegisterInt("Game.FixBotPlayer2Bias", &g_FixBotPlayer2Bias, 0, 1);
-	configRegisterInt("Game.RelaxedBotTargeting", &g_RelaxedBotTargeting, 0, 1);
-	configRegisterInt("Game.BetterRng", &g_BetterRng, 0, 1);
+	configRegisterInt("Game.MPMaxDroppedWeaponsOnscreen", &g_MPMaxDroppedWeaponsOnscreen, 20, 100); // @mod
+	configRegisterInt("Game.FixBotPlayer2Bias", &g_FixBotPlayer2Bias, 0, 1); // @mod
+	configRegisterInt("Game.RelaxedBotTargeting", &g_RelaxedBotTargeting, 0, 1); // @mod
+	configRegisterInt("Game.BetterRng", &g_BetterRng, 0, 1); // @mod
 	for (s32 j = 0; j < MAX_PLAYERS; ++j) {
 		const s32 i = j + 1;
 		configRegisterFloat(strFmt("Game.Player%d.FovY", i), &g_PlayerExtCfg[j].fovy, 5.f, 175.f);
@@ -198,5 +198,6 @@ PD_CONSTRUCTOR static void gameConfigInit(void)
 		configRegisterInt(strFmt("Game.Player%d.CrosshairHealth", i), &g_PlayerExtCfg[j].crosshairhealth, 0, CROSSHAIR_HEALTH_ON_WHITE);
 		configRegisterInt(strFmt("Game.Player%d.UseKeyReloads", i), &g_PlayerExtCfg[j].usereloads, 0, false);
 		configRegisterInt(strFmt("Game.Player%d.FuncBtnDetonatesRemoteMine", i), &g_PlayerExtCfg[j].funcbtndetonates, 0, false);
+		configRegisterInt(strFmt("Game.Player%d.RadialMenuSkipFunctionSelect", i), &g_PlayerExtCfg[j].radialmenuskipfunc, 0, 1); // @mod
 	}
 }

@@ -30,6 +30,9 @@ void invReset(void)
 void invInit(s32 numdoubles)
 {
 	g_Vars.currentplayer->equipmaxitems = numdoubles + 30;
+	if (g_Vars.currentplayer->equipmaxitems < (NUM_MPWEAPONS - 3)) { // @mod: ensure all usable mpweapons can be carried simultaneously (-3 for shield, disabled, and none)
+		g_Vars.currentplayer->equipmaxitems = NUM_MPWEAPONS - 3;
+	}
 	g_Vars.currentplayer->equipment = mempAlloc(ALIGN16(g_Vars.currentplayer->equipmaxitems * sizeof(struct invitem)), MEMPOOL_STAGE);
 	invClear();
 }

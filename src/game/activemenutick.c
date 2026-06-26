@@ -36,6 +36,7 @@ void amTick(void)
 
 		if (g_Vars.normmplayerisrunning == false
 				&& invGetCount() != g_AmMenus[g_AmIndex].numitems) {
+			amInitializerWeaponsScreens(); // @mod: get the order to display the weapons across one or more weapons screens
 			amAssignWeaponSlots();
 		}
 
@@ -63,6 +64,7 @@ void amTick(void)
 			}
 
 			for (j = 0; j < numsamples; j++) {
+				u8 firstcommandsscreenindex = amGetWeaponAndFuncScreensCount(); // @mod: use the count of screens for weapon or function select as an offset for the bot/buddy commands screens
 				s8 gotonextscreen = false;
 				s8 cstickx = joyGetStickXOnSample(j, contpadnum);
 				s8 csticky = joyGetStickYOnSample(j, contpadnum);
@@ -80,6 +82,7 @@ void amTick(void)
 				s32 slotnum;
 				bool stayopen;
 				bool toggle;
+				bool forward = true; // @mod: if changing screen, whether to move forward or back through menus
 				s32 row;
 				s32 column;
 
@@ -147,13 +150,13 @@ void amTick(void)
 #endif
 					}
 				}
-
+				
 				// If entering allbots mode, save current screen
 				if (g_AmMenus[g_AmIndex].allbots
-						&& g_AmMenus[g_AmIndex].screenindex >= 2
+						&& g_AmMenus[g_AmIndex].screenindex >= firstcommandsscreenindex // @mod: replaced fixed screenindex offset of 2 with flexible offset to account for multiple weapons screens and optionally disabled function screen
 						&& g_AmMenus[g_AmIndex].origscreennum == 0) {
 					g_AmMenus[g_AmIndex].origscreennum = g_AmMenus[g_AmIndex].screenindex;
-					g_AmMenus[g_AmIndex].screenindex = 2;
+					g_AmMenus[g_AmIndex].screenindex = firstcommandsscreenindex; // @mod
 					amChangeScreen(0);
 				}
 
@@ -278,9 +281,27 @@ void amTick(void)
 				if (buttonspressed & Z_TRIG) {
 					toggle = true;
 				}
+#ifndef PLATFORM_N64 // @mod: A/Wpnback for next screen, Reload/Wpnforward for previous if we're not holding Aim for all bots
+				else if (g_AmMenus[g_AmIndex].origscreennum == 0 && controlmode == CONTROLMODE_PC && (buttonspressed & BUTTON_UI_ACCEPT || buttonspressed & BUTTON_ACCEPT_USE || buttonspressed & BUTTON_WPNBACK)) {
+					s32 out;
+					if (inputGetConnectedControllers(&out)) { // on Xbox controller, A/B go forward
+						toggle = true;
+					} else { // on M+K, E goes backward
+						forward = false;
+					}
+				}
+				else if (g_AmMenus[g_AmIndex].origscreennum == 0 && controlmode == CONTROLMODE_PC && (buttonspressed & BUTTON_RELOAD || buttonspressed & BUTTON_WPNFORWARD)) {
+					s32 out;
+					if (inputGetConnectedControllers(&out)) { // on Xbox controller, X/Y go backward
+						forward = false;
+					} else { // on M+K, R goes forward
+						toggle = true;
+					}
+				}
+#endif
 
 				if (toggle) {
-					if (g_AmMenus[g_AmIndex].screenindex >= 2) {
+					if (g_AmMenus[g_AmIndex].screenindex >= firstcommandsscreenindex) { // @mod: replaced fixed screenindex offset of 2 with flexible offset to account for multiple weapons screens and optionally disabled function screen
 						if (g_Vars.numaibuddies && g_MissionConfig.iscoop) {
 							// Bot command screen, in coop with AI buddies
 							if (g_AmMenus[g_AmIndex].slotnum == 4) {
@@ -316,17 +337,21 @@ void amTick(void)
 						}
 					}
 				}
+				else if (!forward) { // @mod: if B pressed, we don't care if a slot was selected, just go backwards
+					gotonextscreen = true;
+				}
 
 				if (gotonextscreen) {
-					amChangeScreen(gotonextscreen);
+					u8 step = forward ? 1 : -1; // @mod: allow for forward step or back step
+					amChangeScreen(step);
 
 					// If weapon has no functions, skip past function screen
-					if (g_AmMenus[g_AmIndex].screenindex == 1) {
+					if (amGetScreenType() == AMSCREEN_FUNCTION) { // @mod: originally checked for screenindex == 1, but now the index of the function screen can shift (or the screen can not exist at all)
 						struct weaponfunc *pri = weaponGetFunction(&g_Vars.currentplayer->hands[0].gset, FUNC_PRIMARY);
 						struct weaponfunc *sec = weaponGetFunction(&g_Vars.currentplayer->hands[0].gset, FUNC_SECONDARY);
 
 						if (!pri && !sec) {
-							amChangeScreen(gotonextscreen);
+							amChangeScreen(step); // @mod: take another step in the same direction
 						}
 					}
 				}
