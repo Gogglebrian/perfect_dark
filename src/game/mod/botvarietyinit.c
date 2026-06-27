@@ -6,18 +6,18 @@
 #include "game/title.h"
 #include "bss.h"
 
-/// <summary>
-/// Call on game init to initialize global vars that persist across rounds.
-/// </summary>
+/**
+* Call on game init to initialize global vars that persist across rounds.
+*/
 void bvInit() {
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		g_BvSpreeCooldowns[i] = 0;
 	}
 }
 
-/// <summary>
-/// Clears botvariety chr data to default values
-/// </summary>
+/**
+* Clears botvariety chr data to default values
+*/
 void bvResetChrData(struct bvchrdata * bvchr) {
 	bvchr->initscale = -1.0f;
 	bvchr->initmodel = NULL;
@@ -27,9 +27,9 @@ void bvResetChrData(struct bvchrdata * bvchr) {
 	bvchr->explosivebeepdone = 0;
 }
 
-/// <summary>
-/// Call in StartMatch to init match data before chrs are loaded.
-/// </summary>
+/**
+* Call in StartMatch to init match data before chrs are loaded.
+*/
 void bvInitMatch() {
 	u8 i;
 
@@ -49,10 +49,10 @@ void bvInitMatch() {
 	}
 }
 
-/// <summary>
-/// Call to initialize a chr's initial scale/model data if it hasn't already been.
-/// Returns true if values were initialized, false if they already had been.
-/// </summary>
+/**
+* Call to initialize a chr's initial scale/model data if it hasn't already been.
+* Returns true if values were initialized, false if they already had been.
+*/
 bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer) {
 	if (iscurrentplayer && g_BvMatch.players[g_Vars.currentplayernum].initscale <= 0) {
 		g_BvMatch.players[g_Vars.currentplayernum].initscale = g_Vars.currentplayer->model00d4->scale;
@@ -67,9 +67,9 @@ bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer) {
 	return false;
 }
 
-/// <summary>
-/// Stub, don't actually need this yet, maybe someday
-/// </summary>
+/**
+* Stub, don't actually need this yet, maybe someday
+*/
 void bvEndMatch() {
 	;
 }

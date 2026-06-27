@@ -6190,14 +6190,13 @@ struct mpsetupfile {
 #endif
 
 //=== More n better weapons types =================================================================
+
 struct customweaponvarianttint {
 	u32 colour;
 	u8 minweight;
 };
 
-/// <summary>
 /// Collection of chance values in float format, useful for more fine-tuned chance calculations
-/// </summary>
 struct bvvariantchance {
 	f32 bot;
 	f32 player;
@@ -6205,9 +6204,7 @@ struct bvvariantchance {
 	f32 spree; // during a spree
 };
 
-/// <summary>
 /// Values for a spawning spree of a particular variant -- chance to trigger, number of bots to kill to end the spree
-/// </summary>
 struct bvvariantspreedata {
 	f32 triggerchance;
 	f32 triggerchancedebug;
@@ -6215,6 +6212,7 @@ struct bvvariantspreedata {
 	u16 maxspawncount;
 };
 
+/// 1-dimension scale values for whole-body on XZ and individual joints on XYZ
 struct bvvariantxyzscales{
 	f32 bodyscale_x; // x scale mult applied to entire model (necessary to scale pelvis)
 	f32 bodyscale_z; // z
@@ -6228,9 +6226,7 @@ struct bvvariantxyzscales{
 	f32 joints_z[15];
 };
 
-/// <summary>
 /// Scale, height, and voice values for a major bot variant
-/// </summary>
 struct bvvariantbodydata {
 	f32 scalebody;          // whole model, multiplier
 	f32 scalehead;          // multiplier
@@ -6240,9 +6236,7 @@ struct bvvariantbodydata {
 	const struct bvvariantxyzscales* xyzscales;
 };
 
-/// <summary>
 /// Gameplay stats and multipliers for a major bot variant
-/// </summary>
 struct bvvariantstats {
 	f32 movespeedmult;   // move speed mult
 	f32 animspeedmult;   // anim speed mult
@@ -6252,9 +6246,7 @@ struct bvvariantstats {
 	f32 meleerangemult;  // negative to disable
 };
 
-/// <summary>
 /// Major bot variants such as Mini and Wumbo, with either major scaling OR gameplay stat changes
-/// </summary>
 struct bvvariant {
 	u32 flag;
 	u8 index;
@@ -6264,9 +6256,7 @@ struct bvvariant {
 	const struct bvvariantstats* stat;
 };
 
-/// <summary>
 /// Botvariety in-match data for a single player/bot
-/// </summary>
 struct bvchrdata {
 	f32 initscale;
 	struct model* initmodel;
@@ -6276,9 +6266,7 @@ struct bvchrdata {
 	bool explosivebeepdone; // explosive bot only
 };
 
-/// <summary>
 /// In-match botvariety data
-/// </summary>
 struct bvmatchdata {
 	struct bvchrdata players[MAX_PLAYERS];
 	struct bvchrdata bots[MAX_BOTS];

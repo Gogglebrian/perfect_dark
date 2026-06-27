@@ -26,16 +26,16 @@
 // (replacing the vanilla height variance so as not to conflict with the major variants' scale changes)
 // or speed variance.
 
-/// <summary>
-/// Is Combat Simulator running with botvariety enabled?
-/// </summary>
+/**
+* Is Combat Simulator running with botvariety enabled?
+*/
 bool bvIsBotVarietyActive() {
 	return g_Vars.normmplayerisrunning && g_MpSetup.options & MPOPTION_BOTVARIETY;
 }
 
-/// <summary>
-/// Does this character have any botvariety flags?
-/// </summary>
+/**
+* Does this character have any botvariety flags?
+*/
 bool bvChrHasVarietyFlags(struct chrdata* chr) {
 	return CHR_BV_FLAGS != 0;
 }
@@ -44,9 +44,9 @@ bool bvIsChrSlenderman(struct chrdata* chr) {
 	return CHR_BV_FLAGS & BVFLAG_SLENDERMAN;
 }
 
-/// <summary>
-/// Checks if this chr can use this weapon/func based on their botvariety flags.
-/// </summary>
+/**
+* Checks if this chr can use this weapon/func based on their botvariety flags.
+*/
 bool bvCanChrUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum) {
 	// Explosive bots can only punch
 	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
@@ -56,9 +56,9 @@ bool bvCanChrUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum) {
 	return true;
 }
 
-/// <summary>
-/// Checks if this chr can pick up this weapon based on their botvariety flags.
-/// </summary>
+/**
+* Checks if this chr can pick up this weapon based on their botvariety flags.
+*/
 bool bvCanChrPickupWeapon(struct chrdata* chr, s32 weaponnum) {
 	// Explosive bots ignore weapon pickups
 	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
@@ -68,9 +68,9 @@ bool bvCanChrPickupWeapon(struct chrdata* chr, s32 weaponnum) {
 	return true;
 }
 
-/// <summary>
-/// Ticks unique bot variant behaviors to be procced at the beginning of a living bot's unpaused tick.
-/// </summary>
+/**
+* Ticks unique bot variant behaviors to be procced at the beginning of a living bot's unpaused tick.
+*/
 void bvTickBotAliveUnpausedEarly(struct chrdata* chr) {
 	// Tick explosive bot's flashing and beeping
 	if (bvIsChrExplosive(chr)) {
@@ -78,9 +78,9 @@ void bvTickBotAliveUnpausedEarly(struct chrdata* chr) {
 	}
 }
 
-/// <summary>
-/// Handles unique bot variant behaviors to be procced the moment a bot dies.
-/// </summary>
+/**
+* Handles unique bot variant behaviors to be procced the moment a bot dies.
+*/
 void bvHandleChrDeath(struct chrdata* chr, s32 killerplayernum) {
 	// Explosive bots explode on death
 	if (bvIsChrExplosive(chr)) {
@@ -92,10 +92,10 @@ void bvHandleChrDeath(struct chrdata* chr, s32 killerplayernum) {
 	}
 }
 
-/// <summary>
-/// Returns a voice pitch multiplier with regard to the character's applicable botvariety flags, if the botvariety system is active.
-/// Returns -1 if no changes
-/// </summary>
+/**
+* Returns a voice pitch multiplier with regard to the character's applicable botvariety flags, if the botvariety system is active.
+* Returns -1 if no changes
+*/
 f32 bvGetVoicePitch(struct chrdata* chr) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
@@ -119,9 +119,9 @@ f32 bvGetVoicePitch(struct chrdata* chr) {
 	return pitch;
 }
 
-/// <summary>
-/// Adjusts the current player's camera height with regard to player chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts the current player's camera height with regard to player chr's applicable botvariety flags, if the botvariety system is active.
+*/
 void bvTryAdjustCurrentPlayerCameraHeight() {
 	struct chrdata* chr = g_Vars.currentplayer->prop->chr;
 	f32 mult = 1.0f;
@@ -153,9 +153,9 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 #define ATTACKER_BOTVARIETY_FLAGS achr->convtalk
 #define VICTIM_BOTVARIETY_FLAGS   vchr->convtalk
 
-/// <summary>
-/// Adjusts damage with regard to the attacker and victims' respective applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts damage with regard to the attacker and victims' respective applicable botvariety flags, if the botvariety system is active.
+*/
 f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
@@ -199,9 +199,9 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 #undef ATTACKER_BOTVARIETY_FLAGS
 #undef VICTIM_BOTVARIETY_FLAGS 
 
-/// <summary>
-/// Adjusts the passed melee range value with regard to the currentplayer chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts the passed melee range value with regard to the currentplayer chr's applicable botvariety flags, if the botvariety system is active.
+*/
 f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 	struct chrdata* chr = g_Vars.currentplayer->prop->chr;
 	const struct bvvariant* variant = NULL;
@@ -251,9 +251,9 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 #define BOND_JOINT_LWRIST 13
 #define BOND_JOINT_LHAND 14
 
-/// <summary>
-/// Given a jointnumber from a Bond model, returns the normal jointnumber for that joint
-/// </summary>
+/**
+* Given a jointnumber from a Bond model, returns the normal jointnumber for that joint
+*/
 s32 bvGetJointFromBondJoint(s32 joint) {
 	switch (joint) {
 		case JOINT_NECK:
@@ -279,9 +279,9 @@ s32 bvGetJointFromBondJoint(s32 joint) {
 	}
 }
 
-/// <summary>
-/// Adjusts the passed scale value for the joint with regard to the chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts the passed scale value for the joint with regard to the chr's applicable botvariety flags, if the botvariety system is active.
+*/
 f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	f32 mult = 1.0f;
 	const struct bvvariant* variant = NULL;
@@ -323,9 +323,9 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	}
 }
 
-/// <summary>
-/// Applies variants' separate 1D joint scales to the chr's joint, per the chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Applies variants' separate 1D joint scales to the chr's joint, per the chr's applicable botvariety flags, if the botvariety system is active.
+*/
 void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	const struct bvvariant* variant = NULL;
 	const struct bvvariantxyzscales* scales = NULL;
@@ -389,10 +389,10 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	}
 }
 
-/// <summary>
-/// Applies variants' whole-model X and Z scalings, per the chr's applicable botvariety flags, if the botvariety system is active.
-/// Mainly used for shrinking or growing the pelvis, which isn't considered a joint for scaling purposes.
-/// </summary>
+/**
+* Applies variants' whole-model X and Z scalings, per the chr's applicable botvariety flags, if the botvariety system is active.
+* Mainly used for shrinking or growing the pelvis, which isn't considered a joint for scaling purposes.
+*/
 void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	const struct bvvariant* variant = NULL;
 	const struct bvvariantxyzscales* scales = NULL;
@@ -431,9 +431,9 @@ void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	}
 }
 
-/// <summary>
-/// Adjusts the passed speed value with regard to the chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts the passed speed value with regard to the chr's applicable botvariety flags, if the botvariety system is active.
+*/
 f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
@@ -458,9 +458,9 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	return speed;
 }
 
-/// <summary>
-/// Adjusts the passed animspeed value with regard to the chr's applicable botvariety flags, if the botvariety system is active.
-/// </summary>
+/**
+* Adjusts the passed animspeed value with regard to the chr's applicable botvariety flags, if the botvariety system is active.
+*/
 f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
@@ -480,10 +480,10 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	return animspeed;
 }
 
-/// <summary>
-/// Determines a bot's crouch position with regard to its applicable botvariety flags, if the botvariety system is active.
-/// Returns true if crouchpos was changed.
-/// </summary>
+/**
+* Determines a bot's crouch position with regard to its applicable botvariety flags, if the botvariety system is active.
+* Returns true if crouchpos was changed.
+*/
 bool bvGuessBotCrouchPos(struct chrdata* chr, s32* crouchpos) {
 	if (!bvIsBotVarietyActive()) {
 		return false;

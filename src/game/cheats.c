@@ -320,9 +320,9 @@ void cheatsReset(void)
 	}
 }
 
-/// <summary>
-/// Enables the invincibility cheat in the cheatsenabledbank, same as if it'd been selected in the cheats menu.
-/// </summary>
+/**
+* @mod: Enables the invincibility cheat in the cheatsenabledbank, same as if it'd been selected in the cheats menu.
+*/
 void cheatEnableInvincibility() {
 	g_CheatsEnabledBank0 = g_CheatsEnabledBank0 | 1 << CHEAT_INVINCIBLE;
 }

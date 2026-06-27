@@ -11,16 +11,16 @@
 #include "lib/rng.h"
 #include "bss.h"
 
-/// <summary>
-/// Gets the initial body scale of the original model of this chr.
-/// </summary>
+/**
+* Gets the initial body scale of the original model of this chr.
+*/
 f32 bvGetInit3DBodyScale(struct chrdata* chr) {
 	return bvGetChrMatchData(chr)->initscale;
 }
 
-/// <summary>
-/// True if there's a spree going on of any variant
-/// </summary>
+/**
+* True if there's a spree going on of any variant
+*/
 bool bvIsAnyoneSpreeing() {
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		if (g_BvMatch.variantspreespawnsleft[i] > 0) {
@@ -31,37 +31,37 @@ bool bvIsAnyoneSpreeing() {
 	return false;
 }
 
-/// <summary>
-/// True if the variant at the passed index has a spree ongoing
-/// </summary>
+/**
+* True if the variant at the passed index has a spree ongoing
+*/
 bool bvIsSpreeing(u8 variantIndex) {
 	return (g_BvMatch.variantspreespawnsleft[variantIndex] > 0);
 }
 
-/// <summary>
-/// True if the variant at the passed index is on cooldown from a prior spree.
-/// </summary>
+/**
+* True if the variant at the passed index is on cooldown from a prior spree.
+*/
 bool bvIsOnSpreeCooldown(u8 variantIndex) {
 	return (g_BvSpreeCooldowns[variantIndex] > 0);
 }
 
-/// <summary>
-/// True if the variant is free to start a new spree: not currently spreeing, and not on cooldown.
-/// </summary>
+/**
+* True if the variant is free to start a new spree: not currently spreeing, and not on cooldown.
+*/
 bool bvCanStartSpree(u8 variantIndex) {
 	return (!bvIsSpreeing(variantIndex) && !bvIsOnSpreeCooldown(variantIndex));
 }
 
-/// <summary>
-/// Get the number of times this variant has to spawn before the spree ends
-/// </summary>
+/**
+* Get the number of times this variant has to spawn before the spree ends
+*/
 u16 bvGetSpreeCountRemaining(u8 variantIndex) {
 	return g_BvMatch.variantspreespawnsleft[variantIndex];
 }
 
-/// <summary>
-/// Get the f32 spree chance for this variant depending on whether debug is enabled
-/// </summary>
+/**
+* Get the f32 spree chance for this variant depending on whether debug is enabled
+*/
 f32 bvGetSpreeChance(const struct bvvariant* variant) {
 	if (g_BvDebugSprees) {
 		return variant->spree.triggerchancedebug;
@@ -71,9 +71,9 @@ f32 bvGetSpreeChance(const struct bvvariant* variant) {
 	}
 }
 
-/// <summary>
-/// Select which of the variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
-/// </summary>
+/**
+* Select which of the variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
+*/
 f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool iscurrentplayer) {
 	if (!iscurrentplayer && bvIsSpreeing(variant->index)) {
 		return variant->spawnchance.spree;
@@ -89,23 +89,23 @@ f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool 
 	}
 }
 
-/// <summary>
-/// Given the index of a variant, selects which of that variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
-/// </summary>
+/**
+* Given the index of a variant, selects which of that variant's f32 chance values to use depending on whether player or bot, whether a spree is active, and whether debug is enabled.
+*/
 f32 bvGetSpawnChanceByIndex(struct chrdata* chr, u8 variantindex, bool iscurrentplayer) {
 	return bvGetSpawnChance(chr, bvGetVariant(variantindex), iscurrentplayer);
 }
 
-/// <summary>
-/// Returns true if a chr has a major size variant: Mini, Wumbo
-/// </summary>
+/**
+* Returns true if a chr has a major size variant: Mini, Wumbo
+*/
 bool bvChrHasSizeVariant(struct chrdata* chr) {
 	return (CHR_BV_FLAGS & (BVFLAG_MINI | BVFLAG_WUMBO));
 }
 
-/// <summary>
-/// Returns true if a bot has an Abomination variant: Superbattledroid, more to come
-/// </summary>
+/**
+* Returns true if a bot has an Abomination variant: Superbattledroid, more to come
+*/
 bool bvIsChrAbomination(struct chrdata* chr) {
 	for (u8 i = BVINDEX_ABOMINATION_FIRST; i <= BVINDEX_ABOMINATION_LAST; i++) {
 		if (CHR_BV_FLAGS & bvGetVariant(i)->flag) {
@@ -115,10 +115,10 @@ bool bvIsChrAbomination(struct chrdata* chr) {
 	return false;
 }
 
-/// <summary>
-/// Enables or disables the sunglasses on the model, if the model has sunglasses.
-/// Returns true if sunglasses successfully enabled, false if not enabled.
-/// </summary>
+/**
+* Enables or disables the sunglasses on the model, if the model has sunglasses.
+* Returns true if sunglasses successfully enabled, false if not enabled.
+*/
 bool bvspawnTryApplySunglasses(struct chrdata* chr, bool enabled) {
 	struct model* model = bvGetModel(chr);
 	struct modeldef* headmodeldef = g_HeadsAndBodies[chr->headnum].modeldef;
@@ -139,9 +139,9 @@ bool bvspawnTryApplySunglasses(struct chrdata* chr, bool enabled) {
 	return false;
 }
 
-/// <summary>
-/// Does this model/head have a sunglasses node?
-/// </summary>
+/**
+* Does this model/head have a sunglasses node?
+*/
 bool bvCanChrWearSunglasses(struct chrdata* chr) {
 	struct model* model = bvGetModel(chr);
 	struct modeldef* headmodeldef = g_HeadsAndBodies[chr->headnum].modeldef;
@@ -158,10 +158,10 @@ bool bvCanChrWearSunglasses(struct chrdata* chr) {
 	return false;
 }
 
-/// <summary>
-/// Rolls for and applies Sunglasses variant (including minor gameplay bonuses).
-/// Returns true if sunglasses are enabled.
-/// </summary>
+/**
+* Rolls for and applies Sunglasses variant (including minor gameplay bonuses).
+* Returns true if sunglasses are enabled.
+*/
 bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
 	if (bvCanChrWearSunglasses(chr)) {
 		if (sunglasseschance > 0 && RANDOMFRAC() < sunglasseschance) { // Roll
@@ -177,9 +177,9 @@ bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
 	return false;
 }
 
-/// <summary>
-/// Reverts a bot's model back to its original model, if necessary 
-/// </summary>
+/**
+* Reverts a bot's model back to its original model, if necessary 
+*/
 void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 	s16 botnum = chr->aibot->aibotnum;
 	struct bvchrdata * bvchr = &g_BvMatch.bots[botnum]; 
@@ -203,10 +203,10 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 	}
 }
 
-/// <summary>
-/// Changes a chr's model to the new bodynum and headnum.
-/// Returns true if successfully applied.
-/// </summary>
+/**
+* Changes a chr's model to the new bodynum and headnum.
+* Returns true if successfully applied.
+*/
 bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
 	struct model* newmodel = bodyAllocateModel(bodynum, headnum, 0);
 	if (newmodel) {
@@ -228,10 +228,10 @@ bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
 	return false;
 }
 
-/// <summary>
-/// Make a bot character an impostor by swapping their model to match one of the human players'.
-/// Returns true if successfully applied.
-/// </summary>
+/**
+* Make a bot character an impostor by swapping their model to match one of the human players'.
+* Returns true if successfully applied.
+*/
 bool bvspawnTryApplyImpostor(struct chrdata* chr) {
 	u8 copyplayerindex;
 	struct chrdata* copyplayerchr;
@@ -254,9 +254,9 @@ bool bvspawnTryApplyImpostor(struct chrdata* chr) {
 	return false;
 }
 
-/// <summary>
-/// Rolls for and applies Impostor variant - copying one of the player's models.
-/// </summary>
+/**
+* Rolls for and applies Impostor variant - copying one of the player's models.
+*/
 bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 	if (impostorchance > 0 && RANDOMFRAC() < impostorchance) { // roll
 		if (bvspawnTryApplyImpostor(chr)) { // try to apply
@@ -269,9 +269,9 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 }
 
 
-/// <summary>
-/// Rolls for and applies Slenderman variant - wear a Bond suit and be real tall
-/// </summary>
+/**
+* Rolls for and applies Slenderman variant - wear a Bond suit and be real tall
+*/
 bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance) {
 	if (slendermanchance > 0 && RANDOMFRAC() < slendermanchance) { // roll
 		if (bvspawnTryApplyModelChange(chr, BODY_PRESIDENT, chr->headnum)) { // try to apply model change
@@ -283,9 +283,9 @@ bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance) {
 	return false; // failed roll or failed to initialize
 }
 
-/// <summary>
-/// Scales the chr's body with regard to its applicable botvariety flags and applies minor random height variance.
-/// </summary>
+/**
+* Scales the chr's body with regard to its applicable botvariety flags and applies minor random height variance.
+*/
 void bvspawnApply3DBodyScale(struct chrdata* chr) {
 	f32 scale = bvGetInit3DBodyScale(chr);
 	f32 randfracsizevariance = RANDOMFRAC(); // minor height variance e.g. 95%-105%
@@ -319,9 +319,9 @@ void bvspawnApply3DBodyScale(struct chrdata* chr) {
 	modelSetScale(bvGetModel(chr), scale);
 }
 
-/// <summary>
-/// Rolls for and sets flags for size variants: Mini and Wumbo
-/// </summary>
+/**
+* Rolls for and sets flags for size variants: Mini and Wumbo
+*/
 void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 	f32 randfracsizevariant = RANDOMFRAC(); // mini or wumbo;
 	
@@ -345,9 +345,9 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 #define GUNFETTI   BVINDEX_GUNFETTI
 #define SBD        BVINDEX_SBD
 
-/// <summary>
-/// workaround for my debugger not showing global variables
-/// </summary>
+/**
+* workaround for my debugger not showing global variables
+*/
 void debugSpree(){
 	u16 spree_impostor = g_BvMatch.variantspreespawnsleft[IMPOSTOR];
 	u16 spree_mini = g_BvMatch.variantspreespawnsleft[MINI];
@@ -363,10 +363,10 @@ void debugSpree(){
 	;
 }
 
-/// <summary>
-/// Tick down the spree spawns remaining for any sprees that this chr is a part of.
-/// Also tick down the cooldown counters of any variants on cooldown from a prior spree.
-/// </summary>
+/**
+* Tick down the spree spawns remaining for any sprees that this chr is a part of.
+* Also tick down the cooldown counters of any variants on cooldown from a prior spree.
+*/
 void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 	bool changed = false;
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
@@ -386,10 +386,10 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 	}
 }
 
-/// <summary>
-/// Starts a spree by determining and setting the number of times the variant will spawn before the spree ends.
-/// Also initializes the spree cooldown to the same number, but it won't begin counting down until the spree is over.
-/// </summary>
+/**
+* Starts a spree by determining and setting the number of times the variant will spawn before the spree ends.
+* Also initializes the spree cooldown to the same number, but it won't begin counting down until the spree is over.
+*/
 void bvspawnStartSpree(u8 variantIndex) {
 	const struct bvvariant * variant = bvGetVariant(variantIndex);
 	u16 min = variant->spree.minspawncount;
@@ -399,18 +399,18 @@ void bvspawnStartSpree(u8 variantIndex) {
 	g_BvSpreeCooldowns[variantIndex] = count;
 }
 
-/// <summary>
-/// Rolls for and starts a spree for the given variant, independently from any other active sprees or cooldowns.
-/// </summary>
+/**
+* Rolls for and starts a spree for the given variant, independently from any other active sprees or cooldowns.
+*/
 void bvspawnTryStartStandardSpree(u8 variantIndex) {
 	if (bvCanStartSpree(variantIndex) && RANDOMFRAC() < bvGetSpreeChance(bvGetVariant(variantIndex))) {
 		bvspawnStartSpree(variantIndex);
 	}
 }
 
-/// <summary>
-/// Rolls for and starts variant spawning sprees as appropriate.
-/// </summary>
+/**
+* Rolls for and starts variant spawning sprees as appropriate.
+*/
 void bvspawnHandleStartingSprees() {
 	bool impostorspree = false;
 
@@ -437,9 +437,9 @@ void bvspawnHandleStartingSprees() {
 	bvspawnTryStartStandardSpree(EXPLOSIVE);
 }
 
-/// <summary>
-/// Rolls for and applies the flag for, at most, one Abomination variant.
-/// </summary>
+/**
+* Rolls for and applies the flag for, at most, one Abomination variant.
+*/
 void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, f32 variantchances[], bool iscurrentplayer) {
 	u8 variantchoiceoffset; 
 	u8 variantchoice;
@@ -465,10 +465,10 @@ void bvspawnHandleAbominations(struct chrdata* chr, f32 chancemult, f32 variantc
 	} 
 }
 
-/// <summary>
-/// Rolls against the givenchance and if successful sets the given flag.
-/// Returns true if flag set.
-/// </summary>
+/**
+* Rolls against the givenchance and if successful sets the given flag.
+* Returns true if flag set.
+*/
 bool bvspawnRollForStandardVariant(struct chrdata* chr, f32 chance, u32 flag) {
 	if (chance > 0 && RANDOMFRAC() < chance) {
 		CHR_BV_FLAGS |= flag;
@@ -478,10 +478,10 @@ bool bvspawnRollForStandardVariant(struct chrdata* chr, f32 chance, u32 flag) {
 	return false;
 }
 
-/// <summary>
-/// Call when a bot or player spawns/respawns to roll for variants, set flags, and apply
-/// initial changes such as model changes, body scaling, and sunglasses.
-/// </summary>
+/**
+* Call when a bot or player spawns/respawns to roll for variants, set flags, and apply
+* initial changes such as model changes, body scaling, and sunglasses.
+*/
 void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	f32 chances[BOTVARIETY_VARIANT_COUNT];
 	f32 abominationchancemult = 1.0f;

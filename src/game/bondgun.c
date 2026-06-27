@@ -6090,11 +6090,12 @@ bool bgunDoesFuncHaveAnyAmmo(s32 handnum, s8 func) {
 	return bgun0f098ca0(func, &info, &g_Vars.currentplayer->hands[handnum]) >= 0;
 }
 
-/// <summary>
-/// Forces a reload as long as you have the ammo, even if the gun's already full.
-/// </summary>
-/// <param name="handnum"></param>
-/// <param name="func"></param>
+/**
+* @mod: Forces a reload as long as you have the ammo, even if the gun's already full.
+*
+* <param name="handnum"></param>
+* <param name="func"></param>
+*/
 bool bgunForceReloadIfAnyAmmo(s32 handnum, int func)
 {
 	if (bgunGetAmmoTypeForWeapon(bgunGetWeaponNum(handnum), func)
@@ -8171,9 +8172,9 @@ void bgun0f0a5550(s32 handnum)
 #endif
 }
 
-/// <summary>
-/// Tick up the U13ERKL01313's glow when it's firing and fade it when it's not
-/// </summary>
+/**
+* @mod: Tick up the U13ERKL01313's glow when it's firing and fade it when it's not
+*/
 void bgunTickU13ERKL01313Charge(void) {
 	struct player* player = g_Vars.currentplayer;
 	f32 heatuprate = 0.4f;

@@ -40,13 +40,14 @@ u32 colourBlend(u32 a, u32 b, u32 aweight)
 		| ((aweight * (a & 0xff) + bweight * (b & 0xff)) >> 8);
 }
 
-/// <summary>
-/// Applies an environmental/ambient color to a baseline tint by weighted blending.
-/// </summary>
-/// <param name="tint">tint colour, RGBA</param>
-/// <param name="env">environmental colour, RGBA</param>
-/// <param name="mintintweight">0-255, min weight for the tint colour to guarantee it doesn't get totally washed out by the enviromental colour/lighting</param>
-/// <returns></returns>
+/**
+* @mod: Applies an environmental/ambient color to a baseline tint by weighted blending.
+*
+* <param name="tint">tint colour, RGBA</param>
+* <param name="env">environmental colour, RGBA</param>
+* <param name="mintintweight">0-255, min weight for the tint colour to guarantee it doesn't get totally washed out by the enviromental colour/lighting</param>
+* <returns></returns>
+*/
 u32 addTintUnderneathEnvColor(u32 tint, u32 env, u32 mintintweight) {
 	u32 blendedcolour;
 	u8 blendedalpha;

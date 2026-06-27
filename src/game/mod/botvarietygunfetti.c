@@ -60,9 +60,9 @@ const u8 guns[] = {
   MPWEAPON_U13ERKL01313,
 };
 
-/// <summary>
-/// Call on death to make a Gunfetti chr drop lots of random guns.
-/// </summary>
+/**
+* Call on death to make a Gunfetti chr drop lots of random guns.
+*/
 void bvPopGunfettiBot(struct chrdata* chr) {
   u8 i;
   u8 count, countmin, countmax;
@@ -130,7 +130,7 @@ void bvPopGunfettiBot(struct chrdata* chr) {
   modelSetAnimSpeed(chr->model, newanimspeed, 0);
 }
 
-/* Cut feature - gunfetti gun rattling (it didn't sound good enough)
+/** Cut feature - gunfetti gun rattling (it didn't sound good enough)
 
 const f32 rattlevolumemax = 0.3f;
 const f32 rattlevolumemin = 0.1f;
@@ -152,9 +152,9 @@ const u16 rattlesounds[] = {
 	//SFX_05C6,
 };
 
-/// <summary>
-/// Plays a random gun pickup/rattle sound with slightly randomized pitch and volume.
-/// </summary>
+/**
+* Plays a random gun pickup/rattle sound with slightly randomized pitch and volume.
+
 void bvDoGunfettiRattleNoise(struct chrdata* chr) {
   u32 random = rngRandom();
   u8 soundbits = random & 0xFF;
@@ -168,17 +168,16 @@ void bvDoGunfettiRattleNoise(struct chrdata* chr) {
   psCreate(NULL, chr->prop, rattlesounds[sound], -1, volume, 0, 0, PSTYPE_GENERAL, NULL, pitch, NULL, -1, -1, -1, -1);
 }
 
-/// <summary>
-/// Initializes a gunfetti bot's rattle-noise timer.
-/// </summary>
+/**
+* Initializes a gunfetti bot's rattle-noise timer.
+
 void bvResetGunfettiBot(struct chrdata* chr) {
   struct bvchrdata* bvbot = bvGetChrMatchData(chr);
   bvbot->gunfettitimetonextrattle = -1.0f;
 }
 
-/// <summary>
-/// Ticks a Gunfetti bot's internal timer and has it make a little gun-rattling noise after each footstep.
-/// </summary>
+/**
+* Ticks a Gunfetti bot's internal timer and has it make a little gun-rattling noise after each footstep.
 void bvTickGunfettiBot(struct chrdata* chr) {
   struct bvchrdata* bvbot = bvGetChrMatchData(chr);
 

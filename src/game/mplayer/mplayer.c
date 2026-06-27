@@ -1060,9 +1060,9 @@ s32 mpGetWeaponSlot(s32 slot)
 	return count;
 }
 
-/// <summary> 
-/// Checks if the weapon at the given weaponnum is in one of the six slots of the current match.
-/// </summary>
+/**
+* @mod: Checks if the weapon at the given weaponnum is in one of the six slots of the current match.
+*/
 s32 mpIsWeaponInMatch(u8 weaponnum) {
 	s32 i;
 	for (i = 0; i < NUM_MPWEAPONSLOTS; i++) {

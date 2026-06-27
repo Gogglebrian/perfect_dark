@@ -13,9 +13,9 @@
 // Explosive bots take bonus damage from other explosions
 const f32 explosivedamagetakenmult = 3.0f;
 
-/// <summary>
-/// Applies a constant multiplier to boost the explosion damage taken by Explosive Bots
-/// </summary>
+/**
+* Applies a constant multiplier to boost the explosion damage taken by Explosive Bots
+*/
 f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage) {
 	damage *= explosivedamagetakenmult;
 	return damage;
@@ -45,16 +45,16 @@ const f32 cycletime_min = 1.0f / 10.0f; // in seconds
 const f32 cycletime_max = 2.5f; // in seconds
 const f32 flashheatuptime_min = cycletime_min / 3.0f; // the minimum rampup time of the flash colour/opacity, in seconds
 
-/// <summary>
-/// Is this chr an Explosive variant? This summary is a completionist formality
-/// </summary>
+/**
+* Is this chr an Explosive variant? This summary is a completionist formality
+*/
 bool bvIsChrExplosive(struct chrdata* chr) {
 	return chr->aibot && CHR_BV_FLAGS & BVFLAG_EXPLOSIVE;
 }
 
-/// <summary>
-/// Zeroes out explosive bot glow weight, timer, and beep status
-/// </summary>
+/**
+* Zeroes out explosive bot glow weight, timer, and beep status
+*/
 void bvResetExplosiveBot(struct chrdata* botchr) {
 	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
 	bvbot->explosiveglowweight = 0;
@@ -62,16 +62,16 @@ void bvResetExplosiveBot(struct chrdata* botchr) {
 	bvbot->explosivebeepdone = false;
 }
 
-/// <summary>
-/// Beeps
-/// </summary>
+/**
+* Beeps
+*/
 void bvexplosiveDoBeep(struct chrdata* botchr, f32 beeppitch) {
 	psCreate(NULL, botchr->prop, SFX_PICKUP_MINE, -1, beepvolume, 0, 0, PSTYPE_GENERAL, NULL, beeppitch, NULL, -1, -1, -1, -1);
 }
 
-/// <summary>
-/// Ticks the explosive glow weight up, starting with a beep
-/// </summary>
+/**
+* Ticks the explosive glow weight up, starting with a beep
+*/
 void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime, f32 beeppitch){
 	if (!bvbot->explosivebeepdone) {
 		bvexplosiveDoBeep(botchr, beeppitch);
@@ -85,9 +85,9 @@ void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbo
 	}
 }
 
-/// <summary>
-/// Ticks the explosive glow weight down to zero if necessary
-/// </summary>
+/**
+* Ticks the explosive glow weight down to zero if necessary
+*/
 void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime) {
 	if (bvbot->explosiveglowweight > 0) {
 		bvbot->explosiveglowweight -= (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
@@ -98,9 +98,9 @@ void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, 
 	}
 }
 
-/// <summary>
-/// Ticks an explosive bot's internal timers to manage its flashing and beeping, which gets faster as the bot gets closer to the target
-/// </summary>
+/**
+* Ticks an explosive bot's internal timers to manage its flashing and beeping, which gets faster as the bot gets closer to the target
+*/
 void bvTickExplosiveBot(struct chrdata* botchr) {
 	struct bvchrdata* bvbot = bvGetChrMatchData(botchr);
 	f32 dist = botGetDistanceToTarget(botchr);
@@ -153,10 +153,10 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 	}
 }
 
-/// <summary>
-/// Applies a glow to the bot's renderdata based on its explosiveglowweight (ticked elsewhere).
-/// Assumes the botchr is an explosive bot, so check first
-/// </summary>
+/**
+* Applies a glow to the bot's renderdata based on its explosiveglowweight (ticked elsewhere).
+* Assumes the botchr is an explosive bot, so check first
+*/
 void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata) {
 	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
 	if (bvbot->explosiveglowweight > 0.0f) {
@@ -164,6 +164,7 @@ void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* ren
 		renderdata->fogcolour = colourBlend(glowcolour, renderdata->fogcolour, bvbot->explosiveglowweight); // the glow becomes more intense while the env colours get overwhelmed
 	}
 }
+
 
 void bvExplodeBot(struct chrdata* chr, s32 killerplayernum) {
 	s32 explosionplayer;

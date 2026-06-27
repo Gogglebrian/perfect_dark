@@ -44,9 +44,9 @@
 #include "input.h"
 #include "video.h"
 
-/// <summary>
-/// Simple quick detonate for remote mines, unconcerned with inputs
-/// </summary>
+/**
+* @mod: Simple quick detonate for remote mines, unconcerned with inputs
+*/
 static void bgunProcessFuncBtnQuickDetonate(struct movedata* data) {
 	data->detonating = true;
 	data->btapcount = 0;

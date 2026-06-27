@@ -57,9 +57,9 @@ const u8 g_AmMapping[] = {
 	2, // unused
 };
 
-/// <summary>
-/// @mod Gets the screen type (weapons, function, buddy/bot commands) of the current activemenu screen.
-/// </summary>
+/**
+* @mod: Gets the screen type (weapons, function, buddy/bot commands) of the current activemenu screen.
+*/
 u8 amGetScreenType() {
 	if (g_AmMenus[g_AmIndex].screenindex < g_AmMenus[g_AmIndex].numweaponscreens) {
 		return AMSCREEN_WEAPONS;
@@ -72,9 +72,9 @@ u8 amGetScreenType() {
 	}
 }
 
-/// <summary>
-/// @mod Gets the total number of screens between weapons and functions (in other words, all screens that AREN'T Bot/Buddy commands)
-/// </summary>
+/**
+* @mod: Gets the total number of screens between weapons and functions (in other words, all screens that AREN'T Bot/Buddy commands)
+*/
 u8 amGetWeaponAndFuncScreensCount() {
 	return g_AmMenus[g_AmIndex].numweaponscreens + g_AmMenus[g_AmIndex].funcscreenenabled;
 }
@@ -626,9 +626,9 @@ s16 amCalculateSlotWidth(void)
 	return max;
 }
 
-/// <summary>
-/// @mod Performs the standard screen preparation for screen at index 0, skipping any checks that would never apply to index 0 anyway, and regardless of the total number of screens.
-/// </summary>
+/**
+* @mod: Performs the standard screen preparation for screen at index 0, skipping any checks that would never apply to index 0 anyway, and regardless of the total number of screens.
+*/
 void amChangeScreenOnOpen() {
 	g_AmMenus[g_AmIndex].xradius = 10;
 	g_AmMenus[g_AmIndex].dstx = -123;
@@ -700,13 +700,13 @@ void amChangeScreen(s32 step)
 	g_AmMenus[g_AmIndex].slotwidth = amCalculateSlotWidth();
 }
 
-/// <summary>
-/// @mod Call on menu open to determine number of weapon screens, whether to show/skip the func screen, and the order in which the weapons 
-/// will be shown across the weapons screens.
-/// To do the latter, populates the orderedweapons array, first with any favorited weapons, then any remaining weapons in inventory order.
-/// (In vanilla, the same logic is used to populate the slots directly via the invendexes array.)
-/// After calling this func on menu open, the orderedweapons array can be easily used to determine which weapons to display on a given page.
-/// </summary>
+/**
+* @mod: Call on menu open to determine number of weapon screens, whether to show/skip the func screen, and the order in which the weapons 
+* will be shown across the weapons screens.
+* To do the latter, populates the orderedweapons array, first with any favorited weapons, then any remaining weapons in inventory order.
+* (In vanilla, the same logic is used to populate the slots directly via the invendexes array.)
+* After calling this func on menu open, the orderedweapons array can be easily used to determine which weapons to display on a given page.
+*/
 void amInitializerWeaponsScreens() {
 	s32 numitems = invGetCount();
 	u8 weaponnum;
@@ -776,10 +776,10 @@ void amInitializerWeaponsScreens() {
 	}
 }
 
-/// <summary>
-/// @mod Assign weapons to the 8 slots based on the order in the orderedweapons array.
-/// Replaces original func of the same name.
-/// </summary>
+/**
+* @mod: Assign weapons to the 8 slots based on the order in the orderedweapons array.
+* Replaces original func of the same name.
+*/
 void amAssignWeaponSlots(void) {
 	u8 i;
 	u8 weaponorderindex = g_AmMenus[g_AmIndex].screenindex * 8;
@@ -790,7 +790,7 @@ void amAssignWeaponSlots(void) {
 	}
 }
 
-/// @mod: Unused original, left here for reference
+// @mod: Unused original, left here for reference
 void amAssignWeaponSlots_original(void)
 {
 	s32 numitems = invGetCount();
@@ -880,11 +880,11 @@ void amAssignWeaponSlots_original(void)
 	}
 }
 
-/// <summary>
-/// @mod: Determines whether to show/skip the function screen and sets the menu value accordingly.
-/// Can be disabled in Combat Simulator only using ini setting RadialMenuSkipFunctionSelect.
-/// Always on in missions for now because I'm not sure if it's ever needed for gadgets etc.
-/// </summary>
+/**
+* @mod: Determines whether to show/skip the function screen and sets the menu value accordingly.
+* Can be disabled in Combat Simulator only using ini setting RadialMenuSkipFunctionSelect.
+* Always on in missions for now because I'm not sure if it's ever needed for gadgets etc.
+*/
 void amDetermineFuncScreenEnabled() {
 	g_AmMenus[g_AmIndex].funcscreenenabled = (!g_Vars.normmplayerisrunning || !g_PlayerExtCfg[g_Vars.currentplayernum].radialmenuskipfunc);
 }

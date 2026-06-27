@@ -16,11 +16,12 @@ bool ammoIsCustomType(u16 ammotype) {
 	return (ammotype > AMMOTYPE_LASTFORMULTICRATE_VANILLA && ammotype <= AMMOTYPE_LASTFORMULTICRATE_CUSTOM);
 }
 
-/// <summary>
-/// Stores custom ammo type/qty in a combat simulator multiammocrate
-/// slots 0-1 for primary type/qty, slots 2-3 for secondary type-qty
-/// </summary>
-/// <returns>true if custom ammo successfully set</returns>
+/**
+* Stores custom ammo type/qty in a combat simulator multiammocrate
+* slots 0-1 for primary type/qty, slots 2-3 for secondary type-qty
+*
+* <returns>true if custom ammo successfully set</returns>
+*/
 bool ammoTrySetCustomForMultiCrate(struct multiammocrateobj* crate, bool secondary, u16 ammotype, u16 ammoquantity) {
 	u16 typeslot = 0;
 
@@ -58,10 +59,11 @@ bool ammoIsCustomInMultiCrate(struct multiammocrateobj* crate, bool secondary) {
 		&& crate->slots[typeslot + 1].modelnum > 0);
 }
 
-/// <summary>
-/// Returns the custom ammo type or quantity from a multiammocrate, if any
-/// </summary>
-/// <returns>Quantity if param getquantity==true, returns Ammotype if getquantity==false</returns>
+/**
+* Returns the custom ammo type or quantity from a multiammocrate, if any
+*
+* <returns>quantity if param getquantity==true, returns Ammotype if getquantity==false</returns>
+*/
 u16 ammoGetCustomDataInMultiCrate(struct multiammocrateobj* crate, bool secondary, bool getquantity) {
 	u16 typeslot = 0;
 
@@ -101,13 +103,14 @@ void ammoHandleCustomPickup(struct multiammocrateobj* crate) {
 	}
 }
 
-/// <summary>
-/// Get ammotype or quantity from a multiammocrate by index (0-20) where
-/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
-/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
-/// </summary>
-/// <param name="i">0-20</param>
-/// <returns>ammo type, or quantity if param getquantity==true</returns>
+/**
+* Get ammotype or quantity from a multiammocrate by index (0-20) where
+* - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+* - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+*
+* <param name="i">0-20</param>
+* <returns>ammo type, or quantity if param getquantity==true</returns>
+*/
 u16 ammoGetDataFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i, bool getquantity) {
 	if (i < MULTIAMMOCRATE_SLOTS_COUNT_VANILLA) { // Slots for vanilla ammo types through SEDATIVE
 		if (getquantity) {
@@ -129,24 +132,26 @@ u16 ammoGetDataFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i, boo
 	return 0;
 }
 
-/// <summary>
-/// Get ammotype from a multiammocrate by index (0-20) where
-/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
-/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
-/// </summary>
-/// <param name="i">0-20</param>
-/// <returns>ammo type</returns>
+/**
+* Get ammotype from a multiammocrate by index (0-20) where
+* - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+* - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+*
+* <param name="i">0-20</param>
+* <returns>ammo type</returns>
+*/
 u16 ammoGetTypeFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i) {
 	return ammoGetDataFromMultiCrateByIndex(crate, i, false);
 }
 
-/// <summary>
-/// Get ammo quantity from a multiammocrate by index (0-20) where
-/// - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
-/// - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
-/// </summary>
-/// <param name="i">0-20</param>
-/// <returns>ammo quantity</returns>
+/**
+* Get ammo quantity from a multiammocrate by index (0-20) where
+* - 0-18 refer to the dedicated slots for the first 19 vanilla ammotypes,
+* - 19-20 refer to two custom ammo slots (primary and secondary) that can each store any custom ammo type
+*
+* <param name="i">0-20</param>
+* <returns>ammo quantity</returns>
+*/
 u16 ammoGetQuantityFromMultiCrateByIndex(struct multiammocrateobj* crate, s32 i) {
 	return ammoGetDataFromMultiCrateByIndex(crate, i, true);
 }
