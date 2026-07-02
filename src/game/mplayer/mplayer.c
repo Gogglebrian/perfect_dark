@@ -1061,10 +1061,15 @@ s32 mpGetWeaponSlot(s32 slot)
 }
 
 /**
-* @mod: Checks if the weapon at the given weaponnum is in one of the six slots of the current match.
+* @mod: Checks if the weapon at the given weaponnum is in the current match: in one of the six slots, or unarmed.
 */
 s32 mpIsWeaponInMatch(u8 weaponnum) {
 	s32 i;
+
+	if (weaponnum == WEAPON_UNARMED) {
+		return true;
+	}
+
 	for (i = 0; i < NUM_MPWEAPONSLOTS; i++) {
 		u8 mpweapon = g_MpSetup.weapons[i];
 		if (weaponnum == g_MpWeapons[mpweapon].weaponnum) {
