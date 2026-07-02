@@ -590,7 +590,7 @@ extern s16 g_MpCurrentSetup;
 // Botvariety vars
 extern struct bvmatchdata g_BvMatch;
 extern u8 g_BvSpreeCooldowns[BOTVARIETY_VARIANT_COUNT];
-extern const bool g_BvDebug;
+extern const bool g_BvDebugAllVariants;
 extern const bool g_BvDebugSprees;
 extern const bool g_BvDebugAllowPlayerAbominations;
 

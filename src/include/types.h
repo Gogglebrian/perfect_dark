@@ -6254,6 +6254,7 @@ struct bvvariant {
 	struct bvvariantspreedata spree;
 	const struct bvvariantbodydata* body;
 	const struct bvvariantstats* stat;
+	bool debug;
 };
 
 /// Botvariety in-match data for a single player/bot

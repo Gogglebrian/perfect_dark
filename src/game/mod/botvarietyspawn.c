@@ -78,7 +78,7 @@ f32 bvGetSpawnChance(struct chrdata* chr, const struct bvvariant* variant, bool 
 	if (!iscurrentplayer && bvIsSpreeing(variant->index)) {
 		return variant->spawnchance.spree;
 	}
-	else if (g_BvDebug) {
+	else if (g_BvDebugAllVariants || variant->debug) {
 		return variant->spawnchance.debug;
 	}
 	else if (iscurrentplayer) {

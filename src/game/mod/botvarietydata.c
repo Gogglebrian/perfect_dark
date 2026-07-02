@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "game/mod/botvariety.h"
 
-const bool g_BvDebug = true;
+const bool g_BvDebugAllVariants = false;
 const bool g_BvDebugSprees = false;
 const bool g_BvDebugAllowPlayerAbominations = false;
 
@@ -41,6 +41,7 @@ const struct bvvariant variantMini = {
 	},
 	&bodyMini,
 	&statsMini,
+	false, // debug enabled
 };
 
 const struct bvvariantbodydata bodyWumbo = {
@@ -75,6 +76,7 @@ const struct bvvariant variantWumbo = {
 	},
 	&bodyWumbo,
 	&statsWumbo,
+	false, // debug enabled
 };
 
 const struct bvvariantstats statsImpostor = {
@@ -101,6 +103,7 @@ const struct bvvariant variantImpostor = {
 	},
 	NULL, // no body tweaks besides the obvious
 	&statsImpostor,
+	false, // debug enabled
 };
 
 const struct bvvariantxyzscales scalesSlenderman = {
@@ -143,6 +146,7 @@ const struct bvvariant variantSlenderman = {
 	},
 	&bodySlenderman,
 	&statsSlenderman,
+	false, // debug enabled
 };
 
 const struct bvvariantstats statsSunglasses = {
@@ -169,6 +173,7 @@ const struct bvvariant variantSunglasses = {
 	},
 	NULL, // no body tweaks besides the sunglasses
 	&statsSunglasses,
+	false, // debug enabled
 };
 
 const struct bvvariantstats statsExplosive = {
@@ -195,6 +200,7 @@ const struct bvvariant variantExplosive = {
 	},
 	NULL, // no body tweaks
 	&statsExplosive,
+	false, // debug enabled
 };
 
 const struct bvvariantstats statsGunfetti = {
@@ -221,6 +227,7 @@ const struct bvvariant variantGunfetti = {
 	},
 	NULL, // no body tweaks
 	&statsGunfetti,
+	false, // debug enabled
 };
 
 const struct bvvariantxyzscales scalesSBD = {
@@ -263,6 +270,7 @@ const struct bvvariant variantSuperBattleDroid = {
 	},
 	&bodySBD,
 	&statsSBD,
+	false, // debug enabled
 };
 
 const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
@@ -313,6 +321,7 @@ const struct bvvariant variantX = {
 	},
 	&bodyX,
 	&statsX,
+	false, // debug enabled
 };
 
 1D joint scales template:
