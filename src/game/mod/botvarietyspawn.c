@@ -188,6 +188,15 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 // If necessary, revert previous model
 	if (chr->model != initmodel) {
 		struct model* altmodel = chr->model;
+
+		// re-prepare original model - some of this is probably unnecessary, but trying to hedge against unexpected/hard-to-debug shenanigans
+		animInit(initmodel->anim);
+		modelSetAnim70(initmodel, chr0f01f378);
+		modelSetAnimPlaySpeed(initmodel, PALUPF(var80062968), 0);
+		modelSetRootPosition(initmodel, &chr->prop->pos);
+		initmodel->chr = chr;
+		initmodel->unk01 = 1;
+
 		chr->model = initmodel;
 		chr->headnum = mpGetHeadId(g_BotConfigsArray[botnum].base.mpheadnum);
 		chr->bodynum = mpGetBodyId(g_BotConfigsArray[botnum].base.mpbodynum);
@@ -210,18 +219,24 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
 	struct model* newmodel = bodyAllocateModel(bodynum, headnum, 0);
 	if (newmodel) {
-		// Now get the model ready for primetime
+		struct modelnode *rootnode = newmodel->definition->rootnode;
+		struct modelrwdata_chrinfo *rwdata = modelGetNodeRwData(newmodel, rootnode);
+
+		// Now get the model ready for primetime - try to replicate the exact circumstances of a conventionally-allocated model to hedge against unexpected/hard-to-debug shenanigans
 		modelSetAnim70(newmodel, chr0f01f378);
 		newmodel->chr = chr;
 		newmodel->unk01 = 1;
+		rwdata->unk01 = 1;
 		modelSetAnimPlaySpeed(newmodel, PALUPF(var80062968), 0);
 		modelSetRootPosition(newmodel, &chr->prop->pos);
+		modelSetAnimation(newmodel, ANIM_006A, 0, 0.0f, 0.5f, 0.0f);
 
 		// Assign new model to bot's chr
 		chr->model = newmodel;
 		chr->headnum = headnum;
 		chr->bodynum = bodynum;
 		chr->race = bodyGetRace(bodynum);
+
 
 		return true;
 	}
