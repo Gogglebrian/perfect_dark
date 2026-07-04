@@ -874,13 +874,14 @@ s32 botinvGetDistConfig(s32 weaponnum, s32 funcnum)
 
 /**
  * Check if the bot's personality permits it to use the given weapon and
- * function.
+ * function. This also affects whether they'll attempt to pickup the
+ * weapon.
  */
 bool botinvAllowsWeapon(struct chrdata *chr, s32 weaponnum, s32 funcnum)
 {
 	bool allow = true;
 
-	if (bvIsBotVarietyActive() && !bvCanChrUseWeapon(chr, weaponnum, funcnum)) { 	// @botvariety: check if there's any reason this bot can't use this weapon/func based on its botvariety flags
+	if (bvIsBotVarietyActive() && !bvbotCanUseWeapon(chr, weaponnum, funcnum)) { 	// @botvariety: check if there's any reason this bot can't use this weapon/func based on its botvariety flags
 		return false;
 	}
 

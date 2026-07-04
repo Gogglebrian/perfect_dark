@@ -648,7 +648,7 @@ struct modelrwdata_chrinfo { // type 0x01
 	f32 yrot; // angle
 	f32 unk18;
 	f32 unk1c;
-	f32 unk20; // angle
+	f32 unk20; // angleddawda
 	struct coord unk24;
 	f32 unk30; // angle
 	struct coord unk34;
@@ -6262,9 +6262,15 @@ struct bvchrdata {
 	f32 initscale;
 	struct model* initmodel;
 	u8 impostorof; // bot: if impersonating, index of impersonated player
-	f32 explosiveglowweight; // explosive bot only
-	f32 explosivetimer; // explosive bot only
-	bool explosivebeepdone; // explosive bot only
+	f32 explosiveglowweight; // explosive bots: current weight of flash/glow color
+	f32 explosivetimer; // explosive bots: timer for flashing and beeping
+	bool explosivebeepdone; // explosive bots: whether beep has been done this flash/beep interval
+	f32 slendermanvictimprogress; // the victim's progress towards a staticky death, in seconds of exposure. Increases when in slenderman's LoS. Decays when out of LoS or if slenderman's dead.
+	f32 slendermanopacity; // the opacity at which slenderman should render for this chr (player only)
+	f32 slendermandist; // distance from this chr to slenderman
+	bool slendermanaggro; // whether slenderman is aggro'd against this chr
+	bool slendermanonscreen; // players: whether slenderman is onscreen this tick
+	bool slendermanhaslos; // whether slenderman has los on this chr
 };
 
 /// In-match botvariety data
@@ -6272,6 +6278,8 @@ struct bvmatchdata {
 	struct bvchrdata players[MAX_PLAYERS];
 	struct bvchrdata bots[MAX_BOTS];
 	u16 variantspreespawnsleft[BOTVARIETY_VARIANT_COUNT];
+	struct chrdata* slendermanchr;
+	f32 slendermanspeedmult;
 };
 
 #endif

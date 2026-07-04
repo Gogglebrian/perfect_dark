@@ -16,15 +16,29 @@ void bvInit() {
 }
 
 /**
-* Clears botvariety chr data to default values
+* Call on spawn to reset botvariety chr data that are relevant to a single spawn/life, while preserving match-wide values like initial scale and model.
 */
-void bvResetChrData(struct bvchrdata * bvchr) {
+void bvResetChrDataForSpawn(struct bvchrdata* bvchr) {
+	//bvchr->impostorof intentionally omitted here as it should be unset when the model is reverted.
+	bvchr->explosiveglowweight = 0;
+	bvchr->explosivetimer = 0;
+	bvchr->explosivebeepdone = false;
+	bvchr->slendermanvictimprogress = 0;
+	bvchr->slendermanopacity = 0;
+	bvchr->slendermandist = 0;
+	bvchr->slendermanonscreen = false;
+	bvchr->slendermanhaslos = false;
+	bvchr->slendermanaggro = false;
+}
+
+/**
+* Call on match start to clear botvariety chr data to null/default values, including match-wide values like initial scale and model.
+*/
+void bvClearAllChrData(struct bvchrdata * bvchr) {
 	bvchr->initscale = -1.0f;
 	bvchr->initmodel = NULL;
 	bvchr->impostorof = -1;
-	bvchr->explosiveglowweight = 0;
-	bvchr->explosivetimer = 0;
-	bvchr->explosivebeepdone = 0;
+	bvResetChrDataForSpawn(bvchr);
 }
 
 /**
@@ -35,18 +49,22 @@ void bvInitMatch() {
 
 	// Clear player data
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		bvResetChrData(&g_BvMatch.players[i]);
+		bvClearAllChrData(&g_BvMatch.players[i]);
 	}
 
 	// Clear bot data
 	for (i = 0; i < MAX_BOTS; i++) {
-		bvResetChrData(&g_BvMatch.bots[i]);
+		bvClearAllChrData(&g_BvMatch.bots[i]);
 	}
 
 	// Clear spree data
 	for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		g_BvMatch.variantspreespawnsleft[i] = 0;
 	}
+
+	// Clear slenderman data
+	g_BvMatch.slendermanchr = NULL;
+	g_BvMatch.slendermanspeedmult = 1.0f;
 }
 
 /**

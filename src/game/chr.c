@@ -3314,8 +3314,13 @@ void chrRenderAttachedObject(struct prop *prop, struct modelrenderdata *renderda
 	}
 }
 
-void chrGetBloodColour(s16 bodynum, u8 *colour1, u32 *colour2)
+// @mod added chr parameter for use in botvariety
+void chrGetBloodColour(struct chrdata* chr, s16 bodynum, u8 *colour1, u32 *colour2)
 {
+	if (bvIsBotVarietyActive() && bvTryAdjustBloodColour(chr, colour1, colour2)) { // @botvariety
+		return;
+	}	
+
 	switch (bodynum) {
 	case BODY_ELVIS1:
 	case BODY_THEKING:
@@ -3414,7 +3419,7 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 		alpha = (f32)alpha * (TICKS(120) - chr->aibot->fadeintimer60) * (1.0f / TICKS(120));
 	}
 
-	chrGetBloodColour(chr->bodynum, spec, NULL);
+	chrGetBloodColour(chr, chr->bodynum, spec, NULL);
 	chr0f0246e4(spec);
 	alpha *= objCalculateFadeDistOpacityFrac(prop, modelGetEffectiveScale(model));
 
@@ -3440,7 +3445,15 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 		}
 	}
 
-	if (!USINGDEVICE(DEVICE_IRSCANNER)) {
+	// @botvariety: Slenderman is invisible or see-through depending on the player's victimprogress
+	if (bvIsBotVarietyActive() && bvIsChrSlenderman(chr)) {
+		u8 slenderalpha = bvslendermanGetAlpha(chr);
+		if (slenderalpha == 0) {
+			return gdl; // Slenderman's invisible, don't render
+		}
+		alpha = slenderalpha * alpha * 0.0039215688593686f;
+	}
+	else if (!USINGDEVICE(DEVICE_IRSCANNER)) {
 		alpha = chrGetCloakAlpha(chr) * alpha * 0.0039215688593686f;
 	}
 
@@ -3537,10 +3550,7 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 
 		// @Botvariety: last-minute color tweaks
 		if (bvIsBotVarietyActive()) {
-			// Explosive bots: flash white-orange
-			if (bvIsChrExplosive(prop->chr)) {
-				bvApplyExplosiveBotGlow(prop->chr, &renderdata);
-			}
+			bvTryApplyLateColourTweaks(prop->chr, &renderdata);
 		}
 
 		if (alpha < 0xff) {

@@ -53,16 +53,6 @@ bool bvIsChrExplosive(struct chrdata* chr) {
 }
 
 /**
-* Zeroes out explosive bot glow weight, timer, and beep status
-*/
-void bvResetExplosiveBot(struct chrdata* botchr) {
-	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
-	bvbot->explosiveglowweight = 0;
-	bvbot->explosivetimer = 0;
-	bvbot->explosivebeepdone = false;
-}
-
-/**
 * Beeps
 */
 void bvexplosiveDoBeep(struct chrdata* botchr, f32 beeppitch) {

@@ -185,7 +185,7 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 	struct bvchrdata * bvchr = &g_BvMatch.bots[botnum]; 
 	struct model* initmodel = bvchr->initmodel;
 
-// If necessary, revert previous model
+	// If necessary, revert previous model
 	if (chr->model != initmodel) {
 		struct model* altmodel = chr->model;
 
@@ -196,6 +196,7 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 		modelSetRootPosition(initmodel, &chr->prop->pos);
 		initmodel->chr = chr;
 		initmodel->unk01 = 1;
+		modelSetAnimation(initmodel, ANIM_006A, 0, 0.0f, 0.5f, 0.0f);
 
 		chr->model = initmodel;
 		chr->headnum = mpGetHeadId(g_BotConfigsArray[botnum].base.mpheadnum);
@@ -236,7 +237,6 @@ bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
 		chr->headnum = headnum;
 		chr->bodynum = bodynum;
 		chr->race = bodyGetRace(bodynum);
-
 
 		return true;
 	}
@@ -285,12 +285,25 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 
 
 /**
-* Rolls for and applies Slenderman variant - wear a Bond suit and be real tall
+* Rolls for and applies Slenderman variant - wear a Bond suit and be real tall, and attack with spooky analog horror static.
+* See botvarietyslenderman.c for functionality overview.
 */
-bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance) {
+bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance, bool isimpostor) {
+	if (!bvslendermanCanSpawn()) {
+		return false;
+	}
+
 	if (slendermanchance > 0 && RANDOMFRAC() < slendermanchance) { // roll
-		if (bvspawnTryApplyModelChange(chr, BODY_PRESIDENT, chr->headnum)) { // try to apply model change
+		// If chr is already an impostor, then don't change the model again
+		if (isimpostor) { 
 			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
+			bvslendermanSpawn(chr);
+			return true;
+		}
+		// Otherwise under normal circumstances, put a classy suit on em
+		else if (bvspawnTryApplyModelChange(chr, BODY_PRESIDENT, chr->headnum)) { // try to apply model change
+			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
+			bvslendermanSpawn(chr);
 			return true;
 		}
 	}
@@ -502,15 +515,24 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	f32 abominationchancemult = 1.0f;
 	bool isimpostor = false;
 	u8 i;
-	
+
+	u32 prevflags = CHR_BV_FLAGS; // set aside previous spawn's variant flags (some may have already been unset such as Explosive)
 	CHR_BV_FLAGS = 0; // Reset chr's variant flags
 
 	// Initialize bvchrdata on this chr's first spawn of the match
 	bool firstspawn = bvTryInitChr(chr, iscurrentplayer);
 	
-	// On subsequent spawns for each bot we'll roll for sprees
-	if (!firstspawn && !iscurrentplayer) {
-		bvspawnHandleStartingSprees();
+	// On subsequent spawns, reset temporary chrdata
+	if (!firstspawn) {
+		if (prevflags & BVFLAG_SLENDERMAN) {
+			bvslendermanDespawn(); // if we were slenderman last tick, register that he's despawned
+		}
+		bvResetChrDataForSpawn(bvGetChrMatchData(chr));
+
+		// On subsequent bot spawns, roll for sprees
+		if (!iscurrentplayer) {
+			bvspawnHandleStartingSprees();
+		}
 	}
 
 	// Get base chances for each variant (depending on player/bot/debug)
@@ -531,7 +553,8 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 				abominationchancemult = 2.0f;
 			}
 			isimpostor = true;
-		} else if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN])) {
+		}
+		if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN], isimpostor)) {
 			// Slenderman is incompatible with all following variants
 			for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 				chances[i] = 0;
@@ -555,7 +578,7 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 		}
 		// Explosive bots
 		else if (bvspawnRollForStandardVariant(chr, chances[EXPLOSIVE], BVFLAG_EXPLOSIVE)) {
-			bvResetExplosiveBot(chr);
+			;
 		}
 	}
 

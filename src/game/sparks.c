@@ -186,7 +186,7 @@ void sparksCreate(s32 room, struct prop *prop, struct coord *pos, struct coord *
 		u32 colours[3];
 		u32 stack;
 
-		chrGetBloodColour(chr->bodynum, NULL, colours);
+		chrGetBloodColour(chr, chr->bodynum, NULL, colours);
 
 		if (typenum == SPARKTYPE_BLOOD) {
 			type->unk1c = colours[0];

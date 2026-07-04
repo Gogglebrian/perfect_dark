@@ -2741,6 +2741,11 @@ void chrBeginDead(struct chrdata *chr)
 			chr->cover = -1;
 		}
 
+		// @botvariety: proc behaviors that start after the death animation is complete
+		if (bvIsBotVarietyActive()) {
+			bvProcOnCorpseFadeBegin(chr);
+		}
+
 		chr->actiontype = ACT_DEAD;
 		chr->act_dead.fadetimer60 = chr->aibot ? 0 : -1;
 		chr->act_dead.fadenow = false;
@@ -4391,7 +4396,10 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 		damage = 0;
 	}
 
-	damage = bvTryAdjustDamage(aprop->chr, chr, gset, damage); // @botvariety
+	if (bvIsBotVarietyActive()) { // @botvariety
+		damage = bvTryAdjustDamage(aprop->chr, chr, gset, damage); 
+		bvProcOnDamageTaken(chr, aprop->chr, gset, damage);
+	}
 
 	// Apply damage scaling based on difficulty settings
 	if (g_Vars.mplayerisrunning == false) {
@@ -5144,7 +5152,7 @@ void chrDie(struct chrdata *chr, s32 aplayernum)
 #endif
 	
 		if (bvIsBotVarietyActive()) { // @botvariety - proc on-death behaviors
-			bvHandleChrDeath(chr, aplayernum);
+			bvProcOnDeath(chr, aplayernum);
 		}
 	}
 }

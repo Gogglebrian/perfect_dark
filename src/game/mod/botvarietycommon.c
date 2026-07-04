@@ -1,6 +1,7 @@
 #include <ultra64.h>
 #include "constants.h"
 #include "game/mod/botvariety.h"
+#include "game/mplayer/mplayer.h"
 #include "bss.h"
 
 /**
@@ -47,3 +48,4 @@ struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
 		return &g_BvMatch.bots[chr->aibot->aibotnum];
 	}
 }
+

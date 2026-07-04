@@ -231,7 +231,7 @@ void wallhitChooseBloodColour(struct prop *prop)
 {
 	if (prop && prop->chr && (prop->type == PROPTYPE_CHR || prop->type == PROPTYPE_PLAYER)) {
 		struct chrdata *chr = prop->chr;
-		chrGetBloodColour(chr->bodynum, g_WallhitBloodColour, NULL);
+		chrGetBloodColour(chr, chr->bodynum, g_WallhitBloodColour, NULL);
 	} else {
 		g_WallhitBloodColour[0] = 0x40;
 		g_WallhitBloodColour[1] = 0x0a;

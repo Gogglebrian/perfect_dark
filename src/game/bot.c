@@ -565,7 +565,7 @@ bool botTestPropForPickup(struct prop *prop, struct chrdata *chr)
 				return false;
 			}
 
-			if (bvIsBotVarietyActive() && !bvCanChrPickupWeapon(chr, weaponobj->weaponnum)) { // @botvariety: some variants can't pick up some weapons, eg explosive bots can't pickup any
+			if (bvIsBotVarietyActive() && !bvbotCanPickupWeapon(chr, weaponobj->weaponnum)) { // @botvariety: some variants can't pick up some weapons, eg explosive bots can't pickup any
 				return false;
 			}
 			
@@ -763,7 +763,7 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
-	if (bvGuessBotCrouchPos(chr, &crouchpos)) { // @botvariety
+	if (bvbotGuessCrouchPos(chr, &crouchpos)) { // @botvariety
 		return crouchpos;
 	}
 
@@ -1420,10 +1420,18 @@ bool botIsTargetInvisible(struct chrdata *botchr, struct chrdata *otherchr)
 		return true;
 	}
 
+	// @botvariety: Slenderman is invisible to bots whose slendermanopacity value is 0
+	if (bvIsBotVarietyActive() && !bvbotCanSeeChr(botchr, otherchr)) {
+		return true;
+	}
+
 	if ((otherchr->hidden & CHRHFLAG_CLOAKED)) {
 		if (botchr && botchr->aibot
 				&& ((botchr->target != -1 && chrGetTargetProp(botchr) == otherchr->prop && botchr->aibot->targetcloaktimer60 > 0)
 				|| (botchr->aibot->canseecloaked && chrIsLookingAtPos(botchr, &otherchr->prop->pos, 32)))) {
+			return false;
+		}
+		else if (bvIsBotVarietyActive() && bvbotCanSeeThroughCloak(botchr)) { // @botvariety
 			return false;
 		}
 
@@ -1570,19 +1578,35 @@ bool botPassesCowardCheck(struct chrdata *botchr, struct chrdata *otherchr)
 }
 
 /**
- * Recalculates the bot's distance to its target.
+ * @mod: Recalculates the bot's distance to its target.
+ * Skips if the target matches the current queryplayernum, which would mean this value was just recalculated in the normal cycle.
  * Precondition: bot HAS a target
  */
 void botUpdateDistanceToTarget(struct chrdata* botchr) {
 	struct prop *targetprop = chrGetTargetProp(botchr);
-	if (targetprop->chr != mpGetChrFromPlayerIndex(botchr->aibot->queryplayernum)) { // if we didn't just calculate this distance above
+	if (targetprop->chr != mpGetChrFromPlayerIndex(botchr->aibot->queryplayernum)) { // if we didn't just calculate this in the normal cycle
 		s32 targetplayerindex = mpPlayerGetIndex(targetprop->chr);
 		botchr->aibot->chrdistances[targetplayerindex] = chrGetDistanceToCoord(botchr, &targetprop->pos);
 	}
 }
 
 /**
- * Returns the bot's distance to its general target chr. -1.0f if has no target chr
+ * @mod: Recalculates whether the bot has line of sight on its target. Also updates target rooms data.
+ * Skips if the target matches the current queryplayernum, which would mean this value was just recalculated in the normal cycle.
+ * Precondition: bot HAS a target
+ */
+void botUpdateLoSToTarget(struct chrdata* botchr) {
+	struct prop *targetprop = chrGetTargetProp(botchr);
+	if (targetprop->chr != mpGetChrFromPlayerIndex(botchr->aibot->queryplayernum)) { // if we didn't just calculate this above
+		s32 targetplayerindex = mpPlayerGetIndex(targetprop->chr);
+		RoomNum room = -1;
+		botchr->aibot->chrsinsight[targetplayerindex] = chrHasLosToChr(botchr, targetprop->chr, &room);
+		botchr->aibot->chrrooms[targetplayerindex] = room;
+	}
+}
+
+/**
+ * @mod: Returns the bot's distance to its general target chr. -1.0f if has no target chr
  */
 f32 botGetDistanceToTarget(struct chrdata* botchr) {
 	if (botchr->target != -1) {
@@ -1593,6 +1617,20 @@ f32 botGetDistanceToTarget(struct chrdata* botchr) {
 		}
 	}
 	return -1.0f;
+}
+
+/**
+ * @mod: Returns true if the bot has a target and has line of sight to that target.
+ */
+bool botHasLoSToTarget(struct chrdata* botchr) {
+	if (botchr->target != -1) {
+		struct prop *targetprop = chrGetTargetProp(botchr);
+		if (targetprop->chr) {
+			s32 targetplayerindex = mpPlayerGetIndex(targetprop->chr);
+			return botchr->aibot->chrsinsight[targetplayerindex];
+		}
+	}
+	return false;
 }
 
 /**
@@ -1612,6 +1650,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	RoomNum room = -1;
 	struct chrdata *trychr;
 	s32 playernum;
+	bool doLoStargetchange = true;
 	bool justspawned = aibot->queryplayernum < 0; // queryplayernum -1 means freshly spawned bot
 
  /* Original bug: Spawning bots default to targeting Player2
@@ -1738,9 +1777,14 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		}
 	}
 
-	// @Botvariety: Explosive bots update the distance to the target continuously
-	if (bvIsBotVarietyActive() && bvIsChrExplosive(botchr) && botchr->target != -1) {
-		botUpdateDistanceToTarget(botchr);
+	// @Botvariety: some bots want up-to-date distance or LoS data on their target at all times
+	if (bvIsBotVarietyActive() && botchr->target != -1) {
+		if (bvbotShouldCalcTargetDistEveryFrame(botchr)) {
+			botUpdateDistanceToTarget(botchr); // won't do anything if we just calculated the distance to this chr above
+		}
+		if (bvbotShouldCalcTargetLoSEveryFrame(botchr)) {
+			botUpdateLoSToTarget(botchr); // won't do anything if we just calculated the distance to this chr above
+		}
 	}
 
 	// If there's no existing target, try to pick one
@@ -1833,9 +1877,16 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 		return;
 	}
 
+	// @mod: determine whether bot should change target if they get LoS on another valid target first
+	if (!g_BotDebug_DisableLoSTargetChange) {
+		doLoStargetchange = false;
+	} else if (bvIsBotVarietyActive() && !bvbotShouldChangeTargetByLoS(botchr)) {
+		doLoStargetchange = false;
+	}
+
 	// Target is no longer in sight
 	// Check for other chrs who are in sight, by distance
-	if (!g_BotDebug_DisableLoSTargetChange) { for (i = 0; i < g_MpNumChrs; i++) {
+	if (doLoStargetchange) { for (i = 0; i < g_MpNumChrs; i++) {
 		if (aibot->chrsinsight[aibot->chrnumsbydistanceasc[i]]) {
 			trychr = mpGetChrFromPlayerIndex(aibot->chrnumsbydistanceasc[i]);
 
@@ -2540,7 +2591,7 @@ void botTickUnpaused(struct chrdata *chr)
 
 		//@botvariety - tick unique variant behaviors
 		if (bvIsBotVarietyActive()) {
-			bvTickBotAliveUnpausedEarly(chr);
+			bvbotTickAliveUnpausedEarly(chr);
 		}
 
 		// Consider updating random values
@@ -3535,6 +3586,11 @@ void botTickUnpaused(struct chrdata *chr)
 										}
 									}
 								} else {
+									aibot->punchtimer60[i] = 0;
+								}
+
+								// @botvariety: some bot variants may be unable to attack under some circumstances
+								if (bvIsBotVarietyActive() && !bvbotCanAttack(chr)) {
 									aibot->punchtimer60[i] = 0;
 								}
 

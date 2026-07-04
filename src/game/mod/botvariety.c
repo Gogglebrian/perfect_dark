@@ -23,8 +23,7 @@
 // As an easter egg, players also have a chance to spawn as some variants (eg Mini, Wumbo, Sunglasses)
 // including (most) gameplay effects.
 // The system can also apply minor variance to all bots regardless of variant, such as minor height variance
-// (replacing the vanilla height variance so as not to conflict with the major variants' scale changes)
-// or speed variance.
+// (replacing the vanilla height variance so as not to conflict with the major variants' scale changes).
 
 /**
 * Is Combat Simulator running with botvariety enabled?
@@ -40,55 +39,75 @@ bool bvChrHasVarietyFlags(struct chrdata* chr) {
 	return CHR_BV_FLAGS != 0;
 }
 
-bool bvIsChrSlenderman(struct chrdata* chr) {
-	return CHR_BV_FLAGS & BVFLAG_SLENDERMAN;
-}
-
 /**
-* Checks if this chr can use this weapon/func based on their botvariety flags.
+* Should only be called from bvTickCurrentPlayerAliveUnpausedEarly or bvbotTickAliveUnpausedEarly
+* Ticks unique botvariety behaviors to be procced at the beginning of any chr's (bots and players) unpaused tick
 */
-bool bvCanChrUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum) {
-	// Explosive bots can only punch
-	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
-		return false;
-	}
-
-	return true;
-}
-
-/**
-* Checks if this chr can pick up this weapon based on their botvariety flags.
-*/
-bool bvCanChrPickupWeapon(struct chrdata* chr, s32 weaponnum) {
-	// Explosive bots ignore weapon pickups
-	if (bvIsChrExplosive(chr) && weaponnum != WEAPON_UNARMED) {
-		return false;
-	}
-
-	return true;
-}
-
-/**
-* Ticks unique bot variant behaviors to be procced at the beginning of a living bot's unpaused tick.
-*/
-void bvTickBotAliveUnpausedEarly(struct chrdata* chr) {
-	// Tick explosive bot's flashing and beeping
-	if (bvIsChrExplosive(chr)) {
-		bvTickExplosiveBot(chr);
+void bvTickChrAliveUnpausedEarly(struct chrdata* chr) {
+	// Tick effects of slenderman on other characters
+	if (bvslendermanShouldOtherChrTick(chr)) {
+		bvslendermanTickOtherChr(chr);
 	}
 }
 
 /**
-* Handles unique bot variant behaviors to be procced the moment a bot dies.
+* Ticks unique botvariety player-side behaviors to be procced at the beginning of a living player's unpaused tick.
 */
-void bvHandleChrDeath(struct chrdata* chr, s32 killerplayernum) {
+void bvTickCurrentPlayerAliveUnpausedEarly(struct chrdata* chr) {
+	bvTickChrAliveUnpausedEarly(chr);	
+}
+
+/**
+* Handles unique variant behaviors to be procced the moment a chr dies.
+*/
+void bvProcOnDeath(struct chrdata* chr, s32 killerplayernum) {
 	// Explosive bots explode on death
 	if (bvIsChrExplosive(chr)) {
 		bvExplodeBot(chr, killerplayernum);
 	}
 	// Gunfetti bots drop a shitton of guns on death
-	if (bvIsChrGunfetti(chr)) {
+	else if (bvIsChrGunfetti(chr)) {
 		bvPopGunfettiBot(chr);
+	}
+	// slenderman makes a horrible noise on death
+	else if (bvIsChrSlenderman(chr)) {
+		bvslendermanDie(chr);
+	}
+}
+
+/**
+* Handles unique variant behaviors to be procced after death as the chr's corpse begins to fade.
+*/
+void bvProcOnCorpseFadeBegin(struct chrdata* chr) {
+	if (bvIsChrSlenderman(chr)) {
+		bvslendermanOnCorpseFade(chr);
+	}
+}
+
+/**
+* Attempts to set the blood colour for this chr per their applicable botvariety flags, if any.
+* Returns true if colours set, false if not set.
+*/
+bool bvTryAdjustBloodColour(struct chrdata* chr, u8 *colour1, u32 *colour2) {
+	if (bvIsChrSlenderman(chr)) {
+		bvslendermanGetBloodColours(colour1, colour2);
+		return true;
+	}
+
+	return false;
+}
+
+/**
+* Apply any last-minute color tweaks based on the character's applicable botvariety flags.
+*/
+void bvTryApplyLateColourTweaks(struct chrdata* chr, struct modelrenderdata* renderdata) {
+	// Explosive bots: flash white-orange
+	if (bvIsChrExplosive(chr)) {
+		bvApplyExplosiveBotGlow(chr, renderdata);
+	}
+	// Slenderman: dark color
+	else if (bvIsChrSlenderman(chr)) {
+		bvslendermanApplyColour(chr, renderdata);
 	}
 }
 
@@ -154,15 +173,21 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 #define VICTIM_BOTVARIETY_FLAGS   vchr->convtalk
 
 /**
+* Call when a chr takes damage to proc any unique botvariety behaviors.
+*/
+void bvProcOnDamageTaken(struct chrdata* vchr, struct chrdata* achr,  struct gset* gset, f32 damage) {
+	if (bvIsChrSlenderman(vchr)) {
+		bvslendermanOnDamageTaken(achr);
+	}
+}
+
+/**
 * Adjusts damage with regard to the attacker and victims' respective applicable botvariety flags, if the botvariety system is active.
 */
 f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
 
-	if (!bvIsBotVarietyActive()) {
-		return damage;
-	}
 	if (!(bvChrHasVarietyFlags(achr) || bvChrHasVarietyFlags(vchr))) {
 		return damage;
 	}
@@ -192,6 +217,11 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 				damage *= variant->stat->damagetakenmult;
 			}
 		}
+	}
+
+	// Apply situational slenderman damage mult
+	if (bvIsChrSlenderman(achr)) {
+		damage *= bvslendermanGetMeleeDamageMult();
 	}
 
 	return damage;
@@ -438,7 +468,7 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
 
-	if (!bvIsBotVarietyActive()) { // note: we don't care if any specific flags are set for this function 'cause all bots get speed variance
+	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
 		return speed;
 	}
 
@@ -450,9 +480,9 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 		}
 	}
 
-	// Apply random speed variance to all bots
-	if (chr->aibot) {
-		speed *= RANDOMFRAC() * 0.1f + 0.95f; // between 95% and 105%
+	// Apply situational slenderman damage mult
+	if (bvIsChrSlenderman(chr)) {
+		speed *= bvslendermanGetSpeedMult();
 	}
 
 	return speed;
@@ -477,35 +507,10 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 		}
 	}
 
+	// Apply situational slenderman damage mult
+	if (bvIsChrSlenderman(chr)) {
+		animspeed *= bvslendermanGetAnimSpeedMult();
+	}
+
 	return animspeed;
-}
-
-/**
-* Determines a bot's crouch position with regard to its applicable botvariety flags, if the botvariety system is active.
-* Returns true if crouchpos was changed.
-*/
-bool bvGuessBotCrouchPos(struct chrdata* chr, s32* crouchpos) {
-	if (!bvIsBotVarietyActive()) {
-		return false;
-	}
-
-	// Mini bots never have to crouch
-	if (CHR_BV_FLAGS & BVFLAG_MINI) {
-		*crouchpos = CROUCHPOS_STAND;
-		return true;
-	}
-
-	// Wumbo and slender bots skip middle-crouch
-	if (CHR_BV_FLAGS & (BVFLAG_WUMBO | BVFLAG_SLENDERMAN)) {
-		if (chr->height <= 135) {
-			*crouchpos = CROUCHPOS_SQUAT;
-			return true;
-		}
-		else {
-			*crouchpos = CROUCHPOS_STAND;
-			return true;
-		}
-	}
-
-	return false;
 }

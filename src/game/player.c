@@ -3328,6 +3328,15 @@ void playerTick(bool arg0)
 		playerDieByShooter(g_Vars.currentplayernum, true);
 	}
 
+	// @botvariety: Tick player
+	if (bvIsBotVarietyActive() 
+		&& g_Vars.currentplayer->pausemode == PAUSEMODE_UNPAUSED
+		&& g_Vars.currentplayer->prop 
+		&& g_Vars.currentplayer->prop->chr 
+		&& !g_Vars.currentplayer->isdead) {
+		bvTickCurrentPlayerAliveUnpausedEarly(g_Vars.currentplayer->prop->chr);
+	}
+
 	playerTickDamageAndHealth();
 	playerTickExplode();
 
@@ -5635,6 +5644,13 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 	f32 turnspeed;
 	s32 turnmode;
 	f32 limit;
+
+	// @botvariety: some bots may be required to stand still under certain circumstances
+	if (bvIsBotVarietyActive() && bvbotShouldStandStill(chr)) {
+		speedforwards = 0;
+		speedsideways = 0;
+		speedtheta = 0;
+	}
 
 	if (leftprop != NULL) {
 		leftgun = leftprop->weapon;

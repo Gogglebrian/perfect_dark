@@ -25,6 +25,7 @@
 #include "game/gunfx.h"
 #include "game/game_0b0fd0.h"
 #include "game/modelmgr.h"
+#include "game/mod/botvariety.h"
 #include "game/portal.h"
 #include "game/fmb.h"
 #include "game/sky.h"
@@ -1526,6 +1527,13 @@ Gfx *lvRender(Gfx *gdl)
 						g_Vars.currentplayer->visionmode = VISIONMODE_NORMAL;
 					}
 #endif
+
+					// @botvariety: Slenderman's victims' screens fill with static
+					if (bvIsBotVarietyActive() 
+					&& g_Vars.currentplayer->prop && g_Vars.currentplayer->prop->chr
+					&& bvslendermanShouldDoStatic(g_Vars.currentplayer->prop->chr)) {
+						gdl = bvslendermanApplyVictimStatic(gdl);
+					}
 
 					if (g_Vars.currentplayer->visionmode == VISIONMODE_XRAY
 							&& g_Vars.tickmode != TICKMODE_CUTSCENE) {

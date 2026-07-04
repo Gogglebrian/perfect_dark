@@ -60,5 +60,6 @@ bool botShouldReturnCtcToken(struct chrdata *chr);
 s32 botGetNumTeammatesDefendingHill(struct chrdata *bot);
 void botCheckFetch(struct chrdata *chr);
 f32 botGetDistanceToTarget(struct chrdata *botchr);
+bool botHasLoSToTarget(struct chrdata* botchr);
 
 #endif

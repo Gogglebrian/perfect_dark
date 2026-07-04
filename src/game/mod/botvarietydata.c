@@ -123,26 +123,26 @@ const struct bvvariantbodydata bodySlenderman = {
 	&scalesSlenderman,  // address of xyz scales
 };
 const struct bvvariantstats statsSlenderman = {
-	0.95f,   // movespeedmult
-	0.7f,    // animspeedmult
-	0.2f, // damagetakenmult (=5x health)
-	4.0f,    // bluntdamagemult
-	4.0f,    // disarmdamage (default=0)
+	1.4f,   // movespeedmult
+	1.4f,    // animspeedmult
+	0.333f,   // damagetakenmult (=3x health)
+	 1.5f,    // bluntdamagemult
+	-1.0f,    // disarmdamage (default=0)
 	-1.0f,    // meleerangemult
 };
 const struct bvvariant variantSlenderman = {
 	BVFLAG_SLENDERMAN, BVINDEX_SLENDERMAN,
 	{ // spawn chances
-		0.001f, // bot    - 1 in 1000
+		0.005f,  // bot    - 1 in 200
 		0, // player - N/A
-		0.1f,   // debug  - 1 in  4
+		0.5f,   // debug  - 1 in  2
 		0.5f,   // spree  - 1 in  2
 	},
-	{ // spree data
-		0.000625f, // trigger chance - 1 in 1600
-		0.01f,   // debug chance
-		12,     // min spawn count
-		32,     // max spawn count
+	{ // spree data (N/A)
+		0, // trigger chance - 1 in 1600
+		0,   // debug chance
+		1,     // min spawn count
+		1,     // max spawn count
 	},
 	&bodySlenderman,
 	&statsSlenderman,
@@ -216,7 +216,7 @@ const struct bvvariant variantGunfetti = {
 	{ // spawn chances
 		0.002f,  // bot    - 1 in 500
 		0,   // player - N/A
-		0.5f, // debug  - 1 in   2
+		0.125f, // debug  - 1 in   8
 		0.333f, // spree  - 1 in   3
 	},
 	{ // spree data
