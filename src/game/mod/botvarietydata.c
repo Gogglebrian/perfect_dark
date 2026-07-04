@@ -29,7 +29,7 @@ const struct bvvariant variantMini = {
 	BVFLAG_MINI, BVINDEX_MINI,
 	{ // spawn chances
 		0.05f,   // bot    - 1 in 20
-		0.0333f, // player - 1 in 30
+		0.01666f, // player - 1 in 60
 		0.25f,   // debug  - 1 in  4
 		0.75f,   // spree  - 3 in  4
 	},
@@ -64,7 +64,7 @@ const struct bvvariant variantWumbo = {
 	BVFLAG_WUMBO, BVINDEX_WUMBO,
 	{ // spawn chances
 		0.0333f, // bot    - 1 in 30
-		0.0333f, // player - 1 in 30
+		0.01666f, // player - 1 in 60
 		0.25f,   // debug  - 1 in  4
 		0.75f,   // spree  - 3 in  4
 	},
@@ -136,7 +136,7 @@ const struct bvvariant variantSlenderman = {
 		0.005f,  // bot    - 1 in 200
 		0, // player - N/A
 		0.5f,   // debug  - 1 in  2
-		0.5f,   // spree  - 1 in  2
+		0, // spree  - N/A
 	},
 	{ // spree data (N/A)
 		0, // trigger chance - 1 in 1600
@@ -214,10 +214,10 @@ const struct bvvariantstats statsGunfetti = {
 const struct bvvariant variantGunfetti = {
 	BVFLAG_GUNFETTI, BVINDEX_GUNFETTI,
 	{ // spawn chances
-		0.002f,  // bot    - 1 in 500
+		0.001538f,  // bot - 1 in 650
 		0,   // player - N/A
 		0.125f, // debug  - 1 in   8
-		0.333f, // spree  - 1 in   3
+		0, // spree  - N/A
 	},
 	{ // spree data
 		0, // trigger chance - disabled
