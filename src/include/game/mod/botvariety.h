@@ -126,5 +126,6 @@ f32 bvslendermanGetAnimSpeedMult();
 u8 bvslendermanGetAlpha();
 void bvslendermanApplyColour(struct chrdata* botchr, struct modelrenderdata* renderdata);
 Gfx *bvslendermanApplyVictimStatic(Gfx *gdl);
+Gfx *bvslendermanDebugRenderProgress(Gfx *gdl);
 
 #endif

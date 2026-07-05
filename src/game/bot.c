@@ -1878,7 +1878,7 @@ void botChooseGeneralTarget(struct chrdata *botchr)
 	}
 
 	// @mod: determine whether bot should change target if they get LoS on another valid target first
-	if (!g_BotDebug_DisableLoSTargetChange) {
+	if (g_BotDebug_DisableLoSTargetChange) {
 		doLoStargetchange = false;
 	} else if (bvIsBotVarietyActive() && !bvbotShouldChangeTargetByLoS(botchr)) {
 		doLoStargetchange = false;

@@ -1527,12 +1527,15 @@ Gfx *lvRender(Gfx *gdl)
 						g_Vars.currentplayer->visionmode = VISIONMODE_NORMAL;
 					}
 #endif
-
 					// @botvariety: Slenderman's victims' screens fill with static
 					if (bvIsBotVarietyActive() 
-					&& g_Vars.currentplayer->prop && g_Vars.currentplayer->prop->chr
-					&& bvslendermanShouldDoStatic(g_Vars.currentplayer->prop->chr)) {
-						gdl = bvslendermanApplyVictimStatic(gdl);
+					&& g_Vars.currentplayer->prop && g_Vars.currentplayer->prop->chr) {
+						if (bvslendermanShouldDoStatic(g_Vars.currentplayer->prop->chr)) {
+							gdl = bvslendermanApplyVictimStatic(gdl);
+						}
+						if (BVVARIANT_SLENDERMAN->debug) {
+							gdl = bvslendermanDebugRenderProgress(gdl);
+						}
 					}
 
 					if (g_Vars.currentplayer->visionmode == VISIONMODE_XRAY

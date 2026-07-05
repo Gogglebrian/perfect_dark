@@ -41,11 +41,21 @@ struct model* bvGetModel(struct chrdata* chr) {
 * Returns the chr's botvariety data set aside for this match, like initial model and scale value.
 */
 struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
-	if (bvIsChrCurrentPlayer(chr)) {
+	/*if (bvIsChrCurrentPlayer(chr)) {
 		return &g_BvMatch.players[g_Vars.currentplayerindex];
-	}
-	else { // bot
+	}*/
+	if (chr->aibot) { // bot
 		return &g_BvMatch.bots[chr->aibot->aibotnum];
+	}
+	else { //player
+		for (u8 i = 0; i < ARRAYCOUNT(g_Vars.players); i++) {
+			if (g_Vars.players[i] 
+				&& g_Vars.players[i]->prop 
+				&& g_Vars.players[i]->prop->chr
+				&& g_Vars.players[i]->prop->chr == chr) {
+					return &g_BvMatch.players[i];
+			}
+		}
 	}
 }
 

@@ -5,6 +5,7 @@
 #include "game/chr.h"
 #include "game/chraction.h"
 #include "game/game_006900.h"
+#include "game/game_1531a0.h"
 #include "game/mod/botvariety.h"
 #include "game/mplayer/mplayer.h"
 #include "game/propsnd.h"
@@ -13,6 +14,8 @@
 #include "bss.h"
 #include "lib/model.h"
 #include "lib/rng.h"
+#include "lib/vi.h"
+#include "gbiex.h"
 
 //**** Slenderman functionality overview **********
 // Spawning
@@ -156,21 +159,6 @@ bool bvslendermanCanSpawn() {
 }
 
 /**
-* Does Slenderman have LoS to its target?
-* Returns false if not, or if Slenderman has no target, or if there is no Slenderman.
-*/
-bool bvslendermanHasLoSToTarget() {
-	if (g_BvMatch.slendermanchr == NULL) {
-		return false; // no slenderman
-	}
-	if (g_BvMatch.slendermanchr->target == -1) {
-		return false; // no target
-	}
-
-	return botHasLoSToTarget(g_BvMatch.slendermanchr);
-}
-
-/**
 * Call when Slenderman spawns to register as the current and sole Slenderman.
 */
 void bvslendermanSpawn(struct chrdata* chr) {
@@ -207,7 +195,7 @@ bool bvslendermanIsAggro() {
 		else {
 			trybvchr = &g_BvMatch.players[i];
 		}
-		if (trybvchr->slendermanaggro) {
+		if (trybvchr->slendermanaggro > 0) {
 			return true;
 		}
 	} 
@@ -220,7 +208,7 @@ bool bvslendermanIsAggro() {
 */
 void bvslendermanOnDamageTaken(struct chrdata* achr) {
 	struct bvchrdata* bvchr;
-	bool wasaggro;
+	s32 wasaggro;
 
 	if (!achr) {
 		return;
@@ -229,7 +217,9 @@ void bvslendermanOnDamageTaken(struct chrdata* achr) {
 	bvchr = bvGetChrMatchData(achr);
 	wasaggro = bvslendermanIsAggro();
 
-	bvchr->slendermanaggro = true;
+	if (!wasaggro) {
+		bvchr->slendermanaggro = 1;
+	}
 
 	// if a living nonteammate freshly-aggroed slenderman, he should target them
 	if (!wasaggro 
@@ -277,7 +267,7 @@ void bvslendermanDespawn() {
 		trybvchr->slendermandist = -1.0f;
 		trybvchr->slendermanonscreen = false;
 		trybvchr->slendermanhaslos = false;
-		trybvchr->slendermanaggro = false;
+		trybvchr->slendermanaggro = 0;
 		trybvchr->slendermanopacity = 0;
 		//victimprogress intentionally omitted: an outstanding value will be ticked down over time
 	}
@@ -288,7 +278,7 @@ f32 bvslendermanGetMeleeDamageMult() {
 		struct chrdata* targetchr = bvslendermanGetTargetChr();
 		struct bvchrdata* bvchr = bvGetChrMatchData(targetchr);
 
-		if (bvchr->slendermanvictimprogress > progressthreshold_rush) {
+		if (bvchr->slendermanaggro >= 2) {
 			return damagemult_rush;
 		}
 	}
@@ -323,7 +313,7 @@ f32 bvslendermanGetAnimSpeedMult() {
 		struct chrdata* targetchr = bvslendermanGetTargetChr();
 		struct bvchrdata* bvchr = bvGetChrMatchData(targetchr);
 		// Target is past the rush threshold, rush em
-		if (bvchr->slendermanvictimprogress > progressthreshold_rush) {
+		if (bvchr->slendermanaggro >= 2) {
 			return animspeedmult_rush;
 		}
 	}
@@ -343,20 +333,21 @@ f32 bvslendermanGetSpeedMult() {
 */
 f32 bvslendermanGetProgressLimit(struct chrdata* chr, struct bvchrdata* bvchr) {
 	f32 maxlimit = 0;
+	bool isalive = bvslendermanIsAlive();
 
 	// Determine starting limit based on LoS (both ways)
 	if (bvchr->slendermanonscreen) { // will never be true for bots
 		maxlimit = progress_max;
 	}
-	else if (chr->aibot && bvchr->slendermanhaslos) { // bot in slenderman's sight
+	else if (isalive && chr->aibot && bvchr->slendermanhaslos) { // bot in slenderman's sight
 		maxlimit = progress_max;
 	}
-	else if (bvchr->slendermanhaslos) { // player in slenderman's sight
+	else if (isalive && bvchr->slendermanhaslos) { // player in slenderman's sight
 		maxlimit = progresslimit_onlyhaslos;
 	}
 
 	// Limit if slenderman's dead
-	if (!bvslendermanIsAlive()) {
+	if (!isalive) {
 		if (maxlimit > progresslimit_dead) {
 			maxlimit = progresslimit_dead;
 		}
@@ -407,13 +398,13 @@ void bvslendermanUpdateSpeedMult() {
 		bvchr = bvGetChrMatchData(targetchr);
 
 		// Target is past the rush threshold, rush em
-		if (bvchr->slendermanvictimprogress > progressthreshold_rush) {
+		if (bvchr->slendermanaggro >= 2) {
 			g_BvMatch.slendermanspeedmult = speedmult_rush;
 			return;
 		}
 	}
 
-	// If aggroed by taking damage, move normally
+	// If standard aggro, move normally
 	if (bvslendermanIsAggro()) {
 		g_BvMatch.slendermanspeedmult = 1.0f;
 		return;
@@ -457,6 +448,7 @@ void bvslendermanTick(struct chrdata* chr) {
 *  + Tick down victimprogress after Slenderman despawns.
 *  + Update slendermanonscreen, slendermanhaslos, and slendermandist values
 *  + Tick victimprogress up or down appropriately
+*  + Initiate rush when progress crosses the relevant threshold by setting aggro to 2
 */
 void bvslendermanTickOtherVictimProgress(struct chrdata* chr, struct bvchrdata* bvchr) {
 	s32 chrindex = mpPlayerGetIndex(chr);
@@ -465,7 +457,7 @@ void bvslendermanTickOtherVictimProgress(struct chrdata* chr, struct bvchrdata* 
 	// Slenderman has despawned, tick down victim progress quickly and we're done
 	if (g_BvMatch.slendermanchr == NULL) {
 		if (bvchr->slendermanvictimprogress > 0) {
-			bvslendermanIncrementVictimProgress(bvchr, -3.0f, 0, progress_max);
+			bvslendermanIncrementVictimProgress(bvchr, -2.0f, 0, progress_max);
 		}
 		return;
 	} // *** Slenderman known to be spawned past this point ***
@@ -481,7 +473,7 @@ void bvslendermanTickOtherVictimProgress(struct chrdata* chr, struct bvchrdata* 
 
 	// If beyond the limit, tick down but not further
 	if (bvchr->slendermanvictimprogress > progresslimit) {
-		bvslendermanIncrementVictimProgress(bvchr, -3.0f, progresslimit, bvchr->slendermanvictimprogress);
+		bvslendermanIncrementVictimProgress(bvchr, -2.0f, progresslimit, bvchr->slendermanvictimprogress);
 	}
 	// Below the limit, tick up to it
 	else if (bvchr->slendermanvictimprogress < progresslimit) {
@@ -490,7 +482,7 @@ void bvslendermanTickOtherVictimProgress(struct chrdata* chr, struct bvchrdata* 
 
 	// If slenderman's ready to rush the victim, set aggro
 	if (bvchr->slendermanvictimprogress >= progressthreshold_rush) {
-		bvchr->slendermanaggro = true;
+		bvchr->slendermanaggro = 2;
 	}
 }
 
@@ -499,10 +491,11 @@ void bvslendermanTickOtherVictimProgress(struct chrdata* chr, struct bvchrdata* 
 */
 void bvslendermanUpdateOpacityForChr(struct chrdata* chr, struct bvchrdata* bvchr) {
 	bool slendermanalive = bvslendermanIsAlive();
+	bool christarget = (bvslendermanGetTargetChr() == chr);
 	bool unaggroed = !bvslendermanIsAggro();
 
-	// If slenderman's alive and unaggroedd, his opacity is determined by our own victimprogress
-	if (slendermanalive && unaggroed) {
+	// If we're slenderman's target and he's alive and unaggroedd, his opacity is determined by our own victimprogress
+	if (slendermanalive && unaggroed && christarget) {
 		if (bvchr->slendermanvictimprogress <= progressthreshold_opacitystart) {
 			bvchr->slendermanopacity = 0;
 		}
@@ -514,9 +507,21 @@ void bvslendermanUpdateOpacityForChr(struct chrdata* chr, struct bvchrdata* bvch
 		}
 	}
 	// If slenderman's aggroed or dead, tick opacity up
-	else if (bvchr->slendermanopacity < 255.0f) {
+	else if ((!unaggroed || !slendermanalive) && bvchr->slendermanopacity < 255.0f) {
 		bvchr->slendermanopacity += (0.016666f * opacityuprate_dead * g_Vars.lvupdate60freal);
+		if (bvchr->slendermanopacity > 255.0f) {
+			bvchr->slendermanopacity = 255.0f;
+		}
 	}
+	else { // tick opacity down
+		if (bvchr->slendermanopacity > 0) {
+			bvchr->slendermanopacity -= (0.016666f * opacityuprate_dead * g_Vars.lvupdate60freal);
+			if (bvchr->slendermanopacity < 0) {
+				bvchr->slendermanopacity = 0;
+			}
+		}
+	}
+	
 }
 
 /**
@@ -598,79 +603,27 @@ void bvslendermanGetBloodColours(u8 *colour1, u32 *colour2) {
 	}
 }
 
-/** Unused alternate version of slendermanTick
-* Ticks Slenderman, handling the following behaviors:
-* - ticking victim progress up for chrs in the immediate vicinity and flagging them as in or out of said vicinity
-* - ticking oscillating chr renderdata.fogcolour
-void bvslendermanTick(struct chrdata* chr) {
-	struct chrdata* trychr;
-	u8 i;
+Gfx *bvslendermanDebugRenderProgress(Gfx *gdl)
+{
+	f32 progress = bvGetChrMatchData(g_Vars.currentplayer->prop->chr)->slendermanvictimprogress;
+	s32 x = viGetViewLeft() + 27;
+	s32 y = viGetViewTop() + 13;
+	//x *= (g_Vars.currentplayerindex + 1);
+	u32 color = 0x00ff00a0;
+	char buffer[16];
 
-	return; // temporarily disabled
+	if (g_CharsNumeric && g_FontNumeric) {
+		snprintf(buffer, sizeof buffer, "%.2f", progress);
 
-	// 
-	for (i = 1; i < g_MpNumChrs; i++) {
-		trychr = mpGetChrFromPlayerIndex(i);
-		if (trychr != chr) {
-			f32 dist = chr->aibot->chrdistances[i];
-			struct bvchrdata* bvtrychr = bvGetChrMatchData(trychr);
-			if (dist < distthreshold_near_maxeffect) {
-				bvslendermanIncrementVictimProgress(bvGetChrMatchData(trychr), 1.0f);
-				bvtrychr->inslendermanvicinity = true;
-			}
-			else if (dist < distthreshold_far_zeroeffect) 
-			{
-				f32 ratemult = 1.0f - ((dist - distthreshold_near_maxeffect) / (distthreshold_far_zeroeffect - distthreshold_near_maxeffect));
-				bvslendermanIncrementVictimProgress(bvGetChrMatchData(trychr), ratemult);
-				bvtrychr->inslendermanvicinity = true;
-			}
-			else {
-				bvtrychr->inslendermanvicinity = false;
-			}
-		}
+		gSPSetExtraGeometryModeEXT(gdl++, g_HudAlignModeL);
+
+		gdl = text0f153628(gdl);
+		gdl = textRender(gdl, &x, &y, buffer, g_CharsNumeric, g_FontNumeric, color, 0x000000a0, viGetWidth(), viGetHeight(), 0, 0);
+		gdl = text0f153780(gdl);
+
+		gSPClearExtraGeometryModeEXT(gdl++, g_HudAlignModeL);
 	}
+
+	return gdl;
 }
-*/
 
-/** Unused alternate version of victimTick
-* Ticks a player who's a current target or recent victim (slendermanvictimprogress > 0) of Slenderman, handling the following behaviors:
-* - ticking up slenderman's target's victim progress when in his LoS
-* - reversing victim progress if Slenderman is dead
-* - reversing victim progress when out of his vicinity, and either not his target or out of his LoS
-* - capping teammates' victim progress to progressthreshold_maxteammate
-* - dealing fatal damage when victim progress crosses progressthreshold_death
-void bvslendermanVictimTick_Old(struct chrdata* chr) {
-	struct bvchrdata* bvchr = bvGetChrMatchData(chr);
-	bool haslos = bvslendermanHasLoSToTarget();
-	bool istarget = (chr == bvslendermanGetTargetChr());
-	bool victimized = (istarget && haslos); // victimized = actively hunted and stared at by slenderman
-
-	// If Slenderman is dead or despawned, just decay and return
-	if (g_BvMatch.slendermanchr == NULL) {
-		bvslendermanDecayVictimProgress(bvchr, 4.0f); // decay quickly
-		bvchr->inslendermanvicinity = false;
-		return;
-	} // *** Beyond this point slenderman is known to be alive: ***
-	// Decay progress unless we're standing right next to Slenderman or he's actively hunting and staring at us
-	else if (!victimized) {//!bvchr->inslendermanvicinity && !victimized) {
-		bvslendermanDecayVictimProgress(bvchr, 2.0f); // decay slowly
-	}
-	// We're the target and Slenderman has LoS
-	else if (victimized) {
-		bvslendermanIncrementVictimProgress(bvchr, 1.0f);
-	}
-
-	// If we're on slenderman's team, cap the victimprogress
-	if (chrCompareTeams(chr, g_BvMatch.slendermanchr, COMPARE_FRIENDS)) {
-		if (bvchr->slendermanvictimprogress >= progressthreshold_maxteammate) {
-			bvchr->slendermanvictimprogress = progressthreshold_maxteammate;
-		}
-	}
-	// Otherwise, check if we're dead
-	else if (bvchr->slendermanvictimprogress >= progressthreshold_death) {
-		// deal fatal damage to player
-		struct coord vector = {0, 0, 0};
-		chrDamageByMisc(chr, 200.0f, &vector, NULL, g_BvMatch.slendermanchr->prop);
-	}
-}
-*/

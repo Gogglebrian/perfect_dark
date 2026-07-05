@@ -28,7 +28,7 @@ void bvResetChrDataForSpawn(struct bvchrdata* bvchr) {
 	bvchr->slendermandist = 0;
 	bvchr->slendermanonscreen = false;
 	bvchr->slendermanhaslos = false;
-	bvchr->slendermanaggro = false;
+	bvchr->slendermanaggro = 0;
 }
 
 /**
