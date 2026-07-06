@@ -18,12 +18,13 @@ void bvInit() {
 /**
 * Call when chr is allocated to set pointers and index.
 * Precondition: aibot and aibot->aibutonum
+* Precondition: g_MpNumChrs has been incremented for this bot, but not yet for the next bot (if any)
 */
 void bvInitChrDataOnAllocate(struct chrdata* chr) {
 	if (chr->aibot) {
 		chr->bvchr = &g_BvMatch.bots[chr->aibot->aibotnum]; 
 		chr->bvchr->index = chr->aibot->aibotnum;
-		chr->bvchr->mpindex = -1; // will be set to its actual value on the first spawn of the match
+		chr->bvchr->mpindex = g_MpNumChrs - 1; // works because g_MpNumChrs is incremented as bots are allocated
 	}
 	else {
 		chr->bvchr = &g_BvMatch.players[g_Vars.currentplayerindex];
@@ -56,7 +57,7 @@ void bvResetChrDataForSpawn(struct bvchrdata* bvchr) {
 * Call on match start to clear botvariety chr data to null/default values, including match-wide values like initial scale and model.
 */
 void bvClearAllChrData(struct bvchrdata * bvchr) {
-	//bvchr->mpindex intentionally omitted; for players it is set when chr allocated, for bots on the first spawn in bvTryInitChrForMatch
+	//bvchr->mpindex and bvchr->index intentionally omitted; these are set on chr allocation and shouldn't be changed
 	bvchr->initscale = -1.0f;
 	bvchr->initmodel = NULL;
 	bvchr->impostorof = -1;
@@ -99,7 +100,6 @@ bool bvTryInitChrForMatch(struct chrdata* chr, bool iscurrentplayer) {
 		return true;
 	}
 	else if (chr->aibot && chr->bvchr->initscale <= 0) {
-		chr->bvchr->mpindex = mpPlayerGetIndex(chr);
 		chr->bvchr->initscale = chr->model->scale;
 		chr->bvchr->initmodel = chr->model;
 		return true;
