@@ -26,11 +26,11 @@ s32 bvIsChrBond(struct chrdata* chr) {
 }
 
 /**
-* Gets a chr model to use depending on whether the chr is the current player's, or a bot's
+* Gets a chr model to use depending on whether the chr is a player's, or a bot's
 */
 struct model* bvGetModel(struct chrdata* chr) {
-	if (bvIsChrCurrentPlayer(chr)) {
-		return g_Vars.currentplayer->model00d4;
+	if (chr->player) {
+		return chr->player->model00d4;
 	}
 	else {
 		return chr->model;
@@ -39,11 +39,9 @@ struct model* bvGetModel(struct chrdata* chr) {
 
 /**
 * Returns the chr's botvariety data set aside for this match, like initial model and scale value.
+* This is vestigial and no longer needs to be used; just use chr->bvchr.
 */
 struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
-	/*if (bvIsChrCurrentPlayer(chr)) {
-		return &g_BvMatch.players[g_Vars.currentplayerindex];
-	}*/
 	if (chr->aibot) { // bot
 		return &g_BvMatch.bots[chr->aibot->aibotnum];
 	}

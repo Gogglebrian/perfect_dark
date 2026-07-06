@@ -1291,6 +1291,9 @@ void chrInit(struct prop *prop, u8 *ailist)
 	chr->noblood = false;
 	chr->rtracked = false;
 
+	chr->player = NULL; // @mod
+	chr->bvchr = NULL; // @botvariety
+
 #if VERSION >= VERSION_NTSC_1_0
 	chr->goposhitcount = 0;
 #endif
@@ -6727,15 +6730,4 @@ void chrSetDrCarollImages(struct chrdata *drcaroll, s32 imageleft, s32 imagerigh
 			}
 		}
 	}
-}
-
-/*
-* @mod: returns false if the chr's actiontype is ACT_DIE or ACT_DEAD, or if the chr is null.
-* 
-*/
-bool chrIsAlive(struct chrdata* chr) {
-	if (chr) {
-		return (chr->actiontype != ACT_DEAD && chr->actiontype != ACT_DIE);
-	}
-	return false;
 }

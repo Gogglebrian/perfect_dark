@@ -4,8 +4,7 @@
 #include "data.h"
 #include "types.h"
 
- // This u32 isn't used in combat simulator so we'll hackily borrow it for our variant flags
-#define CHR_BV_FLAGS chr->convtalk
+#define CHR_BV_FLAGS chr->bvchr->flags
 
 // Flags
 #define BVFLAG_MINI             0x00000001
@@ -81,14 +80,14 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer);
 // botvarietyinit.c
 void bvInit();
 void bvInitMatch();
-bool bvTryInitChr(struct chrdata* chr, bool iscurrentplayer);
+bool bvTryInitChrForMatch(struct chrdata* chr, bool iscurrentplayer);
 void bvEndMatch();
 void bvResetChrDataForSpawn(struct bvchrdata* bvchr);
+void bvInitChrDataOnAllocate(struct chrdata* chr);
 
 // botvarietycommon.c
 const struct bvvariant* bvGetVariant(u8 index);
 struct model* bvGetModel(struct chrdata* chr);
-struct bvchrdata* bvGetChrMatchData(struct chrdata* chr);
 bool bvIsChrCurrentPlayer(struct chrdata* chr);
 s32 bvIsChrBond(struct chrdata* chr);
 

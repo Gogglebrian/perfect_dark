@@ -169,8 +169,8 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 	}
 }
 
-#define ATTACKER_BOTVARIETY_FLAGS achr->convtalk
-#define VICTIM_BOTVARIETY_FLAGS   vchr->convtalk
+#define ATTACKER_BV_FLAGS achr->bvchr->flags
+#define VICTIM_BV_FLAGS   vchr->bvchr->flags
 
 /**
 * Call when a chr takes damage to proc any unique botvariety behaviors.
@@ -196,7 +196,7 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 		variant = bvGetVariant(i);
 
 		// Handle attacker damage factors
-		if (ATTACKER_BOTVARIETY_FLAGS & variant->flag && variant->stat) {
+		if (ATTACKER_BV_FLAGS & variant->flag && variant->stat) {
 			// Handle blunt damage
 			if (gsetHasFunctionFlags(gset, FUNCFLAG_BLUNTIMPACT)) {
 				// Handle disarm - set to flat value if it's higher than the current value (default 0), but else apply general bluntdamagemult
@@ -211,7 +211,7 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 		}
 
 		// Handle victim damage factors
-		if (VICTIM_BOTVARIETY_FLAGS & variant->flag && variant->stat) {
+		if (VICTIM_BV_FLAGS & variant->flag && variant->stat) {
 			// Handle unshielded damage taken mult
 			if (vchr->cshield <= 0 && variant->stat->damagetakenmult > 0) {
 				damage *= variant->stat->damagetakenmult;
@@ -226,8 +226,8 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 
 	return damage;
 }
-#undef ATTACKER_BOTVARIETY_FLAGS
-#undef VICTIM_BOTVARIETY_FLAGS 
+#undef ATTACKER_BV_FLAGS
+#undef VICTIM_BV_FLAGS 
 
 /**
 * Adjusts the passed melee range value with regard to the currentplayer chr's applicable botvariety flags, if the botvariety system is active.

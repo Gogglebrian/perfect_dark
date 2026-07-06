@@ -1345,6 +1345,8 @@ struct chrdata {
 	/*0x362*/ u8 drcarollimage_left : 4;
 	/*0x362*/ u8 drcarollimage_right : 4;
 	/*0x364*/ struct prop *lift;
+	/*0x368*/ struct bvchrdata* bvchr; // pointer to @botvariety chr data
+	/*0x36c*/ struct player* player; // @mod pointer to player, if any
 };
 
 // This appears to be misnamed. Not only is it projectiles such as grenades and
@@ -6259,6 +6261,11 @@ struct bvvariant {
 
 /// Botvariety in-match data for a single player/bot
 struct bvchrdata {
+	u8 index; // index to the array containing this bvchrdata: 0-3 for players, 0-7 for bots
+	s8 mpindex; // 0-11
+	struct chrdata* chr;
+	struct player* player;
+	u32 flags;
 	f32 initscale;
 	struct model* initmodel;
 	u8 impostorof; // bot: if impersonating, index of impersonated player

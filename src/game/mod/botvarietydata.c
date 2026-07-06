@@ -135,7 +135,7 @@ const struct bvvariant variantSlenderman = {
 	{ // spawn chances
 		0.005f,  // bot    - 1 in 200
 		0, // player - N/A
-		1.0f,   // debug  - 1 in  2
+		0.5f,   // debug  - 1 in  2
 		0, // spree  - N/A
 	},
 	{ // spree data (N/A)

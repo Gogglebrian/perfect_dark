@@ -92,7 +92,7 @@ void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, 
 * Ticks an explosive bot's internal timers to manage its flashing and beeping, which gets faster as the bot gets closer to the target
 */
 void bvTickExplosiveBot(struct chrdata* botchr) {
-	struct bvchrdata* bvbot = bvGetChrMatchData(botchr);
+	struct bvchrdata* bvbot = botchr->bvchr;
 	f32 dist = botGetDistanceToTarget(botchr);
 	bool hastarget = botchr->target != -1;
 	f32 maxglowweight, cycletime, beeppitch;
@@ -148,7 +148,7 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 * Assumes the botchr is an explosive bot, so check first
 */
 void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata) {
-	struct bvchrdata* bvbot = &g_BvMatch.bots[botchr->aibot->aibotnum];
+	struct bvchrdata* bvbot = botchr->bvchr;
 	if (bvbot->explosiveglowweight > 0.0f) {
 		u32 glowcolour = colourBlend(flashcolor_hot, flashcolor_cool, bvbot->explosiveglowweight);
 		renderdata->fogcolour = colourBlend(glowcolour, renderdata->fogcolour, bvbot->explosiveglowweight); // the glow becomes more intense while the env colours get overwhelmed

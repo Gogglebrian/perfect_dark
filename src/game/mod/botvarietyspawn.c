@@ -15,7 +15,7 @@
 * Gets the initial body scale of the original model of this chr.
 */
 f32 bvGetInit3DBodyScale(struct chrdata* chr) {
-	return bvGetChrMatchData(chr)->initscale;
+	return chr->bvchr->initscale;
 }
 
 /**
@@ -182,8 +182,7 @@ bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
 */
 void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 	s16 botnum = chr->aibot->aibotnum;
-	struct bvchrdata * bvchr = &g_BvMatch.bots[botnum]; 
-	struct model* initmodel = bvchr->initmodel;
+	struct model* initmodel = chr->bvchr->initmodel;
 
 	// If necessary, revert previous model
 	if (chr->model != initmodel) {
@@ -207,8 +206,8 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 		modelmgrFreeModel(altmodel);
 
 		// If we were impstor, mark that we aren't anymore
-		if (bvchr->impostorof >= 0) {
-			bvchr->impostorof = -1;
+		if (chr->bvchr->impostorof >= 0) {
+			chr->bvchr->impostorof = -1;
 		}
 	}
 }
@@ -262,7 +261,7 @@ bool bvspawnTryApplyImpostor(struct chrdata* chr) {
 	// Try to allocate and switch to a new model copying the player
 	if (bvspawnTryApplyModelChange(chr, copyplayerchr->bodynum, copyplayerchr->headnum)) {
 		// Success: Mark that we're impersonating the player
-		g_BvMatch.bots[chr->aibot->aibotnum].impostorof = copyplayerindex;
+		chr->bvchr->impostorof = copyplayerindex;
 		return true;
 	}
 
@@ -516,18 +515,17 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	bool isimpostor = false;
 	u8 i;
 
-	u32 prevflags = CHR_BV_FLAGS; // set aside previous spawn's variant flags (some may have already been unset such as Explosive)
-	CHR_BV_FLAGS = 0; // Reset chr's variant flags
+	u32 prevflags = CHR_BV_FLAGS; // set aside previous spawn's variant flags (note some may have already been unset such as Explosive)
 
 	// Initialize bvchrdata on this chr's first spawn of the match
-	bool firstspawn = bvTryInitChr(chr, iscurrentplayer);
+	bool firstspawn = bvTryInitChrForMatch(chr, iscurrentplayer);
 	
 	// On subsequent spawns, reset temporary chrdata
 	if (!firstspawn) {
 		if (prevflags & BVFLAG_SLENDERMAN) {
 			bvslendermanDespawn(); // if we were slenderman last tick, register that he's despawned
 		}
-		bvResetChrDataForSpawn(bvGetChrMatchData(chr));
+		bvResetChrDataForSpawn(chr->bvchr); // clears data including CHR_BV_FLAGS but doesn't revert changed model
 
 		// On subsequent bot spawns, roll for sprees
 		if (!iscurrentplayer) {

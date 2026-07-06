@@ -144,28 +144,24 @@ struct chrdata* bvslendermanGetTargetChr() {
 * Should this non-Slenderman chr be ticked for Slenderman-related behaviors?
 */
 bool bvslendermanShouldOtherChrTick(struct chrdata* chr) {
-	struct bvchrdata* bvchr = bvGetChrMatchData(chr);
-
 	// Don't do this tick if we ARE slenderman
 	if (g_BvMatch.slendermanchr == chr) {
 		return false;
 	}
 
 	// Do the tick if slenderman is spawned or we have extant exposure left to decay after he despawned
-	if (g_BvMatch.slendermanchr || bvchr->slendermanexposure > 0) {
+	if (g_BvMatch.slendermanchr || chr->bvchr->slendermanexposure > 0) {
 		return true;
 	}
 	return false;
 }
 
 bool bvslendermanShouldDoStatic(struct chrdata* chr) {
-	struct bvchrdata* bvchr = bvGetChrMatchData(chr);
-	return (bvchr->slendermanexposure > 0);
+	return (chr->bvchr->slendermanexposure > 0);
 }
 
 bool bvslendermanIsVisibleToChr(struct chrdata* chr) {
-	struct bvchrdata* bvchr = bvGetChrMatchData(chr);
-	return (bvchr->slendermanopacity > 0);
+	return (chr->bvchr->slendermanopacity > 0);
 }
 
 /**
@@ -206,13 +202,8 @@ bool bvslendermanIsAggro() {
 	struct bvchrdata* trybvchr;
 	u8 i;
 
-	for (i = 0; i < MAX_PLAYERS + MAX_BOTS; i++) {
-		if (i > MAX_PLAYERS) {
-			trybvchr = &g_BvMatch.bots[i - MAX_PLAYERS];
-		}
-		else {
-			trybvchr = &g_BvMatch.players[i];
-		}
+	for (i = 0; i < g_MpNumChrs; i++) {
+		trybvchr = mpGetChrFromPlayerIndex(i)->bvchr;
 		if (trybvchr->slendermanaggro > 0) {
 			return true;
 		}
@@ -225,24 +216,21 @@ bool bvslendermanIsAggro() {
 * Call when Slenderman takes damage to aggro agaisnt the chr what damaged him.
 */
 void bvslendermanOnDamageTaken(struct chrdata* achr) {
-	struct bvchrdata* bvchr;
 	s32 wasaggroagainstanyone;
 
-	if (!achr) {
+	if (!achr || chrIsDead(achr)) {
 		return;
 	}
 	
-	bvchr = bvGetChrMatchData(achr);
 	wasaggroagainstanyone = bvslendermanIsAggro();
 
-	if (bvchr->slendermanaggro == 0) {
-		bvchr->slendermanaggro = 1;
+	if (achr->bvchr->slendermanaggro == 0) {
+		achr->bvchr->slendermanaggro = 1;
 	}
 
 	// if a living nonteammate freshly-aggroed slenderman, he should target them
 	if (!wasaggroagainstanyone 
-		&& achr != bvslendermanGetTargetChr() 
-		&& !chrIsDead(achr)
+		&& achr != bvslendermanGetTargetChr()
 		&& !chrCompareTeams(g_BvMatch.slendermanchr, achr, COMPARE_FRIENDS)) {
 		botSetTarget(g_BvMatch.slendermanchr, achr->prop - g_Vars.props);
 	}
@@ -275,13 +263,8 @@ void bvslendermanDespawn() {
 	//smokeCreateSimple(&chr->prop->pos, chr->prop->rooms, SMOKETYPE_MEDIUM);
 
 	// Clear slenderman data for all chrs
-	for (i = 0; i < MAX_PLAYERS + MAX_BOTS; i++) {
-		if (i > MAX_PLAYERS) {
-			trybvchr = &g_BvMatch.bots[i - MAX_PLAYERS];
-		}
-		else {
-			trybvchr = &g_BvMatch.players[i];
-		}
+	for (i = 0; i < g_MpNumChrs; i++) {
+		trybvchr = mpGetChrFromPlayerIndex(i)->bvchr;
 		trybvchr->slendermandist = -1.0f;
 		trybvchr->slendermanonscreen = false;
 		trybvchr->slendermanhaslos = false;
@@ -294,9 +277,8 @@ void bvslendermanDespawn() {
 f32 bvslendermanGetMeleeDamageMult() {
 	if (bvslendermanHasTarget()) {
 		struct chrdata* targetchr = bvslendermanGetTargetChr();
-		struct bvchrdata* bvchr = bvGetChrMatchData(targetchr);
 
-		if (bvchr->slendermanaggro >= 2) {
+		if (targetchr->bvchr->slendermanaggro >= 2) {
 			return damagemult_rush;
 		}
 	}
@@ -329,9 +311,8 @@ f32 bvslendermanGetAnimSpeedMult() {
 
 	if (bvslendermanHasTarget()) {
 		struct chrdata* targetchr = bvslendermanGetTargetChr();
-		struct bvchrdata* bvchr = bvGetChrMatchData(targetchr);
 		// Target is past the rush threshold, rush em
-		if (bvchr->slendermanaggro >= 2) {
+		if (targetchr->bvchr->slendermanaggro >= 2) {
 			return animspeedmult_rush;
 		}
 	}
@@ -447,7 +428,7 @@ void bvslendermanUpdateSpeedMult() {
 
 	if (hastarget) {
 		targetchr = bvslendermanGetTargetChr();
-		bvchr = bvGetChrMatchData(targetchr);
+		bvchr = targetchr->bvchr;
 
 		// Target is past the rush threshold, rush em
 		if (bvchr->slendermanaggro >= 2) {
@@ -574,7 +555,7 @@ void bvslendermanUpdateOpacityForChr(struct chrdata* chr, struct bvchrdata* bvch
 *  + Updates slenderman's opacity from this chr's perspective (used for alpha on players' screens, and whether visible to other bots)
 */
 void bvslendermanTickOtherChr(struct chrdata* chr) {
-	struct bvchrdata* bvchr = bvGetChrMatchData(chr);
+	struct bvchrdata* bvchr = chr->bvchr;
 
 	if (g_BvMatch.slendermanchr != NULL) {
 		s32 chrindex = mpPlayerGetIndex(chr);
@@ -599,7 +580,7 @@ Gfx *bvslendermanApplyVictimStatic(Gfx *gdl) {
 	//return bviewDrawStatic(gdl, 0x4fffffff, 255);
 
 	u32 staticlevel;
-	struct bvchrdata* bvchr = bvGetChrMatchData(g_Vars.currentplayer->prop->chr);
+	struct bvchrdata* bvchr = g_Vars.currentplayer->prop->chr->bvchr;
 	f32 exposure = bvchr->slendermanexposure;
 
 	if (exposure <= exposurethreshold_minstatic) {
@@ -625,9 +606,8 @@ Gfx *bvslendermanApplyVictimStatic(Gfx *gdl) {
 u8 bvslendermanGetAlpha() {
 	u32 alpha;
 	struct chrdata* currentplayerchr = g_Vars.currentplayer->prop->chr;
-	struct bvchrdata* bvchr = bvGetChrMatchData(currentplayerchr);
 	
-	alpha = (u32)bvchr->slendermanopacity;
+	alpha = (u32)currentplayerchr->bvchr->slendermanopacity;
 
 	if (alpha >= 255) {
 		return 255;
@@ -662,7 +642,7 @@ void bvslendermanGetBloodColours(u8 *colour1, u32 *colour2) {
 */
 Gfx *bvslendermanDisplayExposure(Gfx *gdl)
 {
-	f32 exposure = bvGetChrMatchData(g_Vars.currentplayer->prop->chr)->slendermanexposure;
+	f32 exposure = g_Vars.currentplayer->prop->chr->bvchr->slendermanexposure;
 	s32 x = viGetViewLeft() + 27;
 	s32 y = viGetViewTop() + 13;
 	//x *= (g_Vars.currentplayerindex + 1);

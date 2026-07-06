@@ -1521,7 +1521,10 @@ void playerTickChrBody(void)
 		g_Vars.currentplayer->prop->type = PROPTYPE_PLAYER;
 		chr = g_Vars.currentplayer->prop->chr;
 
+		chr->player = g_Vars.currentplayer; // @mod
+
 		if (g_Vars.mplayerisrunning) {
+			bvInitChrDataOnAllocate(chr); // @botvariety - initialize pointers and index
 			g_MpAllChrPtrs[g_Vars.currentplayernum] = chr;
 			g_MpAllChrConfigPtrs[g_Vars.currentplayernum] = &g_PlayerConfigsArray[g_Vars.currentplayerstats->mpindex].base;
 		}

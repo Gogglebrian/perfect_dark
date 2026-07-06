@@ -6,6 +6,7 @@
 #include "game/prop.h"
 #include "game/botcmd.h"
 #include "game/botinvinit.h"
+#include "game/mod/botvariety.h"
 #include "game/mplayer/mplayer.h"
 #include "bss.h"
 #include "lib/memp.h"
@@ -266,6 +267,7 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					aibot->distoverrideprop = NULL;
 					aibot->distoverridetimer60 = 0;
 #endif
+					bvInitChrDataOnAllocate(chr); // @botvariety - initialize pointers and index
 				} else {
 					g_MpBotChrPtrs[--g_BotCount] = NULL;
 					return;
