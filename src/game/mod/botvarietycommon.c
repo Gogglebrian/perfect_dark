@@ -57,5 +57,7 @@ struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
 			}
 		}
 	}
+
+	return NULL;
 }
 

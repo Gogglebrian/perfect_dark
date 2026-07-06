@@ -46,7 +46,7 @@
 // botvariety.c
 bool bvIsBotVarietyActive();
 bool bvChrHasVarietyFlags(struct chrdata* chr);
-void bvTickCurrentPlayerAliveUnpausedEarly(struct chrdata* chr);
+void bvTickCurrentPlayerAliveUnpaused(struct chrdata* chr);
 void bvProcOnDeath(struct chrdata* chr, s32 killerplayernum);
 void bvProcOnCorpseFadeBegin(struct chrdata* chr);
 void bvProcOnDamageTaken(struct chrdata* achr, struct chrdata* vchr,  struct gset* gset, f32 damage);
@@ -119,13 +119,13 @@ void bvslendermanOnDamageTaken(struct chrdata* achr);
 void bvslendermanOnCorpseFade(struct chrdata* chr);
 void bvslendermanTick(struct chrdata* chr);
 void bvslendermanTickOtherChr(struct chrdata* chr);
+void bvslendermanApplyColour(struct chrdata* botchr, struct modelrenderdata* renderdata);
 void bvslendermanGetBloodColours(u8 *colour1, u32 *colour2);
+u8 bvslendermanGetAlpha();
 f32 bvslendermanGetMeleeDamageMult();
 f32 bvslendermanGetSpeedMult();
 f32 bvslendermanGetAnimSpeedMult();
-u8 bvslendermanGetAlpha();
-void bvslendermanApplyColour(struct chrdata* botchr, struct modelrenderdata* renderdata);
 Gfx *bvslendermanApplyVictimStatic(Gfx *gdl);
-Gfx *bvslendermanDebugRenderProgress(Gfx *gdl);
+Gfx *bvslendermanDisplayExposure(Gfx *gdl);
 
 #endif

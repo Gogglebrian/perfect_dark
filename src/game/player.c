@@ -3328,15 +3328,6 @@ void playerTick(bool arg0)
 		playerDieByShooter(g_Vars.currentplayernum, true);
 	}
 
-	// @botvariety: Tick player
-	if (bvIsBotVarietyActive() 
-		&& g_Vars.currentplayer->pausemode == PAUSEMODE_UNPAUSED
-		&& g_Vars.currentplayer->prop 
-		&& g_Vars.currentplayer->prop->chr 
-		&& !g_Vars.currentplayer->isdead) {
-		bvTickCurrentPlayerAliveUnpausedEarly(g_Vars.currentplayer->prop->chr);
-	}
-
 	playerTickDamageAndHealth();
 	playerTickExplode();
 

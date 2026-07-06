@@ -23,7 +23,7 @@ void bvResetChrDataForSpawn(struct bvchrdata* bvchr) {
 	bvchr->explosiveglowweight = 0;
 	bvchr->explosivetimer = 0;
 	bvchr->explosivebeepdone = false;
-	bvchr->slendermanvictimprogress = 0;
+	bvchr->slendermanexposure = 0;
 	bvchr->slendermanopacity = 0;
 	bvchr->slendermandist = 0;
 	bvchr->slendermanonscreen = false;

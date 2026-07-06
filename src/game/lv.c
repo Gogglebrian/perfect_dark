@@ -1245,6 +1245,15 @@ Gfx *lvRender(Gfx *gdl)
 				autoaimTick();
 				handsTickAttack();
 
+				// @botvariety: Tick player
+				if (bvIsBotVarietyActive() 
+					&& g_Vars.currentplayer->pausemode == PAUSEMODE_UNPAUSED
+					&& g_Vars.currentplayer->prop 
+					&& g_Vars.currentplayer->prop->chr 
+					&& !g_Vars.currentplayer->isdead) {
+					bvTickCurrentPlayerAliveUnpaused(g_Vars.currentplayer->prop->chr);
+				}
+
 #ifndef PLATFORM_N64
 				// glares calculated earlier on PC, before prop matrices turn into garbage
 				bgCalculateGlaresForVisibleRooms();
@@ -1534,7 +1543,7 @@ Gfx *lvRender(Gfx *gdl)
 							gdl = bvslendermanApplyVictimStatic(gdl);
 						}
 						if (BVVARIANT_SLENDERMAN->debug) {
-							gdl = bvslendermanDebugRenderProgress(gdl);
+							gdl = bvslendermanDisplayExposure(gdl);
 						}
 					}
 

@@ -43,7 +43,7 @@ bool bvChrHasVarietyFlags(struct chrdata* chr) {
 * Should only be called from bvTickCurrentPlayerAliveUnpausedEarly or bvbotTickAliveUnpausedEarly
 * Ticks unique botvariety behaviors to be procced at the beginning of any chr's (bots and players) unpaused tick
 */
-void bvTickChrAliveUnpausedEarly(struct chrdata* chr) {
+void bvTickChrAliveUnpaused(struct chrdata* chr) {
 	// Tick effects of slenderman on other characters
 	if (bvslendermanShouldOtherChrTick(chr)) {
 		bvslendermanTickOtherChr(chr);
@@ -53,8 +53,8 @@ void bvTickChrAliveUnpausedEarly(struct chrdata* chr) {
 /**
 * Ticks unique botvariety player-side behaviors to be procced at the beginning of a living player's unpaused tick.
 */
-void bvTickCurrentPlayerAliveUnpausedEarly(struct chrdata* chr) {
-	bvTickChrAliveUnpausedEarly(chr);	
+void bvTickCurrentPlayerAliveUnpaused(struct chrdata* chr) {
+	bvTickChrAliveUnpaused(chr);	
 }
 
 /**

@@ -14,7 +14,7 @@
 
 // this file includes botvariety system functions that are specific to bots, not players.
 
-void bvTickChrAliveUnpausedEarly(struct chrdata* chr); // declared here but defined in botvariety.c
+void bvTickChrAliveUnpaused(struct chrdata* chr); // declared here but defined in botvariety.c
 
 /**
 * Checks if this chr can use this weapon/func based on their botvariety flags.
@@ -93,7 +93,7 @@ bool bvbotShouldCalcTargetDistEveryFrame(struct chrdata* chr) {
 	if (bvIsChrExplosive(chr)) {
 		return true;
 	}
-	// Slenderman's dist-based attack should be as precise as possible
+	// Slenderman's dist-based exposure should be as precise as possible
 	if (bvIsChrSlenderman(chr)) {
 		return true;
 	}
@@ -106,7 +106,7 @@ bool bvbotShouldCalcTargetDistEveryFrame(struct chrdata* chr) {
 * Default false
 */
 bool bvbotShouldCalcTargetLoSEveryFrame(struct chrdata* chr) {
-	// Slenderman's los-based attack benefits from continuous LoS updates
+	// Slenderman's los-based exposure benefits from continuous LoS updates
 	if (bvIsChrSlenderman(chr)) {
 		return true;
 	}
@@ -179,5 +179,5 @@ void bvbotTickAliveUnpausedEarly(struct chrdata* chr) {
 		bvslendermanTick(chr);
 	}
 
-	bvTickChrAliveUnpausedEarly(chr);	
+	bvTickChrAliveUnpaused(chr);	
 }

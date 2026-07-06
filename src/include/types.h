@@ -6265,7 +6265,7 @@ struct bvchrdata {
 	f32 explosiveglowweight; // explosive bots: current weight of flash/glow color
 	f32 explosivetimer; // explosive bots: timer for flashing and beeping
 	bool explosivebeepdone; // explosive bots: whether beep has been done this flash/beep interval
-	f32 slendermanvictimprogress; // the victim's progress towards a staticky death, in seconds of exposure. Increases when in slenderman's LoS. Decays when out of LoS or if slenderman's dead.
+	f32 slendermanexposure; // the victim's progress towards a staticky death, in seconds of exposure. Increases when in slenderman's LoS. Decays when out of LoS or if slenderman's dead.
 	f32 slendermanopacity; // the opacity at which slenderman should render for this chr (player only)
 	f32 slendermandist; // distance from this chr to slenderman
 	s32 slendermanaggro; // whether slenderman is aggro'd against this chr. 0 = no aggro, 1 = standard aggro, 2 = rush
