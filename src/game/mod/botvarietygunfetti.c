@@ -63,7 +63,7 @@ const u8 guns[] = {
 /**
 * Call on death to make a Gunfetti chr drop lots of random guns.
 */
-void bvPopGunfettiBot(struct chrdata* chr) {
+void bvgunfettiPop(struct chrdata* chr) {
   u8 i;
   u8 count, countmin, countmax;
   f32 pitch;

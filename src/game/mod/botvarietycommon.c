@@ -43,7 +43,9 @@ struct model* bvGetModel(struct chrdata* chr) {
 */
 struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
 	if (chr->aibot) { // bot
-		return &g_BvMatch.bots[chr->aibot->aibotnum];
+		if (g_BvMatch.bots[chr->aibot->aibotnum]) {
+			return g_BvMatch.bots[chr->aibot->aibotnum];
+		}
 	}
 	else { //player
 		for (u8 i = 0; i < ARRAYCOUNT(g_Vars.players); i++) {
@@ -51,7 +53,7 @@ struct bvchrdata* bvGetChrMatchData(struct chrdata* chr) {
 				&& g_Vars.players[i]->prop 
 				&& g_Vars.players[i]->prop->chr
 				&& g_Vars.players[i]->prop->chr == chr) {
-					return &g_BvMatch.players[i];
+					return g_BvMatch.players[i];
 			}
 		}
 	}

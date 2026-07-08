@@ -1345,8 +1345,11 @@ struct chrdata {
 	/*0x362*/ u8 drcarollimage_left : 4;
 	/*0x362*/ u8 drcarollimage_right : 4;
 	/*0x364*/ struct prop *lift;
-	/*0x368*/ struct bvchrdata* bvchr; // pointer to @botvariety chr data
-	/*0x36c*/ struct player* player; // @mod pointer to player, if any
+	/*0x368*/ struct player* player; // @mod pointer to player, if any
+	/*0x36C*/ u8 mpindex; // @mod 0-11 index to g_MpAllChrPtrs
+	/*0x36D*/ u8 bvindex; // @botvariety index to array of players or bots, 0-3 for players, 0-7 for bots
+	/*0x36E*/ struct bvchrdata* bvchr; // pointer to @botvariety chr data
+	/*0x372*/ struct bvbotdata* bvbot; // pointer to @botvariety bot-specific data 
 };
 
 // This appears to be misnamed. Not only is it projectiles such as grenades and
@@ -6259,34 +6262,58 @@ struct bvvariant {
 	bool debug;
 };
 
-/// Botvariety in-match data for a single player/bot
-struct bvchrdata {
-	u8 index; // index to the array containing this bvchrdata: 0-3 for players, 0-7 for bots
-	s8 mpindex; // 0-11
+/**
+* The current status of slenderchr's effects and situation relative to victimchr: 
+* - exposure - victimchr's level of exposure to slenderchr
+* - visibility - slenderchr's visibility (and render opacity) to victimchr 
+* - dist - distance between them
+* - haslos - whether slenderchr has LoS on victimchr
+* - onscreen - for player victimchr, if slenderchr is onscreen; always false for bot victimchrs
+* - istarget - if victimchr is slenderchr's target
+* - aggro - degree to which slenderchr is aggroed against victimchr; 0 for not, 1 for basic aggro, 2 for rushing
+* - slenderdead - if slenderchr is dead
+*/struct bvslendervictimstatus {
+	struct chrdata* slenderchr;
+	struct chrdata* victimchr;
+	f32 exposure; // exposure time to slenderchr in seconds
+	f32 visibility; // the opacity at which slenderchr should render if victimchr is player, and whether slenderchr is visible to victimchr if victimchr is a bot
+	f32 dist; // distance from victimchr to slenderchr
+	u8 aggro; // whether slenderchr is aggro'd against victimchr. 0 = no aggro, 1 = standard aggro, 2 = rush
+	bool istarget; // whether victimchr is slenderchr's target
+	bool onscreen; // player victimchr: whether slenderchr is onscreen this tick
+	bool haslos; // whether slenderchr has los on victimchr
+	bool slenderdead; // whether slenderchr is dead
+};
+
+/// Botvariety in-match data exclusive to bots 
+struct bvbotdata {
 	struct chrdata* chr;
-	struct player* player;
-	u32 flags;
-	f32 initscale;
+	struct bvchrdata* bvchr;
 	struct model* initmodel;
 	u8 impostorof; // bot: if impersonating, index of impersonated player
 	f32 explosiveglowweight; // explosive bots: current weight of flash/glow color
 	f32 explosivetimer; // explosive bots: timer for flashing and beeping
 	bool explosivebeepdone; // explosive bots: whether beep has been done this flash/beep interval
-	f32 slendermanexposure; // the victim's progress towards a staticky death, in seconds of exposure. Increases when in slenderman's LoS. Decays when out of LoS or if slenderman's dead.
-	f32 slendermanopacity; // the opacity at which slenderman should render for this chr (player only)
-	f32 slendermandist; // distance from this chr to slenderman
-	s32 slendermanaggro; // whether slenderman is aggro'd against this chr. 0 = no aggro, 1 = standard aggro, 2 = rush
-	bool slendermanonscreen; // players: whether slenderman is onscreen this tick
-	bool slendermanhaslos; // whether slenderman has los on this chr
+	f32 slenderspeedmult; // slenderman bots: 0 if frozen in place, or super fast if rushing
+	struct bvslendervictimstatus* slendervics[MAX_BOTS + MAX_PLAYERS]; // pointers to all other chrs' victim status data pertaining to this bot's Slenderman behavior, accessed by mpindex
+};
+
+/// Botvariety in-match data for a single chr (player or bot)
+struct bvchrdata {
+	struct chrdata* chr;
+	struct player* player;
+	struct bvbotdata* bvbot;
+	u32 flags;
+	f32 initscale;
+	struct bvslendervictimstatus* slendervicstatus[MAX_BOTS]; // pointers to this chr's Slenderman victim status data pertaining to each bot, accessed by botnum 0-7
 };
 
 /// In-match botvariety data
 struct bvmatchdata {
-	struct bvchrdata players[MAX_PLAYERS];
-	struct bvchrdata bots[MAX_BOTS];
+	struct bvchrdata* allchrs[MAX_PLAYERS + MAX_BOTS]; // pointers to bv data for all chrs, accessed by mpindex 0-11
+	struct bvchrdata* players[MAX_PLAYERS]; // pointers to bv data for players, accessed by player index 0-3
+	struct bvchrdata* bots[MAX_BOTS]; // pointers to bv data for bots, accessed by botnum 0-7
 	u16 variantspreespawnsleft[BOTVARIETY_VARIANT_COUNT];
-	struct chrdata* slendermanchr;
-	f32 slendermanspeedmult;
 };
 
 #endif

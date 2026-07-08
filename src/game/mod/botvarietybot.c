@@ -53,7 +53,7 @@ bool bvbotCanPickupWeapon(struct chrdata* chr, s32 weaponnum) {
 bool bvbotCanAttack(struct chrdata* chr) {
 	// slenderman can't attack while he's stalking
 	if (bvIsChrSlenderman(chr)) {
-		return bvslendermanCanAttack();
+		return bvslenderCanAttack(chr);
 	}
 
 	return true;
@@ -64,7 +64,7 @@ bool bvbotCanAttack(struct chrdata* chr) {
 * Default true
 */
 bool bvbotCanSeeChr(struct chrdata* botchr, struct chrdata* otherchr) {
-	if (bvIsChrSlenderman(otherchr) && !bvslendermanIsVisibleToChr(botchr)){
+	if (bvIsChrSlenderman(otherchr) && !bvslenderIsVisibleToChr(botchr, otherchr)){
 		return false;
 	}
 
@@ -77,7 +77,7 @@ bool bvbotCanSeeChr(struct chrdata* botchr, struct chrdata* otherchr) {
 */
 bool bvbotShouldStandStill(struct chrdata* chr) {
 	// slenderman has to stop and stare sometimes.
-	if (bvIsChrSlenderman(chr) && g_BvMatch.slendermanspeedmult == 0) {
+	if (bvIsChrSlenderman(chr) && chr->bvchr->bvbot->slenderspeedmult == 0) {
 		return true;
 	}
 
@@ -173,10 +173,10 @@ bool bvbotGuessCrouchPos(struct chrdata* chr, s32* crouchpos) {
 void bvbotTickAliveUnpausedEarly(struct chrdata* chr) {
 	// Tick explosive bot's flashing and beeping
 	if (bvIsChrExplosive(chr)) {
-		bvTickExplosiveBot(chr);
+		bvexplosiveTick(chr);
 	}
 	else if (bvIsChrSlenderman(chr)) {
-		bvslendermanTick(chr);
+		bvslenderTick(chr);
 	}
 
 	bvTickChrAliveUnpaused(chr);	

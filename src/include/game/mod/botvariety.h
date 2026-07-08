@@ -80,10 +80,10 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer);
 // botvarietyinit.c
 void bvInit();
 void bvInitMatch();
-bool bvTryInitChrForMatch(struct chrdata* chr, bool iscurrentplayer);
+bool bvTryInitChrForFirstSpawn(struct chrdata* chr, bool iscurrentplayer);
 void bvEndMatch();
-void bvResetChrDataForSpawn(struct bvchrdata* bvchr);
-void bvInitChrDataOnAllocate(struct chrdata* chr);
+void bvResetChrDataForSpawn(struct chrdata* chr);
+void bvAllocateChrData(struct chrdata* chr);
 
 // botvarietycommon.c
 const struct bvvariant* bvGetVariant(u8 index);
@@ -93,38 +93,36 @@ s32 bvIsChrBond(struct chrdata* chr);
 
 // botvarietyexplosive.c
 bool bvIsChrExplosive(struct chrdata* chr);
-void bvTickExplosiveBot(struct chrdata* botchr);
-void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata);
-void bvExplodeBot(struct chrdata* chr, s32 killerplayernum);
-f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage);
+void bvexplosiveResetDataForSpawn(struct chrdata* chr);
+void bvexplosiveTick(struct chrdata* botchr);
+void bvexplosiveApplyGlow(struct chrdata* botchr, struct modelrenderdata* renderdata);
+void bvexplosiveExplode(struct chrdata* chr, s32 killerplayernum);
+f32 bvexplosiveApplyExplosionDamageMult(f32 damage);
 
 // botvarietygunfetti.c
 bool bvIsChrGunfetti(struct chrdata* chr);
-void bvPopGunfettiBot(struct chrdata* chr);
+void bvgunfettiPop(struct chrdata* chr);
 
 // botvarietyslenderman.c
 bool bvIsChrSlenderman(struct chrdata* chr);
-bool bvslendermanCanSpawn();
-bool bvslendermanShouldOtherChrTick(struct chrdata* chr);
-bool bvslendermanShouldDoStatic(struct chrdata* chr);
-bool bvslendermanIsVisibleToChr(struct chrdata* chr);
-bool bvslendermanCanAttack();
-struct chrdata* bvslendermanGetChr();
-struct chrdata* bvslendermanGetTargetChr();
-void bvslendermanSpawn(struct chrdata* chr);
-void bvslendermanDie(struct chrdata* chr);
-void bvslendermanDespawn();
-void bvslendermanOnDamageTaken(struct chrdata* achr);
-void bvslendermanOnCorpseFade(struct chrdata* chr);
-void bvslendermanTick(struct chrdata* chr);
-void bvslendermanTickOtherChr(struct chrdata* chr);
-void bvslendermanApplyColour(struct chrdata* botchr, struct modelrenderdata* renderdata);
-void bvslendermanGetBloodColours(u8 *colour1, u32 *colour2);
-u8 bvslendermanGetAlpha();
-f32 bvslendermanGetMeleeDamageMult();
-f32 bvslendermanGetSpeedMult();
-f32 bvslendermanGetAnimSpeedMult();
-Gfx *bvslendermanApplyVictimStatic(Gfx *gdl);
-Gfx *bvslendermanDisplayExposure(Gfx *gdl);
+bool bvslenderShouldDoVictimTick(struct chrdata* chr);
+bool bvslenderShouldDoStatic();
+bool bvslenderCanAttack(struct chrdata* slenderchr);
+bool bvslenderIsVisibleToChr(struct chrdata* chr, struct chrdata* slender);
+void bvslenderResetVictimDataForSpawn(struct chrdata* chr);
+void bvslenderDie(struct chrdata* slenderchr);
+void bvslenderDespawn(struct chrdata* slenderchr);
+void bvslenderOnDamageTaken(struct chrdata* slenderchr, struct chrdata* achr);
+void bvslenderOnCorpseFade(struct chrdata* slenderchr);
+void bvslenderTick(struct chrdata* chr);
+void bvslenderTickVictim(struct chrdata* chr);
+void bvslenderApplyColour(struct modelrenderdata* renderdata);
+void bvslenderGetBloodColours(u8 *colour1, u32 *colour2);
+u8 bvslenderGetAlpha(struct chrdata* slenderchr);
+f32 bvslenderGetMeleeDamageMult(struct chrdata* slenderchr);
+f32 bvslenderGetSpeedMult(struct chrdata* slenderchr);
+f32 bvslenderGetAnimSpeedMult(struct chrdata* slenderchr);
+Gfx *bvslenderApplyVictimStatic(Gfx *gdl);
+Gfx *bvslenderDisplayExposure(Gfx *gdl);
 
 #endif

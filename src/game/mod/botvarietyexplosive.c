@@ -16,7 +16,7 @@ const f32 explosivedamagetakenmult = 3.0f;
 /**
 * Applies a constant multiplier to boost the explosion damage taken by Explosive Bots
 */
-f32 bvApplyExplosiveBotExplosionDamageMult(f32 damage) {
+f32 bvexplosiveApplyExplosionDamageMult(f32 damage) {
 	damage *= explosivedamagetakenmult;
 	return damage;
 }
@@ -52,6 +52,12 @@ bool bvIsChrExplosive(struct chrdata* chr) {
 	return chr->aibot && CHR_BV_FLAGS & BVFLAG_EXPLOSIVE;
 }
 
+void bvexplosiveResetDataForSpawn(struct chrdata* chr) {
+	chr->bvbot->explosivebeepdone = false;
+	chr->bvbot->explosiveglowweight = 0;
+	chr->bvbot->explosivetimer = 0;	
+}
+
 /**
 * Beeps
 */
@@ -62,9 +68,9 @@ void bvexplosiveDoBeep(struct chrdata* botchr, f32 beeppitch) {
 /**
 * Ticks the explosive glow weight up, starting with a beep
 */
-void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime, f32 beeppitch){
+void bvexplosiveTickBeepAndHeatup(struct bvbotdata* bvbot, f32 maxglowweight, f32 heatuptime, f32 beeppitch){
 	if (!bvbot->explosivebeepdone) {
-		bvexplosiveDoBeep(botchr, beeppitch);
+		bvexplosiveDoBeep(bvbot->chr, beeppitch);
 		bvbot->explosivebeepdone = true;
 	}
 	if (bvbot->explosiveglowweight < maxglowweight) {
@@ -78,7 +84,7 @@ void bvexplosiveTickBeepAndHeatup(struct chrdata* botchr, struct bvchrdata* bvbo
 /**
 * Ticks the explosive glow weight down to zero if necessary
 */
-void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, f32 heatuptime) {
+void bvexplosiveTickCooldownAndWait(struct bvbotdata* bvbot, f32 maxglowweight, f32 heatuptime) {
 	if (bvbot->explosiveglowweight > 0) {
 		bvbot->explosiveglowweight -= (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
 
@@ -91,15 +97,15 @@ void bvexplosiveTickCooldownAndWait(struct bvchrdata* bvbot, f32 maxglowweight, 
 /**
 * Ticks an explosive bot's internal timers to manage its flashing and beeping, which gets faster as the bot gets closer to the target
 */
-void bvTickExplosiveBot(struct chrdata* botchr) {
-	struct bvchrdata* bvbot = botchr->bvchr;
-	f32 dist = botGetDistanceToTarget(botchr);
-	bool hastarget = botchr->target != -1;
+void bvexplosiveTick(struct chrdata* chr) {
+	struct bvbotdata* bvbot = chr->bvbot;
+	f32 dist = botGetDistanceToTarget(chr);
+	bool hastarget = chr->target != -1;
 	f32 maxglowweight, cycletime, beeppitch;
 
 	// No target: Quickly cool off glow
 	if (!hastarget) {
-		bvexplosiveTickCooldownAndWait(bvbot,maxglowweight_near,0.0f);
+		bvexplosiveTickCooldownAndWait(bvbot, maxglowweight_near, 0.0f);
 	}
 	// Has target: Flash and beep periodically, brighter and faster as we get closer to the target
 	else {
@@ -127,7 +133,7 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 
 		// first little bit of a cycle, beep and heat up
 		if (bvbot->explosivetimer <= flashheatuptime) {
-			bvexplosiveTickBeepAndHeatup(botchr, bvbot, maxglowweight, flashheatuptime, beeppitch);
+			bvexplosiveTickBeepAndHeatup(bvbot, maxglowweight, flashheatuptime, beeppitch);
 		}
 		// then cool off and wait for the next cycle
 		else if (bvbot->explosivetimer > flashheatuptime) {
@@ -147,16 +153,14 @@ void bvTickExplosiveBot(struct chrdata* botchr) {
 * Applies a glow to the bot's renderdata based on its explosiveglowweight (ticked elsewhere).
 * Assumes the botchr is an explosive bot, so check first
 */
-void bvApplyExplosiveBotGlow(struct chrdata* botchr, struct modelrenderdata* renderdata) {
-	struct bvchrdata* bvbot = botchr->bvchr;
-	if (bvbot->explosiveglowweight > 0.0f) {
-		u32 glowcolour = colourBlend(flashcolor_hot, flashcolor_cool, bvbot->explosiveglowweight);
-		renderdata->fogcolour = colourBlend(glowcolour, renderdata->fogcolour, bvbot->explosiveglowweight); // the glow becomes more intense while the env colours get overwhelmed
+void bvexplosiveApplyGlow(struct chrdata* chr, struct modelrenderdata* renderdata) {
+	if (chr->bvbot->explosiveglowweight > 0.0f) {
+		u32 glowcolour = colourBlend(flashcolor_hot, flashcolor_cool, chr->bvbot->explosiveglowweight);
+		renderdata->fogcolour = colourBlend(glowcolour, renderdata->fogcolour, chr->bvbot->explosiveglowweight); // the glow becomes more intense while the env colours get overwhelmed
 	}
 }
 
-
-void bvExplodeBot(struct chrdata* chr, s32 killerplayernum) {
+void bvexplosiveExplode(struct chrdata* chr, s32 killerplayernum) {
 	s32 explosionplayer;
 	u8 explosiontype;
 	

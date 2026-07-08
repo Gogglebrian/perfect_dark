@@ -100,6 +100,7 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					chr->convtalk = 0;
 					chr->myaction = MA_AIBOTMAINLOOP;
 
+					chr->mpindex = g_MpNumChrs; // @mod
 					g_MpAllChrPtrs[g_MpNumChrs] = chr;
 					g_MpAllChrConfigPtrs[g_MpNumChrs] = &g_BotConfigsArray[aibotnum].base;
 					g_MpNumChrs++;
@@ -267,13 +268,13 @@ void botmgrAllocateBot(s32 chrnum, s32 aibotnum)
 					aibot->distoverrideprop = NULL;
 					aibot->distoverridetimer60 = 0;
 #endif
-					bvInitChrDataOnAllocate(chr); // @botvariety - initialize pointers and index
+					bvAllocateChrData(chr); // @botvariety - alloc/initialize bvchrdata, pointers and index
 				} else {
 					g_MpBotChrPtrs[--g_BotCount] = NULL;
 					return;
 				}
 
-				botinvInit(chr, NUM_MPWEAPONSLOTS + 4); // a slot for each weapon in the match, plus 4 for scenario items
+				botinvInit(chr, NUM_MPWEAPONSLOTS + 4); // @mod: a slot for each weapon in the match, plus 4 for scenario items
 			}
 		}
 	}

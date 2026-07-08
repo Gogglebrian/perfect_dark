@@ -182,7 +182,7 @@ bool bvspawnHandleSunglasses(struct chrdata* chr, f32 sunglasseschance) {
 */
 void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 	s16 botnum = chr->aibot->aibotnum;
-	struct model* initmodel = chr->bvchr->initmodel;
+	struct model* initmodel = chr->bvbot->initmodel;
 
 	// If necessary, revert previous model
 	if (chr->model != initmodel) {
@@ -206,8 +206,8 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 		modelmgrFreeModel(altmodel);
 
 		// If we were impstor, mark that we aren't anymore
-		if (chr->bvchr->impostorof >= 0) {
-			chr->bvchr->impostorof = -1;
+		if (chr->bvbot->impostorof >= 0) {
+			chr->bvbot->impostorof = -1;
 		}
 	}
 }
@@ -261,7 +261,7 @@ bool bvspawnTryApplyImpostor(struct chrdata* chr) {
 	// Try to allocate and switch to a new model copying the player
 	if (bvspawnTryApplyModelChange(chr, copyplayerchr->bodynum, copyplayerchr->headnum)) {
 		// Success: Mark that we're impersonating the player
-		chr->bvchr->impostorof = copyplayerindex;
+		chr->bvbot->impostorof = copyplayerindex;
 		return true;
 	}
 
@@ -288,21 +288,15 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 * See botvarietyslenderman.c for functionality overview.
 */
 bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance, bool isimpostor) {
-	if (!bvslendermanCanSpawn()) {
-		return false;
-	}
-
 	if (slendermanchance > 0 && RANDOMFRAC() < slendermanchance) { // roll
 		// If chr is already an impostor, then don't change the model again
 		if (isimpostor) { 
 			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
-			bvslendermanSpawn(chr);
 			return true;
 		}
 		// Otherwise under normal circumstances, put a classy suit on em
 		else if (bvspawnTryApplyModelChange(chr, BODY_PRESIDENT, chr->headnum)) { // try to apply model change
 			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
-			bvslendermanSpawn(chr);
 			return true;
 		}
 	}
@@ -515,17 +509,12 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	bool isimpostor = false;
 	u8 i;
 
-	u32 prevflags = CHR_BV_FLAGS; // set aside previous spawn's variant flags (note some may have already been unset such as Explosive)
-
 	// Initialize bvchrdata on this chr's first spawn of the match
-	bool firstspawn = bvTryInitChrForMatch(chr, iscurrentplayer);
+	bool firstspawn = bvTryInitChrForFirstSpawn(chr, iscurrentplayer);
 	
 	// On subsequent spawns, reset temporary chrdata
 	if (!firstspawn) {
-		if (prevflags & BVFLAG_SLENDERMAN) {
-			bvslendermanDespawn(); // if we were slenderman last tick, register that he's despawned
-		}
-		bvResetChrDataForSpawn(chr->bvchr); // clears data including CHR_BV_FLAGS but doesn't revert changed model
+		bvResetChrDataForSpawn(chr); // clears data including CHR_BV_FLAGS but doesn't revert changed model
 
 		// On subsequent bot spawns, roll for sprees
 		if (!iscurrentplayer) {

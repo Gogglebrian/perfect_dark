@@ -3450,7 +3450,7 @@ Gfx *chrRender(struct prop *prop, Gfx *gdl, bool xlupass)
 
 	// @botvariety: Slenderman is invisible or see-through depending on the player's victimprogress
 	if (bvIsBotVarietyActive() && bvIsChrSlenderman(chr)) {
-		u8 slenderalpha = bvslendermanGetAlpha(chr);
+		u8 slenderalpha = bvslenderGetAlpha(chr);
 		if (slenderalpha == 0) {
 			return gdl; // Slenderman's invisible, don't render
 		}

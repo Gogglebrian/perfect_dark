@@ -45,8 +45,8 @@ bool bvChrHasVarietyFlags(struct chrdata* chr) {
 */
 void bvTickChrAliveUnpaused(struct chrdata* chr) {
 	// Tick effects of slenderman on other characters
-	if (bvslendermanShouldOtherChrTick(chr)) {
-		bvslendermanTickOtherChr(chr);
+	if (bvslenderShouldDoVictimTick(chr)) {
+		bvslenderTickVictim(chr);
 	}
 }
 
@@ -63,15 +63,15 @@ void bvTickCurrentPlayerAliveUnpaused(struct chrdata* chr) {
 void bvProcOnDeath(struct chrdata* chr, s32 killerplayernum) {
 	// Explosive bots explode on death
 	if (bvIsChrExplosive(chr)) {
-		bvExplodeBot(chr, killerplayernum);
+		bvexplosiveExplode(chr, killerplayernum);
 	}
 	// Gunfetti bots drop a shitton of guns on death
 	else if (bvIsChrGunfetti(chr)) {
-		bvPopGunfettiBot(chr);
+		bvgunfettiPop(chr);
 	}
 	// slenderman makes a horrible noise on death
 	else if (bvIsChrSlenderman(chr)) {
-		bvslendermanDie(chr);
+		bvslenderDie(chr);
 	}
 }
 
@@ -80,7 +80,7 @@ void bvProcOnDeath(struct chrdata* chr, s32 killerplayernum) {
 */
 void bvProcOnCorpseFadeBegin(struct chrdata* chr) {
 	if (bvIsChrSlenderman(chr)) {
-		bvslendermanOnCorpseFade(chr);
+		bvslenderOnCorpseFade(chr);
 	}
 }
 
@@ -90,7 +90,7 @@ void bvProcOnCorpseFadeBegin(struct chrdata* chr) {
 */
 bool bvTryAdjustBloodColour(struct chrdata* chr, u8 *colour1, u32 *colour2) {
 	if (bvIsChrSlenderman(chr)) {
-		bvslendermanGetBloodColours(colour1, colour2);
+		bvslenderGetBloodColours(colour1, colour2);
 		return true;
 	}
 
@@ -103,11 +103,11 @@ bool bvTryAdjustBloodColour(struct chrdata* chr, u8 *colour1, u32 *colour2) {
 void bvTryApplyLateColourTweaks(struct chrdata* chr, struct modelrenderdata* renderdata) {
 	// Explosive bots: flash white-orange
 	if (bvIsChrExplosive(chr)) {
-		bvApplyExplosiveBotGlow(chr, renderdata);
+		bvexplosiveApplyGlow(chr, renderdata);
 	}
 	// Slenderman: dark color
 	else if (bvIsChrSlenderman(chr)) {
-		bvslendermanApplyColour(chr, renderdata);
+		bvslenderApplyColour(renderdata);
 	}
 }
 
@@ -177,7 +177,7 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 */
 void bvProcOnDamageTaken(struct chrdata* vchr, struct chrdata* achr,  struct gset* gset, f32 damage) {
 	if (bvIsChrSlenderman(vchr)) {
-		bvslendermanOnDamageTaken(achr);
+		bvslenderOnDamageTaken(vchr, achr);
 	}
 }
 
@@ -221,7 +221,7 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 
 	// Apply situational slenderman damage mult
 	if (bvIsChrSlenderman(achr)) {
-		damage *= bvslendermanGetMeleeDamageMult();
+		damage *= bvslenderGetMeleeDamageMult(achr);
 	}
 
 	return damage;
@@ -482,7 +482,7 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 
 	// Apply situational slenderman damage mult
 	if (bvIsChrSlenderman(chr)) {
-		speed *= bvslendermanGetSpeedMult();
+		speed *= bvslenderGetSpeedMult(chr);
 	}
 
 	return speed;
@@ -509,7 +509,7 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 
 	// Apply situational slenderman damage mult
 	if (bvIsChrSlenderman(chr)) {
-		animspeed *= bvslendermanGetAnimSpeedMult();
+		animspeed *= bvslenderGetAnimSpeedMult(chr);
 	}
 
 	return animspeed;

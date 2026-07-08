@@ -4886,7 +4886,7 @@ void chrDamage(struct chrdata *chr, f32 damage, struct coord *vector, struct gse
 
 		// @Botvariety: explosions do bonus damage against Explosive bots
 		if (explosion && bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-			damage = bvApplyExplosiveBotExplosionDamageMult(damage);
+			damage = bvexplosiveApplyExplosionDamageMult(damage);
 		}
 
 		// Handle aibot/chr losing gun
@@ -7765,7 +7765,7 @@ void chrPunchInflictDamage(struct chrdata *chr, s32 damage, s32 range, u8 revers
 
 		// @Botvariety: explosive bots explode on successful punch
 		if (bvIsBotVarietyActive() && bvIsChrExplosive(chr)) {
-			bvExplodeBot(chr, -1);
+			bvexplosiveExplode(chr, -1);
 			return;
 		}
 

@@ -1539,11 +1539,11 @@ Gfx *lvRender(Gfx *gdl)
 					// @botvariety: Slenderman's victims' screens fill with static
 					if (bvIsBotVarietyActive() 
 					&& g_Vars.currentplayer->prop && g_Vars.currentplayer->prop->chr) {
-						if (bvslendermanShouldDoStatic(g_Vars.currentplayer->prop->chr)) {
-							gdl = bvslendermanApplyVictimStatic(gdl);
+						if (bvslenderShouldDoStatic()) {
+							gdl = bvslenderApplyVictimStatic(gdl);
 						}
 						if (BVVARIANT_SLENDERMAN->debug) {
-							gdl = bvslendermanDisplayExposure(gdl);
+							gdl = bvslenderDisplayExposure(gdl);
 						}
 					}
 
