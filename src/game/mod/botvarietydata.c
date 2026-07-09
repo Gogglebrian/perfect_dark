@@ -34,7 +34,7 @@ const struct bvvariant variantMini = {
 		0.75f,   // spree  - 3 in  4
 	},
 	{ // spree data
-		0.002f, // trigger chance - 1 in 500
+		0.00166f, // trigger chance - 1 in 600
 		0.01f,    // debug chance
 		16,      // min spawn count
 		36,      // max spawn count
@@ -69,7 +69,7 @@ const struct bvvariant variantWumbo = {
 		0.75f,   // spree  - 3 in  4
 	},
 	{ // spree data
-		0.001666f, // trigger chance - 1 in 600
+		0.001423f, // trigger chance - 1 in 700
 		0.01f,   // debug chance
 		12,     // min spawn count
 		32,     // max spawn count
@@ -90,14 +90,14 @@ const struct bvvariantstats statsImpostor = {
 const struct bvvariant variantImpostor = {
 	BVFLAG_IMPOSTOR, BVINDEX_IMPOSTOR,
 	{ // spawn chances
-		0.002f,  // bot  - 1 in 500
+		0.0025f,  // bot  - 1 in 400
 		0,       // player - N/A
 		0.25f,   // debug  - 1 in 4
 		0.5f,    // spree  - 1 in 2
 	},
 	{ // spree data
-		0.000625f, // trigger chance - 1 in 1600
-		0.01f,      // debug chance 1/x
+		0.0004f, // trigger chance - 1 in 2500
+		0.01f,      // debug chance 
 		14,        // min spawn count
 		24,        // max spawn count
 	},
@@ -125,7 +125,7 @@ const struct bvvariantbodydata bodySlenderman = {
 const struct bvvariantstats statsSlenderman = {
 	1.4f,   // movespeedmult
 	1.4f,    // animspeedmult
-	0.333f,   // damagetakenmult (=3x health)
+	0.444f,   // damagetakenmult (=2.25x health)
 	 1.5f,    // bluntdamagemult
 	-1.0f,    // disarmdamage (default=0)
 	-1.0f,    // meleerangemult
@@ -133,16 +133,16 @@ const struct bvvariantstats statsSlenderman = {
 const struct bvvariant variantSlenderman = {
 	BVFLAG_SLENDERMAN, BVINDEX_SLENDERMAN,
 	{ // spawn chances
-		0.005f,  // bot    - 1 in 200
+		0.008f,  // bot - 1 in 125
 		0, // player - N/A
-		0.5f,   // debug  - 1 in  2
-		0, // spree  - N/A
+		0.5f,   // debug  - 1 in 8
+		0.5f, // spree  - 1 in 2
 	},
 	{ // spree data (N/A)
-		0, // trigger chance - 1 in 1600
-		0,   // debug chance
-		1,     // min spawn count
-		1,     // max spawn count
+		0.000666f, // trigger chance - 1 in 1500
+		0.1f,   // debug chance
+		12,     // min spawn count
+		24,     // max spawn count
 	},
 	&bodySlenderman,
 	&statsSlenderman,
@@ -166,7 +166,7 @@ const struct bvvariant variantSunglasses = {
 		1.0f,  // spree - all
 	},
 	{ // spree data
-		0.001333f, // trigger chance - 1 in 750
+		0.0008f, // trigger chance - 1 in 1250
 		0.01f,   // debug chance
 		16,     // min spawn count
 		36,     // max spawn count
@@ -187,13 +187,13 @@ const struct bvvariantstats statsExplosive = {
 const struct bvvariant variantExplosive = {
 	BVFLAG_EXPLOSIVE, BVINDEX_EXPLOSIVE,
 	{ // spawn chances
-		0.008f, // bot   - 1 in 125
+		0.00909f, // bot   - 1 in 110
 		0,  // player - N/A
-		0.05f, // debug - 1 in 20
+		0.06667f, // debug - 1 in 15
 		0.75f,  // spree - 3 in 4
 	},
 	{ // spree data
-		0.0001f, // trigger chance - 1 in 1000
+		0.001f, // trigger chance - 1 in 1000
 		0.1f,   // debug chance
 		16,      // min spawn count
 		36,      // max spawn count

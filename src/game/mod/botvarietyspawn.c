@@ -441,6 +441,7 @@ void bvspawnHandleStartingSprees() {
 
 	// Model-change sprees
 	bvspawnTryStartStandardSpree(BVINDEX_IMPOSTOR);
+	bvspawnTryStartStandardSpree(BVINDEX_SLENDERMAN); // compatible with Impostor
 
 	// Mini/wumbo sprees -- only start either if neither is already spreeing
 	if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
@@ -536,11 +537,13 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 			// Impostors are more likely to have other variants, but only if there's no ongoing spree
 			if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
 				chances[MINI] = 0.333f;
-				chances[WUMBO] = 0.333f;
-				abominationchancemult = 2.0f;
+				chances[WUMBO] = 0.25f;
+				abominationchancemult = 3.0f;
 			}
 			isimpostor = true;
 		}
+
+		// Slenderman - compatible with impostor
 		if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN], isimpostor)) {
 			// Slenderman is incompatible with all following variants
 			for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {

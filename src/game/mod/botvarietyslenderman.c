@@ -121,23 +121,6 @@ struct bvslendervictimstatus* bvslenderGetStatus(struct chrdata* victimchr, stru
 	return victimchr->bvchr->slendervicstatus[slenderchr->bvindex];
 }
 
-void bvslenderResetVictimDataForSpawn(struct chrdata* victimchr) {
-	struct bvslendervictimstatus* vicstatus;
-	for (u8 i = 0; i < g_BotCount; i++) {
-		struct bvslendervictimstatus* vicstatus = victimchr->bvchr->slendervicstatus[i];
-		if (vicstatus) {
-			vicstatus->exposure = 0;
-			vicstatus->visibility = 0;
-			vicstatus->dist = -1.0f;
-			vicstatus->aggro = 0;
-			vicstatus->onscreen = false;
-			vicstatus->haslos = false;
-			vicstatus->istarget = false;
-			vicstatus->slenderdead = false;
-		}
-	}
-}
-
 bool bvIsChrSlenderman(struct chrdata* chr) {
 	return (chr->aibot && CHR_BV_FLAGS & BVFLAG_SLENDERMAN);
 }
@@ -168,6 +151,21 @@ bool bvslenderHasExposure(struct chrdata* chr) {
 }
 
 /**
+* Returns the highest value of exposure this chr has to any slenderman.
+*/
+f32 bvslenderGetChrHighestExposure(struct chrdata* chr) {
+	f32 highest = 0;
+	for (u8 i = 0; i < g_BotCount; i++) {
+		if (chr->bvchr->slendervicstatus[i]
+			&& chr->bvchr->slendervicstatus[i]->exposure > highest) {
+			highest = chr->bvchr->slendervicstatus[i]->exposure;
+		}
+	}
+	return highest;
+}
+
+
+/**
 * Should this chr be ticked as a potential victim of Slenderman-related behaviors?
 */
 bool bvslenderShouldDoVictimTick(struct chrdata* chr) {
@@ -186,25 +184,11 @@ bool bvslenderShouldDoStatic() {
 }
 
 /**
-* Call when Slenderman's corpse starts to fade to release spooky smoke.
+* Is slenderchr visible to this chr?
+* True if visibility > 0
 */
 bool bvslenderIsVisibleToChr(struct chrdata* chr, struct chrdata* slender) {
 	return (bvslenderGetStatus(chr, slender)->visibility > 0);
-}
-
-/**
-* Call when Slenderman's corpse starts to fade to release spooky smoke.
-*/
-void bvslenderOnCorpseFade(struct chrdata* slenderchr) {
-	smokeCreateSimple(&slenderchr->prop->pos, slenderchr->prop->rooms, SMOKETYPE_MEDIUM);
-}
-
-/**
-* Call when Slenderman dies to play some spooky noises.
-*/
-void bvslenderDie(struct chrdata* slenderchr) {
-	u8 soundindex = rngRandom() % ARRAYCOUNT(slendermandeathsounds);
-	psCreate(NULL, slenderchr->prop, slendermandeathsounds[soundindex], -1, deathcry_volume, 0, 0, PSTYPE_GENERAL, NULL, BVVARIANT_SLENDERMAN->body->voicepitch, NULL, -1, -1, -1, -1);
 }
 
 /**
@@ -221,6 +205,160 @@ bool bvslenderIsAggro(struct chrdata* slenderchr) {
 	}
 
 	return false;
+}
+
+/**
+* Checks if Slenderman can attack its target based on whether it's been damaged or if its rushing.
+*/
+bool bvslenderCanAttack(struct chrdata* slenderchr) {
+	// can attack if rushing
+	if (slenderchr->bvbot->slenderspeedmult > 2.0f) {
+		return true;
+	}
+	// can attack once aggroed by taking damage
+	if (bvslenderIsAggro(slenderchr)) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+* Gets a melee damage mult for Slenderman depending on his aggro status.
+*/
+f32 bvslenderGetMeleeDamageMult(struct chrdata* slenderchr) {
+	if (slenderchr->target != -1) {
+		struct chrdata* targetchr = chrGetTargetProp(slenderchr)->chr;
+
+		if (bvslenderGetStatus(targetchr, slenderchr)->aggro >= 2) {
+			return damagemult_rush;
+		}
+	}
+	return 1.0f;
+}
+
+/**
+* Gets an anim speed mult for Slenderman depending on his aggro status.
+*/
+f32 bvslenderGetAnimSpeedMult(struct chrdata* slenderchr) {
+	if (chrIsDead(slenderchr)) {
+		return 1.0f / BVVARIANT_SLENDERMAN->stat->animspeedmult; // anim speed returns to normal chr anim speed on death
+	}
+
+	if (slenderchr->target != -1) {
+		struct chrdata* targetchr = chrGetTargetProp(slenderchr)->chr;
+		// Target is past the rush threshold, rush em
+		if (bvslenderGetStatus(targetchr, slenderchr)->aggro >= 2) {
+			return animspeedmult_rush;
+		}
+	}
+	
+	return 1.0f;
+}
+
+/**
+* Gets a speed mult for Slenderman depending on his aggro status.
+*/
+f32 bvslenderGetSpeedMult(struct chrdata* slenderchr) {
+	return slenderchr->bvbot->slenderspeedmult;
+}
+
+/**
+* Gets an alpha value to render Slenderman on the current player's screen.
+*/
+u8 bvslenderGetAlpha(struct chrdata* slenderchr) {
+	u32 alpha;
+	struct chrdata* currentplayerchr = g_Vars.currentplayer->prop->chr;
+	
+	alpha = (u32)bvslenderGetStatus(currentplayerchr, slenderchr)->visibility;
+
+	if (alpha >= 255) {
+		return 255;
+	}
+	else {
+		return alpha;
+	}
+}
+
+/**
+* Gets slenderman's blood colours in RGBA and RGB5A1 formats
+*/
+void bvslenderGetBloodColours(u8 *colour1, u32 *colour2) {
+	if (colour1) {
+		colour1[0] = 10;
+		colour1[1] = 10;
+		colour1[2] = 10;
+	}
+	if (colour2) {
+		colour2[0] = 0xb0b030a0;
+		colour2[1] = 0xe0e030a0;
+		colour2[2] = 0xe0e050a0;
+	}
+}
+
+/**
+* Applies shadowy color to slenderman
+*/
+void bvslenderApplyColour(struct modelrenderdata* renderdata) {
+	renderdata->fogcolour = 0x000000C8;
+}
+
+/**
+* Calculates speed mult for Slenderman depending on his health, whether or not he's in sight, and his target's exposure.
+*/
+void bvslenderUpdateSpeedMult(struct chrdata* slenderchr) {
+	struct chrdata* targetchr = NULL;
+	struct bvslendervictimstatus* targetstatus = NULL;
+	bool hastarget = (slenderchr->target != -1);
+	bool insight = false;
+	bool invicinity = false;
+
+	if (hastarget) {
+		targetchr = chrGetTargetProp(slenderchr)->chr;
+		targetstatus = bvslenderGetStatus(targetchr, slenderchr);
+
+		// Target is past the rush threshold, rush em
+		if (targetstatus->aggro >= 2) {
+			slenderchr->bvbot->slenderspeedmult = speedmult_rush;
+			return;
+		}
+		// If standard aggro, move normally
+		if (targetstatus->aggro == 1) {
+			slenderchr->bvbot->slenderspeedmult = 1.0f;
+			return;
+		} 
+		// *** not aggroed beyond this point ***
+
+		// Determine if slenderman is in sight:
+		//  Target is a player with slenderman onscreen
+		if (targetstatus->onscreen) { // always false for bots
+			insight = true;
+		}
+		//  Target is bot in slenderman's LoS
+		else if (targetchr->aibot && targetstatus->haslos) {
+			insight = true;
+		}
+
+		// Determine if slenderman is in vicinity
+		invicinity = targetstatus->dist < distthreshold_stalking;
+		
+		// Slenderman has to stalk his target from a distance for a while before attacking
+		// Slenderman has to freeze if in sight until he hits the rush threshold
+		if ((insight || invicinity) && targetstatus->exposure > exposurethreshold_freezeonscreen) {
+			slenderchr->bvbot->slenderspeedmult = 0;
+			return;
+		}
+	}
+
+	slenderchr->bvbot->slenderspeedmult = 1.0f;
+}
+
+/**
+* Tick Slenderman behaviors:
+*  + update move speed multiplier
+*/
+void bvslenderTick(struct chrdata* slenderchr) {
+	bvslenderUpdateSpeedMult(slenderchr);
 }
 
 /**
@@ -251,18 +389,19 @@ void bvslenderOnDamageTaken(struct chrdata* slenderchr, struct chrdata* achr) {
 }
 
 /**
-* Increments or decrements the exposure timer.
-* f32 ratemult - determines dierction and rate
-* f32 min, max - exposure will be clamped between these two values.
+* Call when Slenderman dies to play some spooky noises.
 */
-void bvslenderIncrementExposure(struct bvslendervictimstatus* status, f32 ratemult, f32 min, f32 max) {
-	status->exposure += (0.016666f * ratemult * g_Vars.lvupdate60freal);
+void bvslenderDie(struct chrdata* slenderchr) {
+	u8 soundindex = rngRandom() % ARRAYCOUNT(slendermandeathsounds);
+	psCreate(NULL, slenderchr->prop, slendermandeathsounds[soundindex], -1, deathcry_volume, 0, 0, PSTYPE_GENERAL, NULL, BVVARIANT_SLENDERMAN->body->voicepitch, NULL, -1, -1, -1, -1);
+}
 
-	if (status->exposure < min) {
-		status->exposure = min;
-	} else if (status->exposure > max) {
-		status->exposure = max;
-	}
+
+/**
+* Call when Slenderman's corpse starts to fade to release spooky smoke.
+*/
+void bvslenderOnCorpseFade(struct chrdata* slenderchr) {
+	smokeCreateSimple(&slenderchr->prop->pos, slenderchr->prop->rooms, SMOKETYPE_MEDIUM);
 }
 
 /**
@@ -284,59 +423,6 @@ void bvslenderDespawn(struct chrdata* slenderchr) {
 			//exposure intentionally omitted: an outstanding value will be ticked down over time
 		}
 	}
-}
-
-f32 bvslenderGetMeleeDamageMult(struct chrdata* slenderchr) {
-	if (slenderchr->target != -1) {
-		struct chrdata* targetchr = chrGetTargetProp(slenderchr)->chr;
-
-		if (bvslenderGetStatus(targetchr, slenderchr)->aggro >= 2) {
-			return damagemult_rush;
-		}
-	}
-	return 1.0f;
-}
-
-/**
-* Checks if Slenderman can attack its target based on whether it's been damaged or if its rushing.
-*/
-bool bvslenderCanAttack(struct chrdata* slenderchr) {
-	// can attack if rushing
-	if (slenderchr->bvbot->slenderspeedmult > 2.0f) {
-		return true;
-	}
-	// can attack once aggroed by taking damage
-	if (bvslenderIsAggro(slenderchr)) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
-* Gets a speed mult for Slenderman depending on whether or not he's rushing his target.
-*/
-f32 bvslenderGetAnimSpeedMult(struct chrdata* slenderchr) {
-	if (chrIsDead(slenderchr)) {
-		return 1.0f / BVVARIANT_SLENDERMAN->stat->animspeedmult; // anim speed returns to normal chr anim speed on death
-	}
-
-	if (slenderchr->target != -1) {
-		struct chrdata* targetchr = chrGetTargetProp(slenderchr)->chr;
-		// Target is past the rush threshold, rush em
-		if (bvslenderGetStatus(targetchr, slenderchr)->aggro >= 2) {
-			return animspeedmult_rush;
-		}
-	}
-	
-	return 1.0f;
-}
-
-/**
-* Gets a speed mult for Slenderman depending on his health, whether or not he's in sight, and his target's exposure.
-*/
-f32 bvslenderGetSpeedMult(struct chrdata* slenderchr) {
-	return slenderchr->bvbot->slenderspeedmult;
 }
 
 /**
@@ -428,61 +514,18 @@ f32 bvslenderGetExposureCap(struct bvslendervictimstatus* status) {
 }
 
 /**
-* Calculates speed mult for Slenderman depending on his health, whether or not he's in sight, and his target's exposure.
+* Increments or decrements the exposure timer.
+* f32 ratemult - determines dierction and rate
+* f32 min, max - exposure will be clamped between these two values.
 */
-void bvslenderUpdateSpeedMult(struct chrdata* slenderchr) {
-	struct chrdata* targetchr = NULL;
-	struct bvslendervictimstatus* targetstatus = NULL;
-	bool hastarget = (slenderchr->target != -1);
-	bool insight = false;
-	bool invicinity = false;
+void bvslenderIncrementExposure(struct bvslendervictimstatus* status, f32 ratemult, f32 min, f32 max) {
+	status->exposure += (0.016666f * ratemult * g_Vars.lvupdate60freal);
 
-	if (hastarget) {
-		targetchr = chrGetTargetProp(slenderchr)->chr;
-		targetstatus = bvslenderGetStatus(targetchr, slenderchr);
-
-		// Target is past the rush threshold, rush em
-		if (targetstatus->aggro >= 2) {
-			slenderchr->bvbot->slenderspeedmult = speedmult_rush;
-			return;
-		}
-		// If standard aggro, move normally
-		if (targetstatus->aggro == 1) {
-			slenderchr->bvbot->slenderspeedmult = 1.0f;
-			return;
-		} 
-		// *** not aggroed beyond this point ***
-
-		// Determine if slenderman is in sight:
-		//  Target is a player with slenderman onscreen
-		if (targetstatus->onscreen) { // always false for bots
-			insight = true;
-		}
-		//  Target is bot in slenderman's LoS
-		else if (targetchr->aibot && targetstatus->haslos) {
-			insight = true;
-		}
-
-		// Determine if slenderman is in vicinity
-		invicinity = targetstatus->dist < distthreshold_stalking;
-		
-		// Slenderman has to stalk his target from a distance for a while before attacking
-		// Slenderman has to freeze if in sight until he hits the rush threshold
-		if ((insight || invicinity) && targetstatus->exposure > exposurethreshold_freezeonscreen) {
-			slenderchr->bvbot->slenderspeedmult = 0;
-			return;
-		}
+	if (status->exposure < min) {
+		status->exposure = min;
+	} else if (status->exposure > max) {
+		status->exposure = max;
 	}
-
-	slenderchr->bvbot->slenderspeedmult = 1.0f;
-}
-
-/**
-* Tick Slenderman behaviors:
-*  + update move speed multiplier
-*/
-void bvslenderTick(struct chrdata* slenderchr) {
-	bvslenderUpdateSpeedMult(slenderchr);
 }
 
 /**
@@ -608,18 +651,22 @@ void bvslenderDecrementAllExposure(struct chrdata* chr) {
 	}
 }
 
-/**
-* Returns the highest value of exposure this chr has to any slenderman.
-*/
-f32 bvslenderGetChrHighestExposure(struct chrdata* chr) {
-	f32 highest = 0;
+
+void bvslenderResetVictimDataForSpawn(struct chrdata* victimchr) {
+	struct bvslendervictimstatus* vicstatus;
 	for (u8 i = 0; i < g_BotCount; i++) {
-		if (chr->bvchr->slendervicstatus[i]
-			&& chr->bvchr->slendervicstatus[i]->exposure > highest) {
-			highest = chr->bvchr->slendervicstatus[i]->exposure;
+		struct bvslendervictimstatus* vicstatus = victimchr->bvchr->slendervicstatus[i];
+		if (vicstatus) {
+			vicstatus->exposure = 0;
+			vicstatus->visibility = 0;
+			vicstatus->dist = -1.0f;
+			vicstatus->aggro = 0;
+			vicstatus->onscreen = false;
+			vicstatus->haslos = false;
+			vicstatus->istarget = false;
+			vicstatus->slenderdead = false;
 		}
 	}
-	return highest;
 }
 
 /**
@@ -650,46 +697,6 @@ Gfx *bvslenderApplyVictimStatic(Gfx *gdl) {
 }
 
 /**
-* Gets an alpha value to render Slenderman on the current player's screen.
-*/
-u8 bvslenderGetAlpha(struct chrdata* slenderchr) {
-	u32 alpha;
-	struct chrdata* currentplayerchr = g_Vars.currentplayer->prop->chr;
-	
-	alpha = (u32)bvslenderGetStatus(currentplayerchr, slenderchr)->visibility;
-
-	if (alpha >= 255) {
-		return 255;
-	}
-	else {
-		return alpha;
-	}
-}
-
-/**
-* Applies shadowy color to slenderman
-*/
-void bvslenderApplyColour(struct modelrenderdata* renderdata) {
-	renderdata->fogcolour = 0x000000C8;
-}
-
-/**
-* Gets slenderman's blood colours in RGBA and RGB5A1 formats
-*/
-void bvslenderGetBloodColours(u8 *colour1, u32 *colour2) {
-	if (colour1) {
-		colour1[0] = 10;
-		colour1[1] = 10;
-		colour1[2] = 10;
-	}
-	if (colour2) {
-		colour2[0] = 0xb0b030a0;
-		colour2[1] = 0xe0e030a0;
-		colour2[2] = 0xe0e050a0;
-	}
-}
-
-/**
 * Displays exposure onscreen for debug purposes. Renders in the same position as the framerate counter so turn that off
 */
 Gfx *bvslenderDisplayExposure(Gfx *gdl)
@@ -714,4 +721,3 @@ Gfx *bvslenderDisplayExposure(Gfx *gdl)
 
 	return gdl;
 }
-

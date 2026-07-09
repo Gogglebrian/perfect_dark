@@ -21,7 +21,7 @@ bool bvIsChrCurrentPlayer(struct chrdata* chr) {
 /**
 * True if chr is using any of the four Bond character bodies
 */
-s32 bvIsChrBond(struct chrdata* chr) {
+bool bvIsChrBond(struct chrdata* chr) {
 	return (chr->bodynum <= BODY_MOORE);
 }
 
