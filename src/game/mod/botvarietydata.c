@@ -28,16 +28,16 @@ const struct bvvariantstats statsMini = {
 const struct bvvariant variantMini = {
 	BVFLAG_MINI, BVINDEX_MINI,
 	{ // spawn chances
-		0.05f,   // bot    - 1 in 20
-		0.01666f, // player - 1 in 60
-		0.25f,   // debug  - 1 in  4
-		0.75f,   // spree  - 3 in  4
+		1.0f / 20, // bot
+		1.0f / 60, // player
+		1.0f / 4,  // debug
+		3.0f / 4,  // spree
 	},
 	{ // spree data
-		0.00166f, // trigger chance - 1 in 600
-		0.01f,    // debug chance
-		16,      // min spawn count
-		36,      // max spawn count
+		1.0f / 600, // trigger chance
+		1.0f / 100, // debug chance
+		16,     // min spawn count
+		36,     // max spawn count
 	},
 	&bodyMini,
 	&statsMini,
@@ -55,7 +55,7 @@ const struct bvvariantbodydata bodyWumbo = {
 const struct bvvariantstats statsWumbo = {
 	0.95f,   // movespeedmult
 	0.9f,    // animspeedmult
-	0.3077f, // damagetakenmult (=3.25x health)
+	1.0f / 3.25f, // damagetakenmult (=3.25x health)
 	2.0f,    // bluntdamagemult
 	1.0f,    // disarmdamage (default=0)
 	2.0f,    // meleerangemult
@@ -63,14 +63,14 @@ const struct bvvariantstats statsWumbo = {
 const struct bvvariant variantWumbo = {
 	BVFLAG_WUMBO, BVINDEX_WUMBO,
 	{ // spawn chances
-		0.0333f, // bot    - 1 in 30
-		0.01666f, // player - 1 in 60
-		0.25f,   // debug  - 1 in  4
-		0.75f,   // spree  - 3 in  4
+		1.0f / 30, // bot
+		1.0f / 60, // player
+		1.0f / 4,  // debug
+		3.0f / 4,  // spree
 	},
 	{ // spree data
-		0.001423f, // trigger chance - 1 in 700
-		0.01f,   // debug chance
+		1.0f / 700, // trigger chance
+		1.0f / 100, // debug chance
 		12,     // min spawn count
 		32,     // max spawn count
 	},
@@ -82,7 +82,7 @@ const struct bvvariant variantWumbo = {
 const struct bvvariantstats statsImpostor = {
 	-1.0f, // movespeedmult
 	-1.0f, // animspeedmult
-	0.667f, // damagetakenmult (=1.5x health)
+	 1.0f / 1.5f, // damagetakenmult (=1.5x health)
 	-1.0f, // bluntdamagemult
 	-1.0f, // disarmdamage (default=0)
 	-1.0f, // meleerangemult
@@ -90,14 +90,14 @@ const struct bvvariantstats statsImpostor = {
 const struct bvvariant variantImpostor = {
 	BVFLAG_IMPOSTOR, BVINDEX_IMPOSTOR,
 	{ // spawn chances
-		0.0025f,  // bot  - 1 in 400
+		1.0f / 400,  // bot
 		0,       // player - N/A
-		0.25f,   // debug  - 1 in 4
-		0.5f,    // spree  - 1 in 2
+		1.0f / 4,   // debug
+		1.0f / 2,    // spree
 	},
 	{ // spree data
-		0.0004f, // trigger chance - 1 in 2500
-		0.01f,      // debug chance 
+		1.0f / 2500, // trigger chance
+		1.0f / 100,  // debug chance
 		14,        // min spawn count
 		24,        // max spawn count
 	},
@@ -125,7 +125,7 @@ const struct bvvariantbodydata bodySlenderman = {
 const struct bvvariantstats statsSlenderman = {
 	1.4f,   // movespeedmult
 	1.4f,    // animspeedmult
-	0.444f,   // damagetakenmult (=2.25x health)
+	1.0f / 2.25f, // damagetakenmult (=2.25x health)
 	 1.5f,    // bluntdamagemult
 	-1.0f,    // disarmdamage (default=0)
 	-1.0f,    // meleerangemult
@@ -133,26 +133,26 @@ const struct bvvariantstats statsSlenderman = {
 const struct bvvariant variantSlenderman = {
 	BVFLAG_SLENDERMAN, BVINDEX_SLENDERMAN,
 	{ // spawn chances
-		0.008f,  // bot - 1 in 125
+		1.0f / 125,  // bot
 		0, // player - N/A
-		0.5f,   // debug  - 1 in 8
-		0.5f, // spree  - 1 in 2
+		1.0f / 2,   // debug
+		1.0f / 2, // spree
 	},
 	{ // spree data (N/A)
-		0.000666f, // trigger chance - 1 in 1500
-		0.1f,   // debug chance
+		1.0f / 1500, // trigger chance
+		1.0f / 10,   // debug chance
 		12,     // min spawn count
 		24,     // max spawn count
 	},
 	&bodySlenderman,
 	&statsSlenderman,
-	true, // debug enabled
+	false, // debug enabled
 };
 
 const struct bvvariantstats statsSunglasses = {
 	-1.0f, // movespeedmult
 	-1.0f, // animspeedmult
-		0.8f, // damagetakenmult -- =1.25x health
+	 1.0f / 1.25f, // damagetakenmult -- =1.25x health
 	-1.0f, // bluntdamagemult
 	-1.0f, // disarmdamage (default=0)
 	-1.0f, // meleerangemult
@@ -160,14 +160,14 @@ const struct bvvariantstats statsSunglasses = {
 const struct bvvariant variantSunglasses = {
 	BVFLAG_SUNGLASSES, BVINDEX_SUNGLASSES,
 	{ // spawn chances
-		0.01f, // bot   - 1 in 100
-		0.1f,  // player - 1 in  10
-		0.25f, // debug - 1 in   4
+		1.0f / 100, // bot
+		1.0f / 20,  // player
+		1.0f / 4, // debug
 		1.0f,  // spree - all
 	},
 	{ // spree data
-		0.0008f, // trigger chance - 1 in 1250
-		0.01f,   // debug chance
+		1.0f / 1250, // trigger chance
+		1.0f / 100,   // debug chance
 		16,     // min spawn count
 		36,     // max spawn count
 	},
@@ -187,14 +187,14 @@ const struct bvvariantstats statsExplosive = {
 const struct bvvariant variantExplosive = {
 	BVFLAG_EXPLOSIVE, BVINDEX_EXPLOSIVE,
 	{ // spawn chances
-		0.00909f, // bot   - 1 in 110
+		1.0f / 110, // bot
 		0,  // player - N/A
-		0.06667f, // debug - 1 in 15
-		0.75f,  // spree - 3 in 4
+		1.0f / 15, // debug
+		3.0f / 4,  // spree
 	},
 	{ // spree data
-		0.001f, // trigger chance - 1 in 1000
-		0.1f,   // debug chance
+		1.0f / 1000, // trigger chance
+		1.0f / 10,   // debug chance
 		16,      // min spawn count
 		36,      // max spawn count
 	},
@@ -206,7 +206,7 @@ const struct bvvariant variantExplosive = {
 const struct bvvariantstats statsGunfetti = {
 	 0.75f, // movespeedmult
 	 0.75f, // animspeedmult
-	 0.8f, // damagetakenmult -- =1.25x health
+	 1.0f / 1.25f, // damagetakenmult -- =1.25x health
 	-1.0f, // bluntdamagemult
 	-1.0f, // disarmdamage (default=0)
 	-1.0f, // meleerangemult
@@ -214,9 +214,9 @@ const struct bvvariantstats statsGunfetti = {
 const struct bvvariant variantGunfetti = {
 	BVFLAG_GUNFETTI, BVINDEX_GUNFETTI,
 	{ // spawn chances
-		0.001538f,  // bot - 1 in 650
+		1.0f / 650,  // bot
 		0,   // player - N/A
-		0.125f, // debug  - 1 in   8
+		01.0f / 8, // debug
 		0, // spree  - N/A
 	},
 	{ // spree data
@@ -257,14 +257,14 @@ const struct bvvariantstats statsSBD = {
 const struct bvvariant variantSuperBattleDroid = {
 	BVFLAG_SBD, BVINDEX_SBD,
 	{ // spawn chances
-		0.0008f,  // bot    - 1 in 1250
+		1.0f / 1250,  // bot
 		0,      // player - N/A
-		0.05f, // debug  - 1 in  20
-		0.75f, // spree  - 3 in   4
+		1.0f / 20, // debug
+		3.0f / 4, // spree
 	},
 	{ // spree data
-		0.0004f, // trigger chance - 1 in 2500
-		0.01f,   // debug chance - 1 in 100
+		1.0f / 2500, // trigger chance
+		1.0f / 100,   // debug chance
 		16,     // min spawn count
 		36,     // max spawn count
 	},
@@ -308,14 +308,14 @@ const struct bvvariantstats statsX = {
 const struct bvvariant variantX = {
 	BVFLAG_X, BVINDEX_X,
 	{ // spawn chances
-		0.01f,  // bot    - 1 in 100
-		0.1f,   // player - 1 in  10
-		0.333f, // debug  - 1 in   3
-		0.333f, // spree  - 1 in   3
+		1.0f / 100,  // bot
+		1.0f / 10,   // player
+		1.0f / 3, // debug
+		1.0f / 3, // spree
 	},
 	{ // spree data
-		0.002f, // trigger chance - 1 in 500
-		0.1f,   // debug chance
+		1.0f / 500, // trigger chance
+		1.0f / 10,   // debug chance
 		16,     // min spawn count
 		36,     // max spawn count
 	},
