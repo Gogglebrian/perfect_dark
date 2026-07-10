@@ -47,6 +47,42 @@ bool bvbotCanPickupWeapon(struct chrdata* chr, s32 weaponnum) {
 }
 
 /**
+* Checks if this chr can pick up this ammo crate based on their botvariety flags.
+* Default true
+*/
+bool bvbotCanPickupAmmoCrate(struct chrdata* chr, struct multiammocrateobj* crate) {
+	// Explosive and Slenderman bots ignore ammo crates
+	if (bvIsChrExplosive(chr) || bvIsChrSlenderman(chr)) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+* Checks if this chr can drop the given weapon from their inventory when killed based on their botvariety flags.
+* Default true
+*/
+bool bvbotCanDropWeaponOnDeath(struct chrdata* chr, s32 weaponnum) {
+	// Gunfetti can't drop any explosives they've picked up so they can't accidentally explode and spoil the gunfetti pop
+	if (bvIsChrGunfetti(chr)) {
+		switch (weaponnum) {
+			case WEAPON_GRENADE:
+			case WEAPON_IMPACTGRENADE:
+			case WEAPON_TIMEDMINE:
+			case WEAPON_PROXIMITYMINE:
+			case WEAPON_REMOTEMINE:
+				return false;
+				break;
+			default:
+				break;
+		}
+	}
+
+	return true;
+}
+
+/**
 * Checks if this chr can attack right now based on their botvariety flags and mechanics.
 * Default true
 */

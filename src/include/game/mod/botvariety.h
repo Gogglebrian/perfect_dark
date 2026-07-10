@@ -76,6 +76,8 @@ void bvTryAdjustCurrentPlayerCameraHeight();
 
 bool bvbotCanUseWeapon(struct chrdata* chr, s32 weaponnum, s32 funcnum);
 bool bvbotCanPickupWeapon(struct chrdata* chr, s32 weaponnum);
+bool bvbotCanPickupAmmoCrate(struct chrdata* chr, struct multiammocrateobj* crate);
+bool bvbotCanDropWeaponOnDeath(struct chrdata* chr, s32 weaponnum);
 bool bvbotCanSeeThroughCloak(struct chrdata* chr);
 bool bvbotShouldCalcTargetLoSEveryFrame(struct chrdata* chr);
 bool bvbotShouldCalcTargetDistEveryFrame(struct chrdata* chr);

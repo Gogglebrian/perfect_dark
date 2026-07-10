@@ -599,6 +599,10 @@ bool botTestPropForPickup(struct prop *prop, struct chrdata *chr)
 			return false;
 		}
 
+		if (bvIsBotVarietyActive() && !bvbotCanPickupAmmoCrate(chr, crate2)) { // @botvariety - some bots may not be able to pickup some or all ammocrates
+			return false;
+		}
+
 		for (i = 0; i < MULTIAMMOCRATE_SLOTS_COUNT; i++) { // 19 slots for vanilla ammo types thru SEDATIVE, + 2 bespoke slots (primary and secondary) for custom ammo types
 			u16 ammotype = ammoGetTypeFromMultiCrateByIndex(crate2, i);
 			u16 ammoqty = ammoGetQuantityFromMultiCrateByIndex(crate2, i);

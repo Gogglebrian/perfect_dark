@@ -1190,6 +1190,10 @@ void botinvDrop(struct chrdata *chr, s32 weaponnum, u8 dropall)
 					|| (g_Vars.normmplayerisrunning
 						&& g_MpSetup.scenario == MPSCENARIO_HACKERCENTRAL
 						&& item->type_weap.weapon1 == WEAPON_DATAUPLINK)) {
+				if (dropall && bvIsBotVarietyActive() && !bvbotCanDropWeaponOnDeath(chr, item->type_weap.weapon1)) { // @botvariety: skip if bot can't drop this weapon on death
+					continue;
+				}
+
 				s32 modelnum = playermgrGetModelOfWeapon(item->type_weap.weapon1);
 
 				if (modelnum > 0) {
