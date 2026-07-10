@@ -132,6 +132,7 @@ void bvAllocateChrData(struct chrdata* chr) {
 
 	bvchr->flags = 0;
 	bvchr->initscale = -1.0f;
+	bvchr->spawntime = 0;
 	bvchr->chr = chr;
 
 	chr->bvchr = bvchr;
@@ -147,12 +148,12 @@ void bvResetChrDataForSpawn(struct chrdata* chr) {
 	}
 
 	CHR_BV_FLAGS = 0;
+	chr->bvchr->spawntime = 0;
 
 	if (chr->bvbot) {
 		//bvchr->bvbotimpostorof intentionally omitted; it should be unset when the model is reverted.
 		bvexplosiveResetDataForSpawn(chr);
 	}
-
 	bvslenderResetVictimDataForSpawn(chr);
 }
 

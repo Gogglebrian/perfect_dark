@@ -6307,6 +6307,7 @@ struct bvchrdata {
 	struct bvbotdata* bvbot;
 	u32 flags;
 	f32 initscale;
+	f32 spawntime; // time in seconds since last spawn
 	struct bvslendervictimstatus* slendervicstatus[MAX_BOTS]; // pointers to this chr's Slenderman victim status data pertaining to each bot, accessed by botnum 0-7
 };
 

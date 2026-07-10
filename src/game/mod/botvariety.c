@@ -44,6 +44,9 @@ bool bvChrHasVarietyFlags(struct chrdata* chr) {
 * Ticks unique botvariety behaviors to be procced at the beginning of any chr's (bots and players) unpaused tick
 */
 void bvTickChrAliveUnpaused(struct chrdata* chr) {
+	// Tick spawned timer
+	chr->bvchr->spawntime += (0.016666f * g_Vars.lvupdate60freal);
+	
 	// Tick effects of slenderman on other characters
 	if (bvslenderShouldDoVictimTick(chr)) {
 		bvslenderTickVictim(chr);

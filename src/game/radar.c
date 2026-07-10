@@ -7,6 +7,7 @@
 #include "game/tex.h"
 #include "game/game_152fa0.h"
 #include "game/game_1531a0.h"
+#include "game/mod/botvariety.h"
 #include "game/mplayer/scenarios.h"
 #include "game/radar.h"
 #include "game/options.h"
@@ -393,6 +394,7 @@ Gfx *radarRender(Gfx *gdl)
 		for (i = 0; i < g_BotCount; i++) {
 			if (!chrIsDead(g_MpBotChrPtrs[i])
 					&& (g_MpBotChrPtrs[i]->hidden & CHRHFLAG_CLOAKED) == 0
+					&& !(bvIsBotVarietyActive() && !bvbotShouldAppearOnRadar(g_Vars.currentplayer->prop->chr, g_MpBotChrPtrs[i])) // @botvariety: allow for some bots to be situationally hidden on the radar
 					&& scenarioRadarChr(&gdl, g_MpBotChrPtrs[i]->prop) == false) {
 				pos.x = g_MpBotChrPtrs[i]->prop->pos.x - g_Vars.currentplayer->prop->pos.x;
 				pos.y = g_MpBotChrPtrs[i]->prop->pos.y - g_Vars.currentplayer->prop->pos.y;

@@ -173,6 +173,18 @@ bool bvbotCanSeeThroughCloak(struct chrdata* chr) {
 }
 
 /**
+* Is this botchr visible on the playerchr's radar right now?
+* Default true
+*/
+bool bvbotShouldAppearOnRadar(struct chrdata* playerchr, struct chrdata* botchr) {
+	if (bvIsChrSlenderman(botchr) && !bvslenderIsVisibleOnRadar(playerchr, botchr)) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
 * Determines a bot's crouch position with regard to its applicable botvariety flags, if the botvariety system is active.
 * Returns true if crouchpos was changed.
 */

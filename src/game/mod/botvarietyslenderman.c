@@ -56,6 +56,7 @@
 // + Slenderman bleeds black. (bvslenderGetBloodColours)
 // + Slenderman vocalizes on death. (bvslenderDie)
 // + Slenderman's corpse dissapates into a cloud of smoke. (bvslenderOnCorpseFade)
+// + Slenderman doesn't appear on radar (unless he's survived for a suspiciously long time and we think he's stuck somewhere). (bvslenderIsVisibleOnRadar)
 
 const f32 exposure_max = 20.0f; // absolute max value for exposure
 
@@ -81,6 +82,7 @@ const f32 exposurethreshold_visibilitystart = 2.5f; // seconds of exposure befor
 const f32 exposurethreshold_visibilitymax = 5.5f; // seconds of exposure before slenderman becomes fully opaque to a chr
 const u8 maxvisibility = 255;
 const f32 visibilityuprate_deadoraggro = 255.0f; // rate that visibility ticks up per second for all players after slenderman is dead or aggroed
+const u8 minvisibility_radar = 200; // slender won't appear on radar until above this threshold
 
 // Standard aggro damage and speed will start scaling up beyond this exposure threshold (of the target's)
 const f32 exposurethreshold_startscalingdamage = 5.0f;
@@ -195,6 +197,18 @@ bool bvslenderShouldDoStatic() {
 */
 bool bvslenderIsVisibleToChr(struct chrdata* chr, struct chrdata* slender) {
 	return (bvslenderGetStatus(chr, slender)->visibility > 0);
+}
+
+/**
+* Does this slenderchr appear on this playerchr's radar right now?
+* Answer: generally not unless they somehow survive (particularly unharmed) for a suspiciously long time
+*/
+bool bvslenderIsVisibleOnRadar(struct chrdata* playerchr, struct chrdata* slenderchr) {
+	if ((slenderchr->damage == 0 && slenderchr->bvchr->spawntime > 60.0f) || slenderchr->bvchr->spawntime > 120.0f) { // insurance policy against invisible slenderbot getting stuck
+		return true;
+	}
+
+	return false;
 }
 
 /**
