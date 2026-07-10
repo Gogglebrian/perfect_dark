@@ -29,8 +29,9 @@
 // Exposure
 // + As long as Slenderman is spawned, each chr's exposure timer for that Slenderman ticks up to (or if beyond, back down to) their Exposure Cap. (bvslenderTickVictim, bvslenderTickVictimExposure)
 // + The character's Exposure Cap is dynamically adjusted based on several factors: (bvslenderGetExposureCap)
-//   + First, the Exposure Cap is raised to the highest of the three values from three contributing factors:
-//     + whether in live Slenderman's LoS
+//   + First, the Exposure Cap is raised to the highest of the three values from four contributing factors:
+//     + whether in live Slenderman's LoS; in turn affected by
+//        + the total time that Slenderman has had line of sight on the chr since either spawned
 //     + vicinity to live Slenderman (value tapers off with distance)
 //     + whether Slenderman is on the player's screen (or for bots, in mutual LoS)
 //   + Second, the Exposure Cap can be limited in turn by each of three limiting factors:
@@ -46,6 +47,7 @@
 // + The initially-invisible Slenderman becomes visible to his target as their exposure increases. (bvslenderTickVictim, bvslenderUpdateVisibilityForChr, bvslenderGetAlpha, chrRender)
 // + Target's exposure > exposurethreshold_freezeonscreen: Slenderman can't move while on his target's screen (or in mutual LoS for other bots), until
 // + Target's exposure > exposurethreshold_rush: Slenderman aggroes and rushes the target at high speed and with devastating melee damage.
+// + If Slenderman is aggro'd early by taking damage, his melee damage and speed will scale up with exposure until reaching the rush threshold.
 // + Exposure to one Slenderman does not affect a chr's status with any other Slendermen.
 // Look and sounds
 // + Slenderman's visibility will also increase for all players while aggroed or dead. (bvslenderUpdateVisibilityForChr)
@@ -55,7 +57,7 @@
 // + Slenderman vocalizes on death. (bvslenderDie)
 // + Slenderman's corpse dissapates into a cloud of smoke. (bvslenderOnCorpseFade)
 
-const f32 exposure_max = 15.0f; // absolute max value for exposure
+const f32 exposure_max = 20.0f; // absolute max value for exposure
 
 // Exposure Cap, Contributing Factors:
 const f32 exposurecap_onscreen = exposure_max; // Contributing factor: max level exposure from Slenderman being on player's screen (even if hidden)
@@ -72,13 +74,17 @@ const f32 exposurecap_nottargetoraggroed = 6.0f; // Limiting factor: max level o
 // Screen static
 const f32 exposurethreshold_minstatic = 0; // seconds of exposure before the static starts
 const f32 exposurethreshold_maxstatic = 10.0f; // seconds of exposure before reaching max static
-const u8 maxstaticamount = 96;
+const u8 maxstaticamount = 128;
 
 // Visibility
 const f32 exposurethreshold_visibilitystart = 2.5f; // seconds of exposure before slenderman begins to become visible to a chr
 const f32 exposurethreshold_visibilitymax = 5.5f; // seconds of exposure before slenderman becomes fully opaque to a chr
 const u8 maxvisibility = 255;
 const f32 visibilityuprate_deadoraggro = 255.0f; // rate that visibility ticks up per second for all players after slenderman is dead or aggroed
+
+// Standard aggro damage and speed will start scaling up beyond this exposure threshold (of the target's)
+const f32 exposurethreshold_startscalingdamage = 5.0f;
+const f32 exposurethreshold_startscalingspeed = 8.5f;
 
 // Stalking and Rushing
 const f32 exposurethreshold_freezeonscreen = 1.5f; // seconds of exposure before slenderman must freeze if onscreen
@@ -229,9 +235,12 @@ bool bvslenderCanAttack(struct chrdata* slenderchr) {
 f32 bvslenderGetMeleeDamageMult(struct chrdata* slenderchr) {
 	if (slenderchr->target != -1) {
 		struct chrdata* targetchr = chrGetTargetProp(slenderchr)->chr;
-
-		if (bvslenderGetStatus(targetchr, slenderchr)->aggro >= 2) {
+		struct bvslendervictimstatus* status = bvslenderGetStatus(targetchr, slenderchr);
+		
+		if (status->aggro >= 2) {
 			return damagemult_rush;
+		} else if (status->aggro == 1 && status->exposure > exposurethreshold_startscalingdamage) { // standard aggro, scale damage based on exposure time
+			return ((status->exposure - exposurethreshold_startscalingdamage) / (exposurethreshold_rush - exposurethreshold_startscalingdamage)) * (damagemult_rush - 1.0f) + 1.0f;
 		}
 	}
 	return 1.0f;
@@ -324,7 +333,12 @@ void bvslenderUpdateSpeedMult(struct chrdata* slenderchr) {
 		}
 		// If standard aggro, move normally
 		if (targetstatus->aggro == 1) {
-			slenderchr->bvbot->slenderspeedmult = 1.0f;
+			if (targetstatus->exposure > exposurethreshold_startscalingspeed) {
+				slenderchr->bvbot->slenderspeedmult = ((targetstatus->exposure - exposurethreshold_startscalingspeed) / (exposurethreshold_rush - exposurethreshold_startscalingspeed)) * (speedmult_rush - 1.0f) + 1.0f;
+			}
+			else {
+				slenderchr->bvbot->slenderspeedmult = 1.0f;
+			}
 			return;
 		} 
 		// *** not aggroed beyond this point ***
@@ -417,6 +431,7 @@ void bvslenderDespawn(struct chrdata* slenderchr) {
 		if (vicstatus) {
 			vicstatus->aggro = 0;
 			vicstatus->dist = -1.0f;
+			vicstatus->totalinsighttime = 0;
 			vicstatus->visibility = 0;
 			vicstatus->haslos = false;
 			vicstatus->onscreen = false;
@@ -442,6 +457,12 @@ f32 bvslenderGetExposureCap(struct bvslendervictimstatus* status) {
 	}
 	else if (!status->slenderdead && status->haslos) { // player in slenderman's sight
 		maxlimit = exposurecap_onlyhaslos;
+		if (status->totalinsighttime > (exposurecap_onlyhaslos * 2.0f)) { // eventually start ticking up the in-los exposure cap if slender's had plenty of LoS on us since spawn
+			maxlimit = status->totalinsighttime * 0.5f;
+			if (maxlimit > exposure_max) {
+				maxlimit = exposure_max;
+			}
+		}
 	}
 
 	// If he's dead
@@ -633,6 +654,11 @@ void bvslenderTickVictim(struct chrdata* chr) {
 			status->onscreen = (status->haslos && status->slenderchr->prop->flags & PROPFLAG_ONTHISSCREENTHISTICK);
 		}
 	
+		// Tick total in sight time
+		if (status->haslos) {
+			status->totalinsighttime += (0.016666f * g_Vars.lvupdate60freal);
+		}
+
 		bvslenderTickVictimExposure(status);
 		bvslenderUpdateVisibilityForChr(status);
 	}
@@ -660,6 +686,7 @@ void bvslenderResetVictimDataForSpawn(struct chrdata* victimchr) {
 			vicstatus->exposure = 0;
 			vicstatus->visibility = 0;
 			vicstatus->dist = -1.0f;
+			vicstatus->totalinsighttime = 0;
 			vicstatus->aggro = 0;
 			vicstatus->onscreen = false;
 			vicstatus->haslos = false;

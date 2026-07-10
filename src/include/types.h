@@ -6272,12 +6272,14 @@ struct bvvariant {
 * - istarget - if victimchr is slenderchr's target
 * - aggro - degree to which slenderchr is aggroed against victimchr; 0 for not, 1 for basic aggro, 2 for rushing
 * - slenderdead - if slenderchr is dead
-*/struct bvslendervictimstatus {
+*/
+struct bvslendervictimstatus {
 	struct chrdata* slenderchr;
 	struct chrdata* victimchr;
 	f32 exposure; // exposure time to slenderchr in seconds
 	f32 visibility; // the opacity at which slenderchr should render if victimchr is player, and whether slenderchr is visible to victimchr if victimchr is a bot
 	f32 dist; // distance from victimchr to slenderchr
+	f32 totalinsighttime; // total time in slenderman's los since spawn
 	u8 aggro; // whether slenderchr is aggro'd against victimchr. 0 = no aggro, 1 = standard aggro, 2 = rush
 	bool istarget; // whether victimchr is slenderchr's target
 	bool onscreen; // player victimchr: whether slenderchr is onscreen this tick

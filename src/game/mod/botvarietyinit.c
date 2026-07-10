@@ -121,6 +121,7 @@ void bvAllocateChrData(struct chrdata* chr) {
 			vicstatus->dist = -1.0f;
 			vicstatus->visibility = 0;
 			vicstatus->aggro = 0;
+			vicstatus->totalinsighttime = 0;
 			vicstatus->onscreen = false;
 			vicstatus->haslos = false;
 			vicstatus->istarget = false;
