@@ -3,11 +3,11 @@
 #include "game/mod/botvariety.h"
 
 const bool g_BvDebugAllVariants = false;
-const bool g_BvDebugSprees = false;
+const bool g_BvDebugAllSprees = false;
 const bool g_BvDebugAllowPlayerAbominations = false;
 
 struct bvmatchdata g_BvMatch;
-u8 g_BvSpreeCooldowns[BOTVARIETY_VARIANT_COUNT]; // persists across rounds
+u16 g_BvSpreeCooldowns[BOTVARIETY_VARIANT_COUNT]; // persists across rounds
 
 const struct bvvariantbodydata bodyMini = {
 	0.605f,  // body
@@ -35,13 +35,13 @@ const struct bvvariant variantMini = {
 	},
 	{ // spree data
 		1.0f / 600, // trigger chance
-		1.0f / 100, // debug chance
-		16,     // min spawn count
-		36,     // max spawn count
+		1.0f / 2, // debug chance
+		16, 36,     // min/max spawn count
+		-1,        // cooldown
 	},
 	&bodyMini,
 	&statsMini,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantbodydata bodyWumbo = {
@@ -70,19 +70,19 @@ const struct bvvariant variantWumbo = {
 	},
 	{ // spree data
 		1.0f / 700, // trigger chance
-		1.0f / 100, // debug chance
-		12,     // min spawn count
-		32,     // max spawn count
+		1.0f / 2, // debug chance
+		12, 32,     // min/max spawn count
+		-1,        // cooldown
 	},
 	&bodyWumbo,
 	&statsWumbo,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantstats statsImpostor = {
 	-1.0f, // movespeedmult
 	-1.0f, // animspeedmult
-	 1.0f / 1.5f, // damagetakenmult (=1.5x health)
+	 1.0f / 1.5f, // damagetakenmult (=1.5x health) - doesn't apply if spree-spawned (bvShouldApplyVariantDamageTakenMult)
 	-1.0f, // bluntdamagemult
 	-1.0f, // disarmdamage (default=0)
 	-1.0f, // meleerangemult
@@ -97,13 +97,13 @@ const struct bvvariant variantImpostor = {
 	},
 	{ // spree data
 		1.0f / 2500, // trigger chance
-		1.0f / 100,  // debug chance
-		14,        // min spawn count
-		24,        // max spawn count
+		1.0f / 2,  // debug chance
+		14, 24,      // min/max spawn count
+		250,         // cooldown
 	},
 	NULL, // no body tweaks besides the obvious
 	&statsImpostor,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantxyzscales scalesSlenderman = {
@@ -141,18 +141,18 @@ const struct bvvariant variantSlenderman = {
 	{ // spree data (N/A)
 		1.0f / 1500, // trigger chance
 		1.0f / 10,   // debug chance
-		12,     // min spawn count
-		24,     // max spawn count
+		12, 24,      // min/max spawn count
+		150,         // cooldown
 	},
 	&bodySlenderman,
 	&statsSlenderman,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantstats statsSunglasses = {
 	-1.0f, // movespeedmult
 	-1.0f, // animspeedmult
-	 1.0f / 1.25f, // damagetakenmult -- =1.25x health
+	 1.0f / 1.25f, // damagetakenmult -- =1.25x health - doesn't apply if spree-spawned or if Impostor health bonus already applied (bvShouldApplyVariantDamageTakenMult)
 	-1.0f, // bluntdamagemult
 	-1.0f, // disarmdamage (default=0)
 	-1.0f, // meleerangemult
@@ -167,13 +167,13 @@ const struct bvvariant variantSunglasses = {
 	},
 	{ // spree data
 		1.0f / 1250, // trigger chance
-		1.0f / 100,   // debug chance
-		16,     // min spawn count
-		36,     // max spawn count
+		1.0f / 100,  // debug chance
+		16, 36,      // min/max spawn count
+		120,         // cooldown
 	},
 	NULL, // no body tweaks besides the sunglasses
 	&statsSunglasses,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantstats statsExplosive = {
@@ -195,12 +195,12 @@ const struct bvvariant variantExplosive = {
 	{ // spree data
 		1.0f / 1000, // trigger chance
 		1.0f / 10,   // debug chance
-		16,      // min spawn count
-		36,      // max spawn count
+		16, 36,      // min/max spawn count
+		150,         // cooldown
 	},
 	NULL, // no body tweaks
 	&statsExplosive,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantstats statsGunfetti = {
@@ -222,12 +222,12 @@ const struct bvvariant variantGunfetti = {
 	{ // spree data
 		0, // trigger chance - disabled
 		0,   // debug chance
-		12,     // min spawn count
-		32,     // max spawn count
+		10, 16, // min/max spawn count
+		250,    // cooldown
 	},
 	NULL, // no body tweaks
 	&statsGunfetti,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariantxyzscales scalesSBD = {
@@ -264,13 +264,13 @@ const struct bvvariant variantSuperBattleDroid = {
 	},
 	{ // spree data
 		1.0f / 2500, // trigger chance
-		1.0f / 100,   // debug chance
-		16,     // min spawn count
-		36,     // max spawn count
+		1.0f / 100,  // debug chance
+		16, 36,      // min/max spawn count
+		250,         // cooldown
 	},
 	&bodySBD,
 	&statsSBD,
-	false, // debug enabled
+	false, false, // debug variant/spree
 };
 
 const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
@@ -283,7 +283,6 @@ const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 	&variantGunfetti,
 	&variantSuperBattleDroid,
 };
-
 
 /* Variant template
 
@@ -315,9 +314,9 @@ const struct bvvariant variantX = {
 	},
 	{ // spree data
 		1.0f / 500, // trigger chance
-		1.0f / 10,   // debug chance
-		16,     // min spawn count
-		36,     // max spawn count
+		1.0f / 10,  // debug chance
+		16, 36,     // min/max spawn count
+		150,        // cooldown
 	},
 	&bodyX,
 	&statsX,

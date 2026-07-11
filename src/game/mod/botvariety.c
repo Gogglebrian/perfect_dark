@@ -185,6 +185,25 @@ void bvProcOnDamageTaken(struct chrdata* vchr, struct chrdata* achr,  struct gse
 }
 
 /**
+* Checks whether this variant's unshielded damage-taken multiplier should be applied to this chr right now.
+* Default true
+*/
+bool bvShouldApplyVariantDamageTakenMult(struct chrdata* vchr, const struct bvvariant* variant) {
+	if (vchr->bvbot) {
+		if (variant == BVVARIANT_IMPOSTOR && vchr->bvbot->spreeflags & BVFLAG_IMPOSTOR) { // Impostor health bonus doesn't apply to spree-spawns
+			return false;
+		}
+		else if (variant == BVVARIANT_SUNGLASSES && VICTIM_BV_FLAGS & BVFLAG_IMPOSTOR) { // Sunglasses health bonus doesn't apply if bot is also an Impostor, UNLESS Impostor mult was skipped due to spree
+			if (vchr->bvbot->spreeflags & BVFLAG_IMPOSTOR) {
+				return true;
+			}
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
 * Adjusts damage with regard to the attacker and victims' respective applicable botvariety flags, if the botvariety system is active.
 */
 f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* gset, f32 damage) {
@@ -216,7 +235,9 @@ f32 bvTryAdjustDamage(struct chrdata* achr, struct chrdata* vchr, struct gset* g
 		// Handle victim damage factors
 		if (VICTIM_BV_FLAGS & variant->flag && variant->stat) {
 			// Handle unshielded damage taken mult
-			if (vchr->cshield <= 0 && variant->stat->damagetakenmult > 0) {
+			if (vchr->cshield <= 0
+				&& variant->stat->damagetakenmult > 0
+				&& bvShouldApplyVariantDamageTakenMult(vchr, variant)) {
 				damage *= variant->stat->damagetakenmult;
 			}
 		}

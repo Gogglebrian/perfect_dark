@@ -96,6 +96,7 @@ void bvAllocateChrData(struct chrdata* chr) {
 		// init/allocate bot-specific data
 		chr->bvbot->chr = chr;
 		chr->bvbot->bvchr = bvchr;
+		chr->bvbot->spreeflags = 0;
 		chr->bvbot->initmodel = chr->model;
 		chr->bvbot->impostorof = -1;
 		chr->bvbot->explosiveglowweight = 0;
@@ -151,7 +152,8 @@ void bvResetChrDataForSpawn(struct chrdata* chr) {
 	chr->bvchr->spawntime = 0;
 
 	if (chr->bvbot) {
-		//bvchr->bvbotimpostorof intentionally omitted; it should be unset when the model is reverted.
+		chr->bvbot->spreeflags = 0;
+		//bvbot->impostorof intentionally omitted; it should be unset when the model is reverted.
 		bvexplosiveResetDataForSpawn(chr);
 	}
 	bvslenderResetVictimDataForSpawn(chr);

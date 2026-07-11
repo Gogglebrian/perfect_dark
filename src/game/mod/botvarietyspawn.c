@@ -63,7 +63,7 @@ u16 bvGetSpreeCountRemaining(u8 variantIndex) {
 * Get the f32 spree chance for this variant depending on whether debug is enabled
 */
 f32 bvGetSpreeChance(const struct bvvariant* variant) {
-	if (g_BvDebugSprees) {
+	if (g_BvDebugAllSprees || variant->debugspree) {
 		return variant->spree.triggerchancedebug;
 	}
 	else {
@@ -386,14 +386,20 @@ void debugSpree(){
 
 /**
 * Tick down the spree spawns remaining for any sprees that this chr is a part of.
+* Also sets spreeflags for bots.
 * Also tick down the cooldown counters of any variants on cooldown from a prior spree.
 */
 void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
+	const struct bvvariant* variant = NULL;
 	bool changed = false;
 	for (u8 i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 		if (bvIsSpreeing(i)) {
-			if (CHR_BV_FLAGS & bvGetVariant(i)->flag) {
+			variant = bvGetVariant(i);
+			if (CHR_BV_FLAGS & variant->flag) {
 				g_BvMatch.variantspreespawnsleft[i]--;
+				if (chr->bvbot) {
+					chr->bvbot->spreeflags |= variant->flag;
+				}
 				changed = true;
 			}
 		}
@@ -402,14 +408,15 @@ void bvspawnCountAgainstSpreeSpawns(struct chrdata* chr) {
 			changed = true;
 		}
 	}
-	if (g_BvDebugSprees && changed) {
+	if (g_BvDebugAllSprees && changed) {
 		debugSpree();
 	}
 }
 
 /**
 * Starts a spree by determining and setting the number of times the variant will spawn before the spree ends.
-* Also initializes the spree cooldown to the same number, but it won't begin counting down until the spree is over.
+* Also initializes the spree cooldown, but it won't begin counting down until the spree is over.
+* Cooldown can be set by variant. If set to -1, cooldown count equals spree count.
 */
 void bvspawnStartSpree(u8 variantIndex) {
 	const struct bvvariant * variant = bvGetVariant(variantIndex);
@@ -417,7 +424,12 @@ void bvspawnStartSpree(u8 variantIndex) {
 	u16 max = variant->spree.maxspawncount;
 	u16 count = min + (rngRandom() % (max + 1 - min));
 	g_BvMatch.variantspreespawnsleft[variantIndex] = count;
-	g_BvSpreeCooldowns[variantIndex] = count;
+	if (variant->spree.cooldown >= 0) {
+		g_BvSpreeCooldowns[variantIndex] = variant->spree.cooldown;
+	} else {
+		g_BvSpreeCooldowns[variantIndex] = count;
+	}
+	
 }
 
 /**
@@ -536,8 +548,9 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 		if (bvspawnHandleImpostor(chr, chances[IMPOSTOR])) {
 			// Impostors are more likely to have other variants, but only if there's no ongoing spree
 			if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
-				chances[MINI] = 0.333f;
-				chances[WUMBO] = 0.25f;
+				chances[MINI] = 0.3f;
+				chances[WUMBO] = 0.2f;
+				chances[SUNGLASSES] *= 3.0f;
 				abominationchancemult = 3.0f;
 			}
 			isimpostor = true;
@@ -570,11 +583,6 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 		else if (bvspawnRollForStandardVariant(chr, chances[EXPLOSIVE], BVFLAG_EXPLOSIVE)) {
 			;
 		}
-	}
-
-	// an impstor that doesn't have a size variant should wear sunglasses if possible
-	if (isimpostor && !bvChrHasSizeVariant(chr)) {
-		chances[SUNGLASSES] = 1.0f;
 	}
 
 	// Sunglasses - this is done after model changes so we can check for sunglassability

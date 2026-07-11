@@ -6213,8 +6213,9 @@ struct bvvariantchance {
 struct bvvariantspreedata {
 	f32 triggerchance;
 	f32 triggerchancedebug;
-	u16 minspawncount;
-	u16 maxspawncount;
+	u8 minspawncount;
+	u8 maxspawncount;
+	s16 cooldown;
 };
 
 /// 1-dimension scale values for whole-body on XZ and individual joints on XYZ
@@ -6260,6 +6261,7 @@ struct bvvariant {
 	const struct bvvariantbodydata* body;
 	const struct bvvariantstats* stat;
 	bool debug;
+	bool debugspree;
 };
 
 /**
@@ -6292,6 +6294,7 @@ struct bvbotdata {
 	struct chrdata* chr;
 	struct bvchrdata* bvchr;
 	struct model* initmodel;
+	u32 spreeflags; // any variants that this bot has AND were spreeing at the time it was spawned
 	u8 impostorof; // bot: if impersonating, index of impersonated player
 	f32 explosiveglowweight; // explosive bots: current weight of flash/glow color
 	f32 explosivetimer; // explosive bots: timer for flashing and beeping
@@ -6316,7 +6319,7 @@ struct bvmatchdata {
 	struct bvchrdata* allchrs[MAX_PLAYERS + MAX_BOTS]; // pointers to bv data for all chrs, accessed by mpindex 0-11
 	struct bvchrdata* players[MAX_PLAYERS]; // pointers to bv data for players, accessed by player index 0-3
 	struct bvchrdata* bots[MAX_BOTS]; // pointers to bv data for bots, accessed by botnum 0-7
-	u16 variantspreespawnsleft[BOTVARIETY_VARIANT_COUNT];
+	u8 variantspreespawnsleft[BOTVARIETY_VARIANT_COUNT];
 };
 
 #endif
