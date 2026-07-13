@@ -115,6 +115,16 @@ void bvTryApplyLateColourTweaks(struct chrdata* chr, struct modelrenderdata* ren
 }
 
 /**
+* Applies any adjustments to radar dot outline and fill colours based on the character's applicable botvariety flags.
+*/
+void bvTryAdjustRadarDotColour(struct chrdata* chr, u32 *fillcolour, u32 *linecolour) {
+	// Explosive bots: radar dot flashes white-orange
+	if (bvIsChrExplosive(chr)) {
+		bvexplosiveAdjustRadarDotColour(chr, fillcolour, linecolour);
+	}
+}
+
+/**
 * Returns a voice pitch multiplier with regard to the character's applicable botvariety flags, if the botvariety system is active.
 * Returns -1 if no changes
 */

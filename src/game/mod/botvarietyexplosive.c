@@ -53,9 +53,10 @@ bool bvIsChrExplosive(struct chrdata* chr) {
 }
 
 void bvexplosiveResetDataForSpawn(struct chrdata* chr) {
-	chr->bvbot->explosivebeepdone = false;
-	chr->bvbot->explosiveglowweight = 0;
-	chr->bvbot->explosivetimer = 0;	
+	chr->bvbot->explosive.beepdone = false;
+	chr->bvbot->explosive.glowweight = 0;
+	chr->bvbot->explosive.timer = 0;	
+	chr->bvbot->explosive.glowcolour = 0;
 }
 
 /**
@@ -69,14 +70,14 @@ void bvexplosiveDoBeep(struct chrdata* botchr, f32 beeppitch) {
 * Ticks the explosive glow weight up, starting with a beep
 */
 void bvexplosiveTickBeepAndHeatup(struct bvbotdata* bvbot, f32 maxglowweight, f32 heatuptime, f32 beeppitch){
-	if (!bvbot->explosivebeepdone) {
+	if (!bvbot->explosive.beepdone) {
 		bvexplosiveDoBeep(bvbot->chr, beeppitch);
-		bvbot->explosivebeepdone = true;
+		bvbot->explosive.beepdone = true;
 	}
-	if (bvbot->explosiveglowweight < maxglowweight) {
-		bvbot->explosiveglowweight += (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
-		if (bvbot->explosiveglowweight > maxglowweight) {
-			bvbot->explosiveglowweight = maxglowweight;
+	if (bvbot->explosive.glowweight < maxglowweight) {
+		bvbot->explosive.glowweight += (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
+		if (bvbot->explosive.glowweight > maxglowweight) {
+			bvbot->explosive.glowweight = maxglowweight;
 		}
 	}
 }
@@ -85,11 +86,11 @@ void bvexplosiveTickBeepAndHeatup(struct bvbotdata* bvbot, f32 maxglowweight, f3
 * Ticks the explosive glow weight down to zero if necessary
 */
 void bvexplosiveTickCooldownAndWait(struct bvbotdata* bvbot, f32 maxglowweight, f32 heatuptime) {
-	if (bvbot->explosiveglowweight > 0) {
-		bvbot->explosiveglowweight -= (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
+	if (bvbot->explosive.glowweight > 0) {
+		bvbot->explosive.glowweight -= (maxglowweight/heatuptime) * g_Vars.lvupdate60freal * 0.016666f;
 
-		if (bvbot->explosiveglowweight < 0) {
-			bvbot->explosiveglowweight = 0;
+		if (bvbot->explosive.glowweight < 0) {
+			bvbot->explosive.glowweight = 0;
 		}
 	}
 }
@@ -132,31 +133,53 @@ void bvexplosiveTick(struct chrdata* chr) {
 		}
 
 		// first little bit of a cycle, beep and heat up
-		if (bvbot->explosivetimer <= flashheatuptime) {
+		if (bvbot->explosive.timer <= flashheatuptime) {
 			bvexplosiveTickBeepAndHeatup(bvbot, maxglowweight, flashheatuptime, beeppitch);
 		}
 		// then cool off and wait for the next cycle
-		else if (bvbot->explosivetimer > flashheatuptime) {
+		else if (bvbot->explosive.timer > flashheatuptime) {
 			bvexplosiveTickCooldownAndWait(bvbot, maxglowweight, flashheatuptime);
 		}
 
 		// increment timer
-		bvbot->explosivetimer += 0.016666f * g_Vars.lvupdate60freal;
-		if (bvbot->explosivetimer > cycletime) {
-			bvbot->explosivetimer = 0;
-			bvbot->explosivebeepdone = false;
+		bvbot->explosive.timer += 0.016666f * g_Vars.lvupdate60freal;
+		if (bvbot->explosive.timer > cycletime) {
+			bvbot->explosive.timer = 0;
+			bvbot->explosive.beepdone = false;
 		}
+	}
+	
+	// Update colour
+	bvbot->explosive.glowcolour = colourBlend(flashcolor_hot, flashcolor_cool, chr->bvbot->explosive.glowweight);
+}
+
+/**
+* Applies a glow to the bot's renderdata based on its explosive glowweight and glowcolour (updated elsewhere).
+* Assumes the botchr is an explosive bot, so check first
+*/
+void bvexplosiveApplyGlow(struct chrdata* chr, struct modelrenderdata* renderdata) {
+	if (chr->bvbot->explosive.glowweight > 0.0f) {
+		renderdata->fogcolour = colourBlend(chr->bvbot->explosive.glowcolour, renderdata->fogcolour, chr->bvbot->explosive.glowweight); // the glow becomes more intense while the env colours get overwhelmed
 	}
 }
 
 /**
-* Applies a glow to the bot's renderdata based on its explosiveglowweight (ticked elsewhere).
+* Adjusts the colour for this bot's radar dots based on its explosive glowweight and glowcolour (ticked elsewhere).
 * Assumes the botchr is an explosive bot, so check first
 */
-void bvexplosiveApplyGlow(struct chrdata* chr, struct modelrenderdata* renderdata) {
-	if (chr->bvbot->explosiveglowweight > 0.0f) {
-		u32 glowcolour = colourBlend(flashcolor_hot, flashcolor_cool, chr->bvbot->explosiveglowweight);
-		renderdata->fogcolour = colourBlend(glowcolour, renderdata->fogcolour, chr->bvbot->explosiveglowweight); // the glow becomes more intense while the env colours get overwhelmed
+void bvexplosiveAdjustRadarDotColour(struct chrdata* chr, u32* fillcolour, u32* linecolour) {
+	u32 lineweight, fillweight;
+	if (chr->bvbot->explosive.glowweight > 0.0f) {
+		lineweight = chr->bvbot->explosive.glowweight;
+		fillweight = chr->bvbot->explosive.glowweight * 3;
+		if (fillweight > 255) {
+			fillweight = 255;
+		}
+		if (lineweight > 255) {
+			lineweight = 255;
+		}
+		*fillcolour = colourBlend(chr->bvbot->explosive.glowcolour, *fillcolour, fillweight);
+		*linecolour = colourBlend(chr->bvbot->explosive.glowcolour, *linecolour, lineweight);
 	}
 }
 

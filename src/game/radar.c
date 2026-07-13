@@ -249,6 +249,7 @@ Gfx *radarRender(Gfx *gdl)
 	struct textureconfig *tconfig;
 	struct coord pos;
 	u32 colour;
+	u32 colour2 = 0;
 	s32 i;
 
 	tconfig = g_TexRadarConfigs;
@@ -358,7 +359,13 @@ Gfx *radarRender(Gfx *gdl)
 					colour = 0x00ff0000;
 				}
 
-				gdl = radarDrawDot(gdl, g_Vars.players[i]->prop, &pos, colour, 0, 0);
+				// Botvariety: apply colour changes for other human players
+				if (bvIsBotVarietyActive()) {
+					colour2 = 0;
+					bvTryAdjustRadarDotColour(g_Vars.players[i]->prop->chr, &colour, &colour2);
+				}
+
+				gdl = radarDrawDot(gdl, g_Vars.players[i]->prop, &pos, colour, colour2, 0); // @mod: normally outline (colour2) is always black
 			}
 		}
 	}
@@ -406,7 +413,13 @@ Gfx *radarRender(Gfx *gdl)
 					colour = 0x00ff0000;
 				}
 
-				gdl = radarDrawDot(gdl, g_MpBotChrPtrs[i]->prop, &pos, colour, 0, 0);
+				// Botvariety: apply radar dot colour changes for bots
+				if (bvIsBotVarietyActive()) {
+					colour2 = 0;
+					bvTryAdjustRadarDotColour(g_MpBotChrPtrs[i], &colour, &colour2);
+				}
+
+				gdl = radarDrawDot(gdl, g_MpBotChrPtrs[i]->prop, &pos, colour, colour2, 0); // @mod: normally outline (colour2) is always black
 			}
 		}
 	}
@@ -431,7 +444,13 @@ Gfx *radarRender(Gfx *gdl)
 			colour = 0x00ff0000;
 		}
 
-		gdl = radarDrawDot(gdl, g_Vars.currentplayer->prop, &pos, colour, 0, 0);
+		// Botvariety: apply radar dot colour changes for current player
+		if (bvIsBotVarietyActive()) {
+			colour2 = 0;
+			bvTryAdjustRadarDotColour(g_Vars.currentplayer->prop->chr, &colour, &colour2);
+		}
+
+		gdl = radarDrawDot(gdl, g_Vars.currentplayer->prop, &pos, colour, colour2, 0); // @mod: normally outline (colour2) is always black
 	}
 
 #ifndef PLATFORM_N64

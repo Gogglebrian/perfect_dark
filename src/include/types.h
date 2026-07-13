@@ -6289,6 +6289,14 @@ struct bvslendervictimstatus {
 	bool slenderdead; // whether slenderchr is dead
 };
 
+/// Botvariety data for explosive bots
+struct bvexplosivebotdata {
+	f32 glowweight; // current weight of flash/glow in determining overall color
+	u32 glowcolour; // current colour to flash/glow
+	f32 timer; // timer for flashing and beeping
+	bool beepdone; // whether beep has been done this flash/beep interval
+};
+
 /// Botvariety in-match data exclusive to bots 
 struct bvbotdata {
 	struct chrdata* chr;
@@ -6296,9 +6304,7 @@ struct bvbotdata {
 	struct model* initmodel;
 	u32 spreeflags; // any variants that this bot has AND were spreeing at the time it was spawned
 	u8 impostorof; // bot: if impersonating, index of impersonated player
-	f32 explosiveglowweight; // explosive bots: current weight of flash/glow color
-	f32 explosivetimer; // explosive bots: timer for flashing and beeping
-	bool explosivebeepdone; // explosive bots: whether beep has been done this flash/beep interval
+	struct bvexplosivebotdata explosive; // explosive bots data
 	f32 slenderspeedmult; // slenderman bots: 0 if frozen in place, or super fast if rushing
 	struct bvslendervictimstatus* slendervics[MAX_BOTS + MAX_PLAYERS]; // pointers to all other chrs' victim status data pertaining to this bot's Slenderman behavior, accessed by mpindex
 };

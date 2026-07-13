@@ -99,9 +99,10 @@ void bvAllocateChrData(struct chrdata* chr) {
 		chr->bvbot->spreeflags = 0;
 		chr->bvbot->initmodel = chr->model;
 		chr->bvbot->impostorof = -1;
-		chr->bvbot->explosiveglowweight = 0;
-		chr->bvbot->explosivetimer = 0;
-		chr->bvbot->explosivebeepdone = false;
+		chr->bvbot->explosive.glowweight = 0;
+		chr->bvbot->explosive.timer = 0;
+		chr->bvbot->explosive.beepdone = false;
+		chr->bvbot->explosive.glowcolour = 0;
 		chr->bvbot->slenderspeedmult = 1.0f;
 		for (i = 0; i < MAX_BOTS + MAX_PLAYERS; i++) {
 			bvchr->bvbot->slendervics[i] = NULL; // These pointers will need to be initialized AFTER all chrs are allocated, like on first spawn

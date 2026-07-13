@@ -62,6 +62,7 @@ void bvProcOnDamageTaken(struct chrdata* achr, struct chrdata* vchr,  struct gse
 void bvTryApplyLateColourTweaks(struct chrdata* chr, struct modelrenderdata* renderdata);
 void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx);
 void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx);
+void bvTryAdjustRadarDotColour(struct chrdata* chr, u32 *fillcolour, u32 *linecolour);
 f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale);
 f32 bvGetVoicePitch(struct chrdata* chr);
 f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed);
@@ -121,6 +122,7 @@ void bvexplosiveTick(struct chrdata* botchr);
 void bvexplosiveApplyGlow(struct chrdata* botchr, struct modelrenderdata* renderdata);
 void bvexplosiveExplode(struct chrdata* chr, s32 killerplayernum);
 f32 bvexplosiveApplyExplosionDamageMult(f32 damage);
+void bvexplosiveAdjustRadarDotColour(struct chrdata* chr, u32 *fillcolour, u32 *linecolour);
 
 
 // botvarietygunfetti.c
