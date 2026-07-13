@@ -1582,7 +1582,9 @@ f32 chrGetFlinchAmount(struct chrdata *chr)
  * Use model->scale to adjust Y.
  */
 void chrOnModelScaled(Mtxf *mtx) {
-	bvTryApplyXZBodyScale(g_CurModelChr, mtx); // @botvariety
+	if (bvIsBotVarietyActive()) {
+		bvTryApplyXZBodyScale(g_CurModelChr, mtx); // @botvariety
+	}
 }
 
 /**
@@ -1707,7 +1709,9 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			}
 		}
 
-		scale = bvTryAdjust3DJointScale(g_CurModelChr, joint, scale); // @botvariety
+		if (bvIsBotVarietyActive()) {
+			scale = bvTryAdjust3DJointScale(g_CurModelChr, joint, scale); // @botvariety
+		}
 
 		// 3D scaling and aim positioning for neck, waist, shoulder joints
 		if (joint == lshoulderjoint || joint == rshoulderjoint || joint == waistjoint || joint == neckjoint) {
@@ -1902,7 +1906,9 @@ void chrHandleJointPositioned(s32 joint, Mtxf *mtx)
 			mtx00015f04(scale, mtx);
 		}
 
-		bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx); // @Botvariety: 1D scaling for any joint
+		if (bvIsBotVarietyActive()) {
+			bvTryApplyXYZJointScales(g_CurModelChr, joint, mtx); // @Botvariety: 1D scaling for any joint
+		}
 	}
 }
 

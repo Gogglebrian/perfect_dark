@@ -669,7 +669,9 @@ struct prop *shotCalculateHits(s32 handnum, bool isshooting, struct coord *gunpo
 		if ((func->type & 0xff) == INVENTORYFUNCTYPE_MELEE) {
 			struct weaponfunc_melee *meleefunc = (struct weaponfunc_melee *) func;
 			range = meleefunc->range;
-			range = bvTryAdjustCurrentPlayerMeleeRange(range); // @botvariety
+			if (bvIsBotVarietyActive()) {
+				range = bvTryAdjustCurrentPlayerMeleeRange(range); // @botvariety
+			}
 		}
 
 		hitpos.x = shotdata.gunpos3d.x + shotdata.gundir3d.x * range;
@@ -1321,8 +1323,9 @@ void handInflictMeleeDamage(s32 handnum, struct gset *gset, bool arg2)
 #endif
 					struct weaponfunc_melee *meleefunc = (struct weaponfunc_melee *)func;
 					rangelimit = meleefunc->range;
-					rangelimit = bvTryAdjustCurrentPlayerMeleeRange(rangelimit); // @botvariety
-
+					if (bvIsBotVarietyActive()) {
+						rangelimit = bvTryAdjustCurrentPlayerMeleeRange(rangelimit); // @botvariety
+					}
 				}
 
 				bgunGetCrossPos(&x, &y);

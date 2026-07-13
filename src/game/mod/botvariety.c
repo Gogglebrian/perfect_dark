@@ -133,7 +133,7 @@ f32 bvGetVoicePitch(struct chrdata* chr) {
 	u8 i;
 	f32 pitch = -1;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return -1;
 	}
 
@@ -158,10 +158,6 @@ void bvTryAdjustCurrentPlayerCameraHeight() {
 	struct chrdata* chr = g_Vars.currentplayer->prop->chr;
 	f32 mult = 1.0f;
 	bool changed = false;
-
-	if (!bvIsBotVarietyActive()) {
-		return;
-	}
 
 	if (CHR_BV_FLAGS & BVFLAG_MINI && BVVARIANT_MINI->body->camheight > 0) {
 		mult = BVVARIANT_MINI->body->camheight;
@@ -271,7 +267,7 @@ f32 bvTryAdjustCurrentPlayerMeleeRange(f32 range) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return range;
 	}
 
@@ -352,7 +348,7 @@ f32 bvTryAdjust3DJointScale(struct chrdata* chr, s32 joint, f32 scale) {
 	u8 i;
 	f32 jointscale;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return scale;
 	}
 
@@ -398,7 +394,7 @@ void bvTryApplyXYZJointScales(struct chrdata* chr, s32 joint, Mtxf* mtx) {
 	f32 mult_z = 1.0f;
 	u8 i;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return;
 	}
 
@@ -464,7 +460,7 @@ void bvTryApplyXZBodyScale(struct chrdata* chr, Mtxf* mtx) {
 	f32 mult_z = 1.0f;
 	u8 i;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return;
 	}
 
@@ -502,7 +498,7 @@ f32 bvTryAdjustMoveSpeed(struct chrdata* chr, f32 speed) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return speed;
 	}
 
@@ -529,7 +525,7 @@ f32 bvTryAdjustAnimSpeed(struct chrdata* chr, f32 animspeed) {
 	const struct bvvariant* variant = NULL;
 	u8 i;
 
-	if (!bvIsBotVarietyActive() || !bvChrHasVarietyFlags(chr)) {
+	if (!bvChrHasVarietyFlags(chr)) {
 		return animspeed;
 	}
 

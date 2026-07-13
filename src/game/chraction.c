@@ -4043,7 +4043,10 @@ void chrChoke(struct chrdata *chr, s32 choketype)
 		}
 	}
 
-	f32 pitch = bvGetVoicePitch(chr); // @botvariety: -1 if botvariety not active or no change, otherwise returns a multiplier
+	f32 pitch = -1.0f;
+	if (bvIsBotVarietyActive()) {
+		pitch = bvGetVoicePitch(chr); // @botvariety: -1 if no change, otherwise returns a multiplier
+	}
 
 	if (soundnum >= 0) {
 		if (chr->prop->type == PROPTYPE_PLAYER) {

@@ -2529,7 +2529,9 @@ void bmove0f0cc19c(struct coord *arg)
 		g_Vars.currentplayer->bond2.unk10.y += g_Vars.currentplayer->vv_manground;
 	}
 
-	bvTryAdjustCurrentPlayerCameraHeight(); // @botvariety
+	if (bvIsBotVarietyActive()) {
+		bvTryAdjustCurrentPlayerCameraHeight(); // @botvariety
+	}
 
 #if VERSION >= VERSION_NTSC_1_0
 	min = g_Vars.currentplayer->vv_ground + 10;

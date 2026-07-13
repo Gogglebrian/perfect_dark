@@ -767,7 +767,7 @@ s32 botGuessCrouchPos(struct chrdata *chr)
 {
 	s32 crouchpos;
 
-	if (bvbotGuessCrouchPos(chr, &crouchpos)) { // @botvariety
+	if (bvIsBotVarietyActive() && bvbotGuessCrouchPos(chr, &crouchpos)) { // @botvariety
 		return crouchpos;
 	}
 
@@ -1153,7 +1153,9 @@ f32 botCalculateMaxSpeed(struct chrdata *chr)
 		speed *= 0.5f;
 	}
 
-	speed = bvTryAdjustMoveSpeed(chr, speed); // @botvariety
+	if (bvIsBotVarietyActive()) {
+		speed = bvTryAdjustMoveSpeed(chr, speed); // @botvariety
+	}
 
 	return speed;
 }

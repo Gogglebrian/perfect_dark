@@ -189,10 +189,6 @@ bool bvbotShouldAppearOnRadar(struct chrdata* playerchr, struct chrdata* botchr)
 * Returns true if crouchpos was changed.
 */
 bool bvbotGuessCrouchPos(struct chrdata* chr, s32* crouchpos) {
-	if (!bvIsBotVarietyActive()) {
-		return false;
-	}
-
 	// Mini bots never have to crouch
 	if (CHR_BV_FLAGS & BVFLAG_MINI) {
 		*crouchpos = CROUCHPOS_STAND;

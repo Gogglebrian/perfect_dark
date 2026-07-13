@@ -5825,7 +5825,9 @@ void playerChooseThirdPersonAnimation(struct chrdata *chr, s32 crouchpos, f32 sp
 		}
 	}
 
-	speed = bvTryAdjustAnimSpeed(chr, speed); // @botvariety
+	if (bvIsBotVarietyActive()) {
+		speed = bvTryAdjustAnimSpeed(chr, speed); // @botvariety
+	}
 
 	if (animcfg != NULL && animnum == 0) {
 		animnum = animcfg->animnum;
