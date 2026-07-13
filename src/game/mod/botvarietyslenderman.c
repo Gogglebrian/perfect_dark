@@ -82,7 +82,6 @@ const f32 exposurethreshold_visibilitystart = 2.5f; // seconds of exposure befor
 const f32 exposurethreshold_visibilitymax = 5.5f; // seconds of exposure before slenderman becomes fully opaque to a chr
 const u8 maxvisibility = 255;
 const f32 visibilityuprate_deadoraggro = 255.0f; // rate that visibility ticks up per second for all players after slenderman is dead or aggroed
-const u8 minvisibility_radar = 200; // slender won't appear on radar until above this threshold
 
 // Standard aggro damage and speed will start scaling up beyond this exposure threshold (of the target's)
 const f32 exposurethreshold_startscalingdamage = 5.0f;
@@ -472,7 +471,7 @@ f32 bvslenderGetExposureCap(struct bvslendervictimstatus* status) {
 	else if (!status->slenderdead && status->haslos) { // player in slenderman's sight
 		maxlimit = exposurecap_onlyhaslos;
 		if (status->totalinsighttime > (exposurecap_onlyhaslos * 2.0f)) { // eventually start ticking up the in-los exposure cap if slender's had plenty of LoS on us since spawn
-			maxlimit = status->totalinsighttime * 0.5f;
+			maxlimit = status->totalinsighttime * 0.4f;
 			if (maxlimit > exposure_max) {
 				maxlimit = exposure_max;
 			}

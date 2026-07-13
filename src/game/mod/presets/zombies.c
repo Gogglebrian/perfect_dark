@@ -5,7 +5,7 @@
 #include "lib/str.h"
 
 char zombiesname[] = "Zombies!";
-u8 zombieheads[8] = { MPHEAD_GARETH, MPHEAD_DAVEC, MPHEAD_MARK2, MPHEAD_SILKE, MPHEAD_ROBERT, MPHEAD_MOTO,  MPHEAD_KEN,   MPHEAD_JOEL };
+u8 zombieheads[8] = { MPHEAD_GARETH, MPHEAD_BEAU1, MPHEAD_MARK2, MPHEAD_SILKE, MPHEAD_ROBERT, MPHEAD_MOTO,  MPHEAD_KEN,   MPHEAD_JOEL };
 
 void mpSetUpConfigZombiesSimulants(struct mpconfigfull* config, struct mpsetup* setup) {
 	u8 i, j;

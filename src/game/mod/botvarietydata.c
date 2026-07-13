@@ -55,7 +55,7 @@ const struct bvvariantbodydata bodyWumbo = {
 const struct bvvariantstats statsWumbo = {
 	0.95f,   // movespeedmult
 	0.9f,    // animspeedmult
-	1.0f / 3.25f, // damagetakenmult (=3.25x health)
+	1.0f / 3, // damagetakenmult (=3x health)
 	2.0f,    // bluntdamagemult
 	1.0f,    // disarmdamage (default=0)
 	2.0f,    // meleerangemult
@@ -125,7 +125,7 @@ const struct bvvariantbodydata bodySlenderman = {
 const struct bvvariantstats statsSlenderman = {
 	1.4f,   // movespeedmult
 	1.4f,    // animspeedmult
-	1.0f / 2.25f, // damagetakenmult (=2.25x health)
+	-1.0f,   // damagetakenmult
 	 1.5f,    // bluntdamagemult
 	-1.0f,    // disarmdamage (default=0)
 	-1.0f,    // meleerangemult
@@ -133,7 +133,7 @@ const struct bvvariantstats statsSlenderman = {
 const struct bvvariant variantSlenderman = {
 	BVFLAG_SLENDERMAN, BVINDEX_SLENDERMAN,
 	{ // spawn chances
-		1.0f / 125,  // bot
+		1.0f / 130,  // bot
 		0, // player - N/A
 		1.0f / 2,   // debug
 		1.0f / 2, // spree
@@ -187,15 +187,15 @@ const struct bvvariantstats statsExplosive = {
 const struct bvvariant variantExplosive = {
 	BVFLAG_EXPLOSIVE, BVINDEX_EXPLOSIVE,
 	{ // spawn chances
-		1.0f / 110, // bot
+		1.0f / 120, // bot
 		0,  // player - N/A
 		1.0f / 15, // debug
 		3.0f / 4,  // spree
 	},
 	{ // spree data
-		1.0f / 1000, // trigger chance
+		1.0f / 1200, // trigger chance
 		1.0f / 10,   // debug chance
-		16, 36,      // min/max spawn count
+		12, 24,      // min/max spawn count
 		150,         // cooldown
 	},
 	NULL, // no body tweaks
