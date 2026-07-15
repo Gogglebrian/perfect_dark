@@ -12,6 +12,7 @@
 #include "game/game_1531a0.h"
 #include "game/lv.h"
 #include "game/music.h"
+#include "game/mod/randomweapons.h"
 #include "game/mplayer/setup.h"
 #include "game/mplayer/scenarios.h"
 #include "game/mpstats.h"
@@ -561,6 +562,7 @@ void mpInit(bool resetplayers)
 	g_MpSetup.options |= MPOPTION_FRIENDLYFIRE;
 	g_MpSetup.options |= MPOPTION_BOTVARIETY;
 	bvInit();
+	randomweaponsInitTally();
 #endif
 
 	g_Vars.mphilltime = 10;
@@ -1264,9 +1266,6 @@ void mpApplyWeaponSet(void)
 {
 	s32 i;
 	u8 *ptr;
-#ifndef PLATFORM_N64
-	u8 randomweapons[NUM_MPWEAPONS];
-#endif
 
 	if (g_MpWeaponSetNum >= 0 && g_MpWeaponSetNum < ARRAYCOUNT(g_MpWeaponSets)) {
 		if (challengeIsFeatureUnlocked(g_MpWeaponSets[g_MpWeaponSetNum].requirefeatures[0])
@@ -1311,10 +1310,7 @@ void mpApplyWeaponSet(void)
 			mpSetWeaponSlot(i, rngRandom() % numoptions);
 		}
 #else
-		mpSetRandomWeapons(randomweapons);
-		for (i = 0; i < ARRAYCOUNT(g_MpSetup.weapons); i++) {
-			mpSetWeaponSlot(i, randomweapons[rngRandom() % g_MpWeaponRandomFilterNum]);
-		}
+		randomweaponsRoll(false); // @mod: roll for and set 6 weapons
 #endif
 	} else if (g_MpWeaponSetNum == WEAPONSET_RANDOMFIVE) {
 #ifdef PLATFORM_N64
@@ -1324,13 +1320,9 @@ void mpApplyWeaponSet(void)
 			mpSetWeaponSlot(i, rngRandom() % numoptions + 1);
 		}
 #else
-		mpSetRandomWeapons(randomweapons);
-		for (i = 0; i < 5; i++) {
-			mpSetWeaponSlot(i, randomweapons[rngRandom() % g_MpWeaponRandomFilterNum]);
-		}
+		randomweaponsRoll(true); //@mod: roll for and set 5 weapons
 #endif
-
-		mpSetWeaponSlot(i, mpGetNumWeaponOptions() - 1);
+		mpSetWeaponSlot(5, mpGetNumWeaponOptions() - 1); // 6th slot to Disabled
 	}
 }
 
@@ -2592,6 +2584,10 @@ void mpEndMatch(void)
 	}
 
 #ifndef PLATFORM_N64
+	if (g_FewerRandomWeaponRepeats) {
+		randomweaponsUpdateTally();
+	}
+
 	if (g_MpSetup.options & MPOPTION_AUTORANDOMWEAPON_END) {
 		if (g_MpWeaponSetNum == WEAPONSET_RANDOM
 				|| g_MpWeaponSetNum == WEAPONSET_RANDOMFIVE) {

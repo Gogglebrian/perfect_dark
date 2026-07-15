@@ -88,16 +88,18 @@ void sysInit(void)
 {
 	startTick = sysGetMicroseconds();
 
+	char timestr[256];
+	const time_t curtime = time(NULL);
+
 	if (sysArgCheck("--log")) {
-		sysLogSetPath(LOG_FNAME);
+		strftime(timestr, sizeof(timestr), "pd_%Y-%m-%d_%H-%M-%S.log", localtime(&curtime));
+		sysLogSetPath(timestr);
 	}
 
 #ifdef VERSION_HASH
 	sysLogPrintf(LOG_NOTE, "version: " VERSION_BRANCH " " VERSION_HASH " (" VERSION_TARGET ")");
 #endif
 
-	char timestr[256];
-	const time_t curtime = time(NULL);
 	strftime(timestr, sizeof(timestr), "%d %b %Y %H:%M:%S", localtime(&curtime));
 	sysLogPrintf(LOG_NOTE, "startup date: %s", timestr);
 

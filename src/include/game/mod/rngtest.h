@@ -6,5 +6,6 @@
 
 void rngtestWeapons();
 void rngtestPlayerVariants();
+void weapons_to_string(const u8 weapons[6], char *buffer, size_t bufsize);
 
 #endif

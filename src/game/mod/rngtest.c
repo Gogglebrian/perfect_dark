@@ -19,7 +19,7 @@ void weapons_to_string(const u8 weapons[6], char *buffer, size_t bufsize)
     }
     
     /* Safe formatting with snprintf - produces: "1, 2, 3, 4, 5, 6,\n" */
-    snprintf(buffer, bufsize, "%u, %u, %u, %u, %u, %u,",
+    snprintf(buffer, bufsize, "Randomized Weapons: %u, %u, %u, %u, %u, %u,",
              weapons[0], weapons[1], weapons[2],
              weapons[3], weapons[4], weapons[5]);
 }
@@ -34,10 +34,18 @@ void rollrandomweapons() {
   sysLogPrintf(LOG_NOTE, outstr);
 }
 
+/**
+ * Tests rng by simulating vanilla random weapons selection a bajillion times and logging the results.
+ */
 void rngtestWeapons() {
+  bool fewerrepetitionsetting = g_FewerRandomWeaponRepeats;
+  g_FewerRandomWeaponRepeats = false; // temporarily set to vanilla behavior
+
   for (u16 i = 0; i < trials; i++) {
     rollrandomweapons();
   }
+
+  g_FewerRandomWeaponRepeats = fewerrepetitionsetting; // revert to setting specified in ini
 }
 
 void setplayerstringvalue(u8 playernum, struct chrdata* chr, char outstr[]) {
@@ -79,6 +87,9 @@ void rollallplayersvariants() {
   setCurrentPlayerNum(prevplayernum);
 }
 
+/**
+ * Tests rng by simulating a bajillion spawns of all players and logging standard/mini/wumbo.
+ */
 void rngtestPlayerVariants() {
   for (u16 i = 0; i < trials; i++) {
     rollallplayersvariants();

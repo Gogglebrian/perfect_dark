@@ -561,11 +561,12 @@ extern s32 g_BgunGeMuzzleFlashes;
 extern s32 g_FileAutoSelect;
 extern s32 g_SkipToCombatSimulator;
 extern s32 g_SkipJoOnPc;
-extern s32 g_AutoEnableInvincibility;
-extern s32 g_MPMaxDroppedWeaponsOnscreen; 
-extern s32 g_FixBotPlayer2Bias;
-extern s32 g_RelaxedBotTargeting;
-extern s32 g_BetterRng;
+extern s32 g_AutoEnableInvincibility; // @mod
+extern s32 g_MPMaxDroppedWeaponsOnscreen; // @mod
+extern s32 g_FixBotPlayer2Bias; // @mod
+extern s32 g_RelaxedBotTargeting; // @mod
+extern s32 g_BetterRng; // @mod
+extern s32 g_FewerRandomWeaponRepeats; // @mod
 
 extern u8 g_MpWeaponSetRandomFilters[NUM_MPWEAPONS];
 extern s32 g_MpWeaponRandomFilterNum;

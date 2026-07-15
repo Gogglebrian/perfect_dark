@@ -181,6 +181,7 @@ PD_CONSTRUCTOR static void gameConfigInit(void)
 	configRegisterInt("Game.FixBotPlayer2Bias", &g_FixBotPlayer2Bias, 0, 1); // @mod
 	configRegisterInt("Game.RelaxedBotTargeting", &g_RelaxedBotTargeting, 0, 1); // @mod
 	configRegisterInt("Game.BetterRng", &g_BetterRng, 0, 1); // @mod
+	configRegisterInt("Game.FewerRandomWeaponRepeats", &g_FewerRandomWeaponRepeats, 0, 1); // @mod
 	for (s32 j = 0; j < MAX_PLAYERS; ++j) {
 		const s32 i = j + 1;
 		configRegisterFloat(strFmt("Game.Player%d.FovY", i), &g_PlayerExtCfg[j].fovy, 5.f, 175.f);
