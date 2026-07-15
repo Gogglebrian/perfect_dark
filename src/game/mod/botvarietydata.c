@@ -106,6 +106,52 @@ const struct bvvariant variantImpostor = {
 	false, false, // debug variant/spree
 };
 
+const struct bvvariantstats statsAlien = {
+	1.1f,    // movespeedmult
+	1.5f,    // animspeedmult
+	-1.0f,   // damagetakenmult
+	0.9f,    // bluntdamagemult
+	0,       // disarmdamage (default=0)
+	-1.0f,   // meleerangemult
+};
+const struct bvvariant variantAlien = {
+	BVFLAG_ALIEN, BVINDEX_ALIEN,
+	{ // spawn chances
+		1.0f / 400,  // bot
+		0,   // player - N/A
+		1.0f / 1, // debug
+		3.0f / 4, // spree
+	},
+	{ // spree data
+		1.0f / 2200, // trigger chance
+		1.0f / 10,  // debug chance
+		14, 24,     // min/max spawn count
+		250,        // cooldown
+	},
+	NULL, // no other body changes besides alien model
+	&statsAlien,
+	false, false, // debug enabled
+};
+
+const struct bvvariant variantAlienHead = {
+	BVFLAG_ALIENHEAD, BVINDEX_ALIENHEAD,
+	{ // spawn chances
+		1.0f / 1000,  // bot
+		0,   // player - N/A
+		1.0f / 1, // debug
+		3.0f / 4, // spree
+	},
+	{ // spree data
+		1.0f / 4000, // trigger chance
+		1.0f / 10,  // debug chance
+		14, 24,     // min/max spawn count
+		400,        // cooldown
+	},
+	NULL, // no other body changes besides alien head
+	NULL, // no stat changes
+	false, false, // debug enabled
+};
+
 const struct bvvariantxyzscales scalesSlenderman = {
 	0.7f, 0.7f, // body scale x, z
 	1.43f, 1.43f, // beyond pelvis scale mult x, z 
@@ -277,6 +323,8 @@ const struct bvvariant* gc_BvVariants[BOTVARIETY_VARIANT_COUNT] = {
 	&variantMini,
 	&variantWumbo,
 	&variantImpostor,
+	&variantAlien,
+	&variantAlienHead,
 	&variantSlenderman,
 	&variantSunglasses,
 	&variantExplosive,

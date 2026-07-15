@@ -12,11 +12,13 @@
 #define BVFLAG_MINI             0x00000001
 #define BVFLAG_WUMBO            0x00000002
 #define BVFLAG_IMPOSTOR         0x00000004
-#define BVFLAG_SLENDERMAN       0x00000008
-#define BVFLAG_SUNGLASSES       0x00000010
-#define BVFLAG_EXPLOSIVE        0x00000020
-#define BVFLAG_GUNFETTI         0x00000040
-#define BVFLAG_SBD              0x00000080
+#define BVFLAG_ALIEN            0x00000008
+#define BVFLAG_ALIENHEAD        0x00000010
+#define BVFLAG_SLENDERMAN       0x00000020
+#define BVFLAG_SUNGLASSES       0x00000040
+#define BVFLAG_EXPLOSIVE        0x00000080
+#define BVFLAG_GUNFETTI         0x00000100
+#define BVFLAG_SBD              0x00000200
 
 
 // Index and count
@@ -24,11 +26,13 @@
 #define BVINDEX_MINI               0
 #define BVINDEX_WUMBO              1
 #define BVINDEX_IMPOSTOR           2
-#define BVINDEX_SLENDERMAN         3
-#define BVINDEX_SUNGLASSES         4
-#define BVINDEX_EXPLOSIVE          5
-#define BVINDEX_GUNFETTI           6
-#define BVINDEX_SBD                7
+#define BVINDEX_ALIEN              3
+#define BVINDEX_ALIENHEAD          4
+#define BVINDEX_SLENDERMAN         5
+#define BVINDEX_SUNGLASSES         6
+#define BVINDEX_EXPLOSIVE          7
+#define BVINDEX_GUNFETTI           8
+#define BVINDEX_SBD                9
 // If adding variants, remember to update BOTVARIETY_VARIANT_COUNT in constants.h
 
 
@@ -37,6 +41,8 @@
 #define BVVARIANT_MINI             gc_BvVariants[BVINDEX_MINI]
 #define BVVARIANT_WUMBO            gc_BvVariants[BVINDEX_WUMBO]
 #define BVVARIANT_IMPOSTOR         gc_BvVariants[BVINDEX_IMPOSTOR]
+#define BVVARIANT_ALIEN            gc_BvVariants[BVINDEX_ALIEN]
+#define BVVARIANT_ALIENHEAD        gc_BvVariants[BVINDEX_ALIENHEAD]
 #define BVVARIANT_SLENDERMAN       gc_BvVariants[BVINDEX_SLENDERMAN]
 #define BVVARIANT_SUNGLASSES       gc_BvVariants[BVINDEX_SUNGLASSES]
 #define BVVARIANT_EXPLOSIVE        gc_BvVariants[BVINDEX_EXPLOSIVE]

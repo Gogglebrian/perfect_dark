@@ -217,7 +217,18 @@ void bvspawnTryRevertToInitModel(struct chrdata* chr) {
 * Returns true if successfully applied.
 */
 bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
-	struct model* newmodel = bodyAllocateModel(bodynum, headnum, 0);
+	struct model* newmodel; 
+	struct model* oldmodel = chr->model;
+
+	// If a model change has already been applied this spawn, revert it
+	// (this is a gross workaround for the rare occasion where multiple model changes might be applied in sequence - rare enough that it's not worth restructuring around)
+	if (oldmodel != chr->bvbot->initmodel) {
+		chr->model = chr->bvbot->initmodel;
+		modelFreeVertices(VTXSTORETYPE_CHRVTX, oldmodel);
+		modelmgrFreeModel(oldmodel);
+	}
+
+	newmodel = bodyAllocateModel(bodynum, headnum, 0);
 	if (newmodel) {
 		struct modelnode *rootnode = newmodel->definition->rootnode;
 		struct modelrwdata_chrinfo *rwdata = modelGetNodeRwData(newmodel, rootnode);
@@ -239,6 +250,7 @@ bool bvspawnTryApplyModelChange(struct chrdata* chr, s16 bodynum, s16 headnum) {
 
 		return true;
 	}
+
 	return false;
 }
 
@@ -282,15 +294,41 @@ bool bvspawnHandleImpostor(struct chrdata* chr, f32 impostorchance) {
 	return false; // failed roll or failed to initialize
 }
 
+/**
+* Rolls for and applies Alien or Alienhead variants
+*/
+bool bvspawnHandleAlien(struct chrdata* chr, f32 alienchance, f32 alienheadchance) {
+	u8 head;
+	f32 randfrac;
+	if (alienchance == 0 && alienheadchance == 0) {
+		return false;
+	}
+
+	randfrac = RANDOMFRAC();
+	if (randfrac < alienchance) {
+		head = (rngRandom() % 3 > 0) ? HEAD_ELVIS : HEAD_MAIAN_S;
+		if (bvspawnTryApplyModelChange(chr, BODY_MAIAN_SOLDIER, head)) {
+			CHR_BV_FLAGS |= BVFLAG_ALIEN;
+			return true;
+		}
+	}
+	else if (randfrac > (1.0f - alienheadchance)) {
+		head = (rngRandom() % 3 > 0) ? HEAD_ELVIS : HEAD_MAIAN_S;
+		if (bvspawnTryApplyModelChange(chr, chr->bodynum, head)) {
+			CHR_BV_FLAGS |= BVFLAG_ALIENHEAD;
+			return true;
+		}
+	}
+	return false;
+}
 
 /**
 * Rolls for and applies Slenderman variant - wear a Bond suit and be real tall, and attack with spooky analog horror static.
 * See botvarietyslenderman.c for functionality overview.
 */
-bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance, bool isimpostor) {
+bool bvspawnHandleSlenderman(struct chrdata* chr, f32 slendermanchance, bool skipsuit) {
 	if (slendermanchance > 0 && RANDOMFRAC() < slendermanchance) { // roll
-		// If chr is already an impostor, then don't change the model again
-		if (isimpostor) { 
+		if (skipsuit) { 
 			CHR_BV_FLAGS |= BVFLAG_SLENDERMAN; // set flag for gameplay bonuses
 			return true;
 		}
@@ -360,6 +398,8 @@ void bvspawnHandleSize(struct chrdata* chr, f32 minichance, f32 wumbochance) {
 #define MINI       BVINDEX_MINI
 #define WUMBO      BVINDEX_WUMBO
 #define IMPOSTOR   BVINDEX_IMPOSTOR
+#define ALIEN      BVINDEX_ALIEN
+#define ALIENHEAD  BVINDEX_ALIENHEAD
 #define SLENDERMAN BVINDEX_SLENDERMAN
 #define SUNGLASSES BVINDEX_SUNGLASSES
 #define EXPLOSIVE  BVINDEX_EXPLOSIVE
@@ -435,10 +475,13 @@ void bvspawnStartSpree(u8 variantIndex) {
 /**
 * Rolls for and starts a spree for the given variant, independently from any other active sprees or cooldowns.
 */
-void bvspawnTryStartStandardSpree(u8 variantIndex) {
+bool bvspawnTryStartStandardSpree(u8 variantIndex) {
 	if (bvCanStartSpree(variantIndex) && RANDOMFRAC() < bvGetSpreeChance(bvGetVariant(variantIndex))) {
 		bvspawnStartSpree(variantIndex);
+		return true;
 	}
+
+	return false;
 }
 
 /**
@@ -447,13 +490,17 @@ void bvspawnTryStartStandardSpree(u8 variantIndex) {
 void bvspawnHandleStartingSprees() {
 	bool impostorspree = false;
 
-	// Rather than loop through, I'm gonna handle each separately in turn,
-	// because some sprees might affect the chances of other sprees
-	// and so on and so forth.
+	// Model-change sprees - Impostor, Alien, and Alienhead are mutually exclusive
+	// I don't care too much about the chances being super accurate, so we'll keep it simple and check these in sequence from rarest to most common
+	if (!bvIsSpreeing(IMPOSTOR) && !bvIsSpreeing(ALIEN) && !bvIsSpreeing(ALIENHEAD)) {
+		if (!bvspawnTryStartStandardSpree(ALIENHEAD)) {
+			if (!bvspawnTryStartStandardSpree(IMPOSTOR)) {
+				bvspawnTryStartStandardSpree(ALIEN);
+			}
+		} 
+	}
 
-	// Model-change sprees
-	bvspawnTryStartStandardSpree(BVINDEX_IMPOSTOR);
-	bvspawnTryStartStandardSpree(BVINDEX_SLENDERMAN); // compatible with Impostor
+	bvspawnTryStartStandardSpree(SLENDERMAN); // compatible with Impostor and Aliens because the model change part is optional
 
 	// Mini/wumbo sprees -- only start either if neither is already spreeing
 	if (!bvIsSpreeing(MINI) && !bvIsSpreeing(WUMBO)) {
@@ -520,6 +567,7 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 	f32 chances[BOTVARIETY_VARIANT_COUNT];
 	f32 abominationchancemult = 1.0f;
 	bool isimpostor = false;
+	bool isalien = false;
 	u8 i;
 
 	// Initialize bvchrdata on this chr's first spawn of the match
@@ -555,9 +603,17 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 			}
 			isimpostor = true;
 		}
+		// Aliens - full body or just head
+		else if (bvspawnHandleAlien(chr, chances[ALIEN], chances[ALIENHEAD])) {
+			if (CHR_BV_FLAGS & BVFLAG_ALIEN) {
+				chances[MINI] *= 0.33f; // Mini aliens are rarer
+				chances[SUNGLASSES] = 0;
+				isalien = true;
+			}
+		}
 
-		// Slenderman - compatible with impostor
-		if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN], isimpostor)) {
+		// Slenderman - compatible with impostor or alien
+		if (bvspawnHandleSlenderman(chr, chances[SLENDERMAN], isimpostor || isalien)) {
 			// Slenderman is incompatible with all following variants
 			for (i = 0; i < BOTVARIETY_VARIANT_COUNT; i++) {
 				chances[i] = 0;
@@ -600,6 +656,8 @@ void bvspawnPrepVariety(struct chrdata* chr, bool iscurrentplayer) {
 #undef MINI
 #undef WUMBO
 #undef IMPOSTOR
+#undef ALIEN
+#undef ALIENHEAD
 #undef SLENDERMAN
 #undef SUNGLASSES
 #undef EXPLOSIVE
