@@ -11,15 +11,20 @@ bool g_FewerRandomWeaponRepeats = false;
 bool g_DebugLogRandomWeapons = true;
 bool g_WarehouseUsesSixthSlot = false; // Default false: In vanilla, Warehouse doesn't actually spawn the weapon in the sixth slot
 
-u8 randomweaponsTally[NUM_MPWEAPONS];
-u8 tallymax = 3;
-u8 tallycountweights[] = {2, 2, 1, 0}; // The random-roll weights to use for each possible tally value.
+#define FLAG_PREVMATCH        0x01
+#define FLAG_SECONDPREVMATCH  0x02
+#define FLAG_THIRDPREVMATCH   0x04
+
+u8 randomweaponsTallyFlags[NUM_MPWEAPONS]; // Each of the first three bits flags whether the mpweapon was in the first, second, or third previous round respectively.
+u8 tallycountweights[] = {2, 2, 1, 0}; // The random-roll weights to use for each possible tally sum.
 
 /**
  * Gets the random-roll weight for a weapon with respect to how many times it's appeared in the past few matches.
  */
 u8 randomweaponsGetWeightByTally(u8 mpweapon) {
-  return tallycountweights[randomweaponsTally[mpweapon]];
+  u8 tally = randomweaponsTallyFlags[mpweapon];
+  u8 nummatches = ((tally & FLAG_PREVMATCH) > 0) + ((tally & FLAG_SECONDPREVMATCH) > 0) + ((tally & FLAG_THIRDPREVMATCH) > 0);
+  return tallycountweights[nummatches];
 }
 
 /**
@@ -27,7 +32,7 @@ u8 randomweaponsGetWeightByTally(u8 mpweapon) {
  */
 void randomweaponsInitTally() {
   for (u8 i = 0; i < NUM_MPWEAPONS; i++) {
-    randomweaponsTally[i] = 0;
+    randomweaponsTallyFlags[i] = 0;
   }
 }
 
@@ -49,17 +54,14 @@ void randomweaponsUpdateTally() {
       inmatch = false;
     }
 
-    // Weapon is in match, tally up to tallymax
-    if (inmatch) {
-      if (randomweaponsTally[i] < tallymax) {
-        randomweaponsTally[i] += 1;
-      }
+    // move the previous matches' values left by 1 bit, then clear the 1st bit (where we'll set this match's value) and the fourth bit
+    if (randomweaponsTallyFlags[i] != 0) {
+      randomweaponsTallyFlags[i] = (randomweaponsTallyFlags[i] << 1) & 0x06; // 0x06 = 0000 0110
     }
-    // Not in match, tally down towards 0
-    else {
-      if (randomweaponsTally[i] > 0) {
-        randomweaponsTally[i] -= 1;
-      }
+
+    // Weapon is in match
+    if (inmatch) {
+      randomweaponsTallyFlags[i] |= FLAG_PREVMATCH;
     }
   }
 }
@@ -68,7 +70,7 @@ void randomweaponsUpdateTally() {
  * Writes the current selection of weapons to the log.
  */
 void randomweaponsLog() {
-  char outstr[40];
+  char outstr[100];
   weapons_to_string(g_MpSetup.weapons, outstr, sizeof(outstr));
   sysLogPrintf(LOG_NOTE, outstr);
 }
@@ -130,7 +132,12 @@ void randomweaponsDoWeightedRoll(bool randomfive) {
       }
     }
   }
-}
+  /*
+  u8(*debugtally)[NUM_MPWEAPONS] = &randomweaponsTallyFlags;
+  u8(*debugweapons)[NUM_MPWEAPONSLOTS] = &g_MpSetup.weapons;
+  ;*/
+
+  }
 
 /**
  * Rolls for and selects weapons for 5 or 6 slots.
@@ -158,3 +165,7 @@ void randomweaponsDebugTestWeightedRolls(u16 trials) {
     randomweaponsLog();
   }
 }
+
+#undef FLAG_PREVMATCH
+#undef FLAG_SECONDPREVMATCH
+#undef FLAG_THIRDPREVMATCH
