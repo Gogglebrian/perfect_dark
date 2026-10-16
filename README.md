@@ -2,7 +2,7 @@
 
 This is a work-in-progress mod of the lovely work-in-progress [port](https://github.com/fgsfdsfgs/perfect_dark) of the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark), with new bespoke weapon variants, overhauls, enhancements, and/or and balance tweaks. Balance decisions are oriented around the new Combat Simulator preset, Zombies Mode – randomized rounds against a team of 8 FistSims.
 
-I don't feel like rewriting this entire readme right now, but I'll say right here: The mod's name is no longer fitting, because its actual big draw is the new bespoke **Sim Variety** feature in the Combat Simulator, which lets Simulants respawn with a variety of wacky body or behavior modifiers. Designed for the aforementioned Zombies preset.
+I don't feel like rewriting this entire readme right now, but I'll say right here: The mod's name is no longer appropriate because its actual big draw is the new bespoke **Sim Variety** feature in the Combat Simulator, which lets Simulants respawn with a variety of wacky body or behavior modifiers. Designed for the aforementioned Zombies preset.
 
 ## Features
 
